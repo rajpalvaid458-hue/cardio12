@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useFitness } from '../context/FitnessContext';
+import { useAuth } from '../context/AuthContext';
 import { UserProfile } from '../types';
 import { 
   X, 
@@ -15,7 +16,12 @@ import {
   Crown, 
   TrendingUp,
   Target,
-  Sparkles
+  Sparkles,
+  LogOut,
+  LogIn,
+  Cloud,
+  Check,
+  Loader2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -37,7 +43,8 @@ interface Milestone {
 }
 
 export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
-  const { userProfile, updateUserProfile, dailyDiet, setMacroGoals, workoutLogs } = useFitness();
+  const { userProfile, updateUserProfile, dailyDiet, setMacroGoals, workoutLogs, isCloudSyncing, syncToCloud } = useFitness();
+  const { currentUser, logout, openAuthModal } = useAuth();
 
   const [activeTab, setActiveTab] = useState<'profile' | 'milestones'>('profile');
   const [milestoneFilter, setMilestoneFilter] = useState<'all' | 'streak' | 'volume' | 'workouts'>('all');
@@ -241,6 +248,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
       parseInt(water, 10) || 3000
     );
 
+    syncToCloud();
     onClose();
   };
 
@@ -256,7 +264,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
         <div className="flex items-center justify-between pb-3 border-b border-slate-200">
           <div className="flex items-center gap-2">
             <User className="w-5 h-5 text-emerald-600" />
-            <h2 className="text-xl font-bold text-slate-900">Athlete Profile & Milestones</h2>
+            <h2 className="text-xl font-bold text-slate-900">Athlete Profile & Cloud Sync</h2>
           </div>
           <button
             onClick={onClose}
@@ -264,6 +272,68 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
           >
             <X className="w-5 h-5" />
           </button>
+        </div>
+
+        {/* Account Authentication Banner */}
+        <div className="p-4 rounded-2xl bg-slate-900 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+              <Cloud className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-xs uppercase font-bold text-slate-400">Account Status</div>
+              <div className="text-sm font-bold text-white flex items-center gap-1.5">
+                {currentUser ? (
+                  <>
+                    <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                    <span>{currentUser.email}</span>
+                  </>
+                ) : (
+                  <span>Guest Mode (Local Storage Only)</span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div>
+            {currentUser ? (
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => syncToCloud()}
+                  disabled={isCloudSyncing}
+                  className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition border border-slate-700 disabled:opacity-50"
+                >
+                  {isCloudSyncing ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-400" />
+                  ) : (
+                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                  )}
+                  <span>{isCloudSyncing ? 'Syncing...' : 'Sync Now'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => logout()}
+                  className="px-3 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-xs font-semibold flex items-center gap-1.5 transition border border-rose-500/30"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Log Out</span>
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  openAuthModal();
+                }}
+                className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center gap-2 transition shadow-md shadow-emerald-500/20"
+              >
+                <LogIn className="w-4 h-4" />
+                <span>Log In / Sign Up</span>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Tab Navigation */}
@@ -562,4 +632,3 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
     </div>
   );
 };
-

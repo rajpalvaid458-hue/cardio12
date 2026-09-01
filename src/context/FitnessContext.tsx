@@ -26,6 +26,8 @@ import {
   playClickFeedback,
 } from '../utils/audio';
 import confetti from 'canvas-confetti';
+import { useAuth } from './AuthContext';
+import { db, doc, getDoc, setDoc } from '../lib/firebase';
 
 interface RestTimerState {
   active: boolean;
@@ -47,6 +49,7 @@ interface FitnessContextType {
   userProfile: UserProfile;
   restTimer: RestTimerState | null;
   selectedDate: string;
+  isCloudSyncing: boolean;
 
   // Actions - Workout
   startWorkout: (plan: WorkoutPlan) => void;
@@ -87,6 +90,7 @@ interface FitnessContextType {
   resetAllData: () => void;
   importUserData: (jsonData: string) => boolean;
   exportUserData: () => string;
+  syncToCloud: () => Promise<void>;
 }
 
 const FitnessContext = createContext<FitnessContextType | undefined>(undefined);
@@ -176,6 +180,9 @@ const getInitialDiet = (profile: UserProfile): DailyDietLog => ({
 });
 
 export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const { currentUser } = useAuth();
+  const [isCloudSyncing, setIsCloudSyncing] = useState(false);
+
   // 1. User Profile
   const [userProfile, setUserProfileState] = useState<UserProfile>(() => {
     try {
@@ -211,7 +218,6 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.LOGS);
       if (saved) return JSON.parse(saved);
-      // Starter logs for realistic progress visualization
       const yesterday = new Date(Date.now() - 86400000).toISOString();
       const threeDaysAgo = new Date(Date.now() - 86400000 * 3).toISOString();
       return [
@@ -219,7 +225,7 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
           id: 'log-yesterday',
           title: 'Push Power & Hypertrophy',
           date: yesterday,
-          durationSeconds: 3120, // 52 mins
+          durationSeconds: 3120,
           totalVolumeKg: 6420,
           completedSetsCount: 16,
           caloriesBurned: 410,
@@ -312,7 +318,49 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [restTimer, setRestTimer] = useState<RestTimerState | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>(getTodayString());
 
-  // Save changes to localStorage
+  // Cloud Sync: Fetch user cloud data when logged in
+  useEffect(() => {
+    if (!currentUser) return;
+    const fetchUserData = async () => {
+      setIsCloudSyncing(true);
+      try {
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        const snapshot = await getDoc(userDocRef);
+        if (snapshot.exists()) {
+          const data = snapshot.data();
+          if (data.userProfile) setUserProfileState(data.userProfile);
+          if (data.plans) setPlans(data.plans);
+          if (data.workoutLogs) setWorkoutLogs(data.workoutLogs);
+          if (data.dailyDiet && data.dailyDiet.date === getTodayString()) setDailyDiet(data.dailyDiet);
+          if (data.routineItems) setRoutineItems(data.routineItems);
+          if (data.habits) setHabits(data.habits);
+        } else {
+          // Initialize new cloud document for user
+          await setDoc(userDocRef, {
+            email: currentUser.email,
+            displayName: currentUser.displayName || userProfile.name,
+            userProfile: {
+              ...userProfile,
+              name: currentUser.displayName || userProfile.name,
+            },
+            plans,
+            workoutLogs,
+            dailyDiet,
+            routineItems,
+            habits,
+            updatedAt: new Date().toISOString(),
+          });
+        }
+      } catch (err) {
+        console.error('Error loading Firestore data:', err);
+      } finally {
+        setIsCloudSyncing(false);
+      }
+    };
+    fetchUserData();
+  }, [currentUser?.uid]);
+
+  // Save changes to localStorage & Cloud
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(userProfile));
   }, [userProfile]);
@@ -340,6 +388,33 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.HABITS, JSON.stringify(habits));
   }, [habits]);
+
+  // Auto-sync debounced to Cloud Firestore if logged in
+  const syncToCloud = useCallback(async () => {
+    if (!currentUser) return;
+    try {
+      setIsCloudSyncing(true);
+      const userDocRef = doc(db, 'users', currentUser.uid);
+      await setDoc(
+        userDocRef,
+        {
+          email: currentUser.email,
+          userProfile,
+          plans,
+          workoutLogs,
+          dailyDiet,
+          routineItems,
+          habits,
+          updatedAt: new Date().toISOString(),
+        },
+        { merge: true }
+      );
+    } catch (err) {
+      console.error('Failed to sync to Cloud:', err);
+    } finally {
+      setIsCloudSyncing(false);
+    }
+  }, [currentUser, userProfile, plans, workoutLogs, dailyDiet, routineItems, habits]);
 
   // Active workout elapsed timer
   useEffect(() => {
@@ -369,7 +444,7 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
           playCountdownBeep(880, 0.08);
         } else if (nextRemaining <= 0) {
           playWorkStartTone();
-          return null; // timer finished
+          return null;
         }
 
         return {
@@ -425,7 +500,6 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
       targetEx.sets = targetSets;
       updatedExercises[exerciseIndex] = targetEx;
 
-      // Recalculate stats
       let totalVolume = 0;
       let completedCount = 0;
       updatedExercises.forEach((ex) => {
@@ -437,7 +511,6 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
         });
       });
 
-      // If set just got completed, auto-trigger rest timer!
       if (newCompleted) {
         const restDuration = currentSet.restSecondsAfter || targetEx.restSec || 60;
         if (restDuration > 0) {
@@ -524,7 +597,7 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
       if (!prev) return null;
       const updatedExercises = [...prev.exercises];
       const targetEx = { ...updatedExercises[exerciseIndex] };
-      if (targetEx.sets.length <= 1) return prev; // keep at least 1 set
+      if (targetEx.sets.length <= 1) return prev;
 
       targetEx.sets = targetEx.sets
         .filter((_, idx) => idx !== setIndex)
@@ -596,14 +669,12 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
 
     setWorkoutLogs((prev) => [newLog, ...prev]);
 
-    // Update streak and routine habits
     setUserProfileState((prev) => ({
       ...prev,
       streakDays: prev.streakDays + 1,
       lastActiveDate: getTodayString(),
     }));
 
-    // Mark daily workout habit as completed
     setHabits((prev) =>
       prev.map((h) => (h.id === 'h1' ? { ...h, completed: true, currentCount: (h.currentCount || 0) + 1 } : h))
     );
@@ -693,7 +764,6 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
         });
       }
 
-      // Check if total protein hit goal
       const totalProteinNow = updatedMeals.reduce((acc, m) => acc + m.totalProtein, 0);
       if (totalProteinNow >= prev.proteinGoalGrams) {
         setHabits((hPrev) =>
@@ -882,6 +952,7 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
         userProfile,
         restTimer,
         selectedDate,
+        isCloudSyncing,
 
         startWorkout,
         updateActiveWorkout,
@@ -917,6 +988,7 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
         resetAllData,
         importUserData,
         exportUserData,
+        syncToCloud,
       }}
     >
       {children}

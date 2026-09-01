@@ -1,5 +1,6 @@
 import React from 'react';
 import { useFitness } from '../context/FitnessContext';
+import { useAuth } from '../context/AuthContext';
 import {
   Flame,
   Dumbbell,
@@ -10,6 +11,10 @@ import {
   BarChart3,
   Play,
   Settings,
+  LogIn,
+  UserCheck,
+  Cloud,
+  Loader2,
 } from 'lucide-react';
 
 export type TabType = 'training' | 'timers' | 'diet' | 'routine' | 'coach' | 'analytics';
@@ -27,7 +32,8 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenProfile,
   onOpenActiveWorkoutModal,
 }) => {
-  const { activeWorkout, userProfile } = useFitness();
+  const { activeWorkout, userProfile, isCloudSyncing } = useFitness();
+  const { currentUser, openAuthModal } = useAuth();
 
   const formatElapsed = (sec: number) => {
     const mins = Math.floor(sec / 60);
@@ -114,6 +120,45 @@ export const Header: React.FC<HeaderProps> = ({
               <Flame className="w-4 h-4 fill-amber-400 text-amber-400" />
               <span className="text-xs font-bold font-mono">{userProfile.streakDays}d</span>
             </div>
+
+            {/* Cloud Sync Status Indicator */}
+            {currentUser && (
+              <div
+                className="hidden sm:flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 text-xs"
+                title={isCloudSyncing ? 'Syncing to Cloud...' : 'Cloud Synced'}
+              >
+                {isCloudSyncing ? (
+                  <Loader2 className="w-3.5 h-3.5 text-emerald-400 animate-spin" />
+                ) : (
+                  <Cloud className="w-3.5 h-3.5 text-emerald-400" />
+                )}
+                <span className="text-[11px] font-medium hidden md:inline">
+                  {isCloudSyncing ? 'Syncing' : 'Synced'}
+                </span>
+              </div>
+            )}
+
+            {/* Auth Button */}
+            {currentUser ? (
+              <button
+                onClick={onOpenProfile}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20 text-xs font-semibold transition"
+                title={`Signed in as ${currentUser.email}`}
+              >
+                <UserCheck className="w-3.5 h-3.5" />
+                <span className="max-w-[90px] truncate hidden sm:inline">
+                  {currentUser.displayName || currentUser.email?.split('@')[0]}
+                </span>
+              </button>
+            ) : (
+              <button
+                onClick={openAuthModal}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold shadow-md shadow-emerald-500/20 transition"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                <span>Log In</span>
+              </button>
+            )}
 
             {/* Profile / Settings */}
             <button

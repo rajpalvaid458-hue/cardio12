@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { FitnessProvider, useFitness } from './context/FitnessContext';
+import { AuthProvider } from './context/AuthContext';
+import { FitnessProvider } from './context/FitnessContext';
 import { Header, TabType } from './components/Header';
 import { TrainingView } from './components/TrainingView';
 import { TimersView } from './components/TimersView';
@@ -13,6 +14,7 @@ import { ExercisePickerModal } from './components/ExercisePickerModal';
 import { ExerciseDetailModal } from './components/ExerciseDetailModal';
 import { ProfileModal } from './components/ProfileModal';
 import { RestTimerBanner } from './components/RestTimerBanner';
+import { AuthModal } from './components/AuthModal';
 import { Exercise } from './types';
 
 function FitnessAppContent() {
@@ -65,6 +67,8 @@ function FitnessAppContent() {
       <RestTimerBanner />
 
       {/* Modals */}
+      <AuthModal />
+
       <ActiveWorkoutModal
         isOpen={isActiveWorkoutOpen}
         onClose={() => setIsActiveWorkoutOpen(false)}
@@ -96,8 +100,10 @@ function FitnessAppContent() {
 
 export default function App() {
   return (
-    <FitnessProvider>
-      <FitnessAppContent />
-    </FitnessProvider>
+    <AuthProvider>
+      <FitnessProvider>
+        <FitnessAppContent />
+      </FitnessProvider>
+    </AuthProvider>
   );
 }
