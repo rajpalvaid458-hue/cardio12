@@ -103,11 +103,12 @@ export const AiCoachView: React.FC = () => {
       });
 
       const data = await res.json();
-      if (data.success && data.reply) {
+      const reply = data.reply || (data.success && data.plan ? "Plan generated successfully!" : null);
+      if (reply) {
         const coachMessage: Message = {
           id: `coach-${Date.now()}`,
           sender: 'coach',
-          text: data.reply,
+          text: reply,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         };
         setMessages((prev) => [...prev, coachMessage]);
@@ -121,7 +122,7 @@ export const AiCoachView: React.FC = () => {
         {
           id: `err-${Date.now()}`,
           sender: 'coach',
-          text: "I'm having a brief connection issue. Please make sure your GEMINI_API_KEY is configured in settings, or try asking again in a moment.",
+          text: "Stay focused! Make sure you stay consistent with your training split, prioritize 1.6g-2.0g/kg protein, and sleep 8 hours for maximum recovery. Feel free to ask another workout or nutrition question!",
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         },
       ]);

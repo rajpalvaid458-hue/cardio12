@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { useFitness } from '../context/FitnessContext';
 import { MealType, FoodItem } from '../types';
 import { POPULAR_FOODS_DATABASE } from '../data/fitnessPresets';
+import { WaterReminderWidget } from './diet/WaterReminderWidget';
+import { SupplementTracker } from './diet/SupplementTracker';
+import { PersonalDietMaker } from './diet/PersonalDietMaker';
+import { CaloriesChecker } from './diet/CaloriesChecker';
 import {
   UtensilsCrossed,
   Droplets,
@@ -11,20 +15,30 @@ import {
   Flame,
   Search,
   Check,
-  ChevronRight,
-  Info,
-  Apple,
   Zap,
+  Apple,
+  Pill,
+  ChefHat,
+  Calculator,
+  Calendar,
+  Layers,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
-export const DietView: React.FC = () => {
-  const { dailyDiet, logFoodItem, removeFoodItem, addWater, setWaterGoal, setMacroGoals, userProfile } = useFitness();
+type DietTab = 'log' | 'diet_maker' | 'calories_checker' | 'water_reminder' | 'supplements';
 
-  const [aiMealInput, setAiMealInput] = useState('');
-  const [isEstimatingAi, setIsEstimatingAi] = useState(false);
-  const [estimatedMealResult, setEstimatedMealResult] = useState<any>(null);
-  const [aiSelectedMealType, setAiSelectedMealType] = useState<MealType>('lunch');
+export const DietView: React.FC = () => {
+  const {
+    dailyDiet,
+    logFoodItem,
+    removeFoodItem,
+    addWater,
+    supplements,
+    waterReminder,
+    activeDietPlan,
+  } = useFitness();
+
+  const [activeTab, setActiveTab] = useState<DietTab>('log');
 
   // Food Picker Modal State
   const [isFoodPickerOpen, setIsFoodPickerOpen] = useState(false);
@@ -48,48 +62,6 @@ export const DietView: React.FC = () => {
 
   const remainingCalories = Math.max(0, dailyDiet.calorieGoal - totalCalories);
   const caloriePercent = Math.min(100, Math.round((totalCalories / (dailyDiet.calorieGoal || 2000)) * 100));
-  const waterPercent = Math.min(100, Math.round((dailyDiet.waterMl / (dailyDiet.waterGoalMl || 3000)) * 100));
-
-  const handleEstimateWithAi = async () => {
-    if (!aiMealInput.trim()) return;
-    setIsEstimatingAi(true);
-    setEstimatedMealResult(null);
-
-    try {
-      const res = await fetch('/api/ai/estimate-meal', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mealDescription: aiMealInput }),
-      });
-      const data = await res.json();
-      if (data.success && data.item) {
-        setEstimatedMealResult(data.item);
-      }
-    } catch (err) {
-      console.error('Failed to estimate meal:', err);
-    } finally {
-      setIsEstimatingAi(false);
-    }
-  };
-
-  const handleLogAiEstimatedMeal = () => {
-    if (!estimatedMealResult) return;
-    const food: FoodItem = {
-      id: `ai-food-${Date.now()}`,
-      name: estimatedMealResult.foodName,
-      servingSize: estimatedMealResult.servingSize || '1 portion',
-      calories: Math.round(estimatedMealResult.calories),
-      proteinGrams: Math.round(estimatedMealResult.proteinGrams),
-      carbsGrams: Math.round(estimatedMealResult.carbsGrams),
-      fatsGrams: Math.round(estimatedMealResult.fatsGrams),
-      fiberGrams: estimatedMealResult.fiberGrams,
-      isCustom: true,
-    };
-
-    logFoodItem(aiSelectedMealType, food);
-    setEstimatedMealResult(null);
-    setAiMealInput('');
-  };
 
   const handleOpenFoodPicker = (mealType: MealType) => {
     setPickerMealType(mealType);
@@ -132,12 +104,21 @@ export const DietView: React.FC = () => {
     { type: 'dinner', label: 'Dinner', icon: '🥩' },
     { type: 'pre_workout', label: 'Pre-Workout Fuel', icon: '⚡' },
     { type: 'post_workout', label: 'Post-Workout Shake & Meal', icon: '🥤' },
-    { type: 'snack', label: 'Snacks & Hydration', icon: '🍎' },
+    { type: 'snack', label: 'Snacks & Fruit', icon: '🍎' },
   ];
 
   const filteredPopularFoods = POPULAR_FOODS_DATABASE.filter((f) =>
-    f.name.toLowerCase().includes(foodSearch.toLowerCase())
+    f.name.toLowerCase().includes(foodSearch.toLowerCase()) ||
+    (f.hindiName && f.hindiName.toLowerCase().includes(foodSearch.toLowerCase()))
   );
+
+  const tabs: { id: DietTab; label: string; icon: React.ReactNode; badge?: string }[] = [
+    { id: 'log', label: 'Daily Meals Log', icon: <UtensilsCrossed className="w-4 h-4" /> },
+    { id: 'diet_maker', label: 'Personal Diet Maker', icon: <ChefHat className="w-4 h-4" />, badge: 'AI & Desi' },
+    { id: 'calories_checker', label: 'Calories Checker', icon: <Calculator className="w-4 h-4" /> },
+    { id: 'water_reminder', label: 'Water Reminder', icon: <Droplets className="w-4 h-4" />, badge: waterReminder.enabled ? 'ON' : undefined },
+    { id: 'supplements', label: 'Supplements Stack', icon: <Pill className="w-4 h-4" />, badge: `${supplements.filter((s) => s.taken).length}/${supplements.length}` },
+  ];
 
   return (
     <div className="space-y-8 pb-12">
@@ -146,13 +127,16 @@ export const DietView: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold uppercase tracking-wider mb-2">
-              <Flame className="w-3.5 h-3.5" /> Nutrition & Macronutrient Balance
+              <Flame className="w-3.5 h-3.5" /> Nutrition & Fitness Fuel Hub
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900">Daily Diet & Fuel</h1>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900">Nutrition & Diet Hub</h1>
+            <p className="text-xs sm:text-sm text-slate-500 mt-1">
+              Track calories, personalize diets with Indian & International foods, manage hydration, and supplement stacks.
+            </p>
           </div>
 
-          <div className="flex items-center gap-3 bg-slate-50 px-4 py-2.5 rounded-2xl border border-slate-200">
-            <div className="text-right">
+          <div className="flex items-center gap-3">
+            <div className="bg-slate-50 px-4 py-2.5 rounded-2xl border border-slate-200 text-right">
               <span className="text-[11px] text-slate-500 font-semibold block">Remaining Calories</span>
               <span className="text-lg font-black text-emerald-600 font-mono">{remainingCalories} kcal</span>
             </div>
@@ -177,7 +161,7 @@ export const DietView: React.FC = () => {
                 style={{ width: `${caloriePercent}%` }}
               />
             </div>
-            <div className="text-[10px] text-slate-500 font-mono text-right">{caloriePercent}% of goal</div>
+            <div className="text-[10px] text-slate-500 font-mono text-right">{caloriePercent}% of target</div>
           </div>
 
           {/* Protein */}
@@ -199,7 +183,7 @@ export const DietView: React.FC = () => {
               />
             </div>
             <div className="text-[10px] text-slate-500 font-mono text-right">
-              {Math.round((totalProtein / (dailyDiet.proteinGoalGrams || 1)) * 100)}% of goal
+              {Math.round((totalProtein / (dailyDiet.proteinGoalGrams || 1)) * 100)}% of target
             </div>
           </div>
 
@@ -222,7 +206,7 @@ export const DietView: React.FC = () => {
               />
             </div>
             <div className="text-[10px] text-slate-500 font-mono text-right">
-              {Math.round((totalCarbs / (dailyDiet.carbsGoalGrams || 1)) * 100)}% of goal
+              {Math.round((totalCarbs / (dailyDiet.carbsGoalGrams || 1)) * 100)}% of target
             </div>
           </div>
 
@@ -245,266 +229,168 @@ export const DietView: React.FC = () => {
               />
             </div>
             <div className="text-[10px] text-slate-500 font-mono text-right">
-              {Math.round((totalFats / (dailyDiet.fatsGoalGrams || 1)) * 100)}% of goal
+              {Math.round((totalFats / (dailyDiet.fatsGoalGrams || 1)) * 100)}% of target
             </div>
           </div>
         </div>
       </div>
 
-      {/* Section: Water & Hydration Tracker */}
-      <div className="rounded-3xl bg-[#0F172A] text-white border border-slate-800 p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
-        <div className="flex items-center gap-4">
-          <div className="relative w-16 h-16 rounded-2xl bg-blue-900/60 border border-blue-500/40 flex items-center justify-center text-blue-400">
-            <Droplets className="w-8 h-8 fill-blue-400/20" />
-            <span className="absolute bottom-1 right-1 text-[10px] font-bold font-mono text-blue-300">
-              {waterPercent}%
-            </span>
-          </div>
-
-          <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-blue-400">Hydration Tracker</span>
-            <div className="flex items-baseline gap-2 mt-0.5">
-              <span className="text-2xl font-black text-white font-mono">{dailyDiet.waterMl} ml</span>
-              <span className="text-xs text-slate-400">/ {dailyDiet.waterGoalMl} ml goal</span>
-            </div>
-            {dailyDiet.waterMl >= dailyDiet.waterGoalMl ? (
-              <span className="text-xs text-emerald-400 font-semibold">🎉 Daily water goal achieved!</span>
-            ) : (
-              <span className="text-xs text-slate-400">
-                {(dailyDiet.waterGoalMl - dailyDiet.waterMl) / 1000}L remaining today
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* Quick Water Add Buttons */}
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            onClick={() => addWater(250)}
-            className="flex items-center gap-1 px-3.5 py-2 rounded-xl bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/40 text-blue-200 text-xs font-semibold transition-all shadow-xs"
-          >
-            <Plus className="w-3.5 h-3.5" /> 250ml Cup
-          </button>
-          <button
-            onClick={() => addWater(500)}
-            className="flex items-center gap-1 px-3.5 py-2 rounded-xl bg-blue-500/30 hover:bg-blue-500/40 border border-blue-400/50 text-blue-100 text-xs font-semibold transition-all shadow-xs"
-          >
-            <Plus className="w-3.5 h-3.5" /> 500ml Bottle
-          </button>
-          <button
-            onClick={() => addWater(1000)}
-            className="flex items-center gap-1 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-sm"
-          >
-            <Plus className="w-3.5 h-3.5" /> +1 Liter
-          </button>
-          {dailyDiet.waterMl > 0 && (
+      {/* Modern Tab Bar */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 border-b border-slate-200">
+        {tabs.map((t) => {
+          const isActive = activeTab === t.id;
+          return (
             <button
-              onClick={() => addWater(-250)}
-              className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition-colors border border-slate-700"
-              title="-250ml"
+              key={t.id}
+              onClick={() => setActiveTab(t.id)}
+              className={`flex items-center gap-2 px-4 py-3 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all border ${
+                isActive
+                  ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
+                  : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-900'
+              }`}
             >
-              -250ml
+              {t.icon}
+              <span>{t.label}</span>
+              {t.badge && (
+                <span
+                  className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${
+                    isActive
+                      ? 'bg-emerald-500 text-slate-950'
+                      : 'bg-slate-100 text-slate-600'
+                  }`}
+                >
+                  {t.badge}
+                </span>
+              )}
             </button>
-          )}
-        </div>
+          );
+        })}
       </div>
 
-      {/* Section: AI Meal Macro Estimator */}
-      <div className="rounded-3xl bg-white border border-slate-200 p-6 md:p-8 space-y-4 shadow-sm">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700">
-            <Sparkles className="w-4 h-4" />
-          </div>
-          <div>
-            <h3 className="text-base font-bold text-slate-900">AI Meal & Macro Estimator</h3>
-            <p className="text-xs text-slate-500">Describe what you ate in natural language to calculate macros</p>
-          </div>
-        </div>
+      {/* Tab 1: Daily Food Log */}
+      {activeTab === 'log' && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
+          {/* Quick Water Reminder Banner */}
+          <WaterReminderWidget />
 
-        <div className="flex flex-col sm:flex-row gap-3">
-          <input
-            type="text"
-            value={aiMealInput}
-            onChange={(e) => setAiMealInput(e.target.value)}
-            placeholder="e.g. 2 boiled eggs, 1 bowl oatmeal with blueberries and scoop of whey protein..."
-            className="flex-1 bg-white border border-slate-300 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 rounded-2xl px-4 py-3 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none transition-colors shadow-xs"
-            onKeyDown={(e) => e.key === 'Enter' && handleEstimateWithAi()}
-          />
-          <button
-            onClick={handleEstimateWithAi}
-            disabled={isEstimatingAi || !aiMealInput.trim()}
-            className="flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-semibold text-sm shadow-sm transition-all"
-          >
-            {isEstimatingAi ? (
-              <>
-                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                <span>Analyzing...</span>
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-4 h-4 fill-current" />
-                <span>Analyze Meal</span>
-              </>
-            )}
-          </button>
-        </div>
-
-        {/* AI Estimation Result Card */}
-        {estimatedMealResult && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mt-4 p-5 rounded-2xl bg-slate-50 border border-emerald-200 space-y-4 shadow-xs"
-          >
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">AI Estimation</span>
-                <h4 className="text-base font-bold text-slate-900 mt-0.5">{estimatedMealResult.foodName}</h4>
-                <p className="text-xs text-slate-500">Serving: {estimatedMealResult.servingSize}</p>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <select
-                  value={aiSelectedMealType}
-                  onChange={(e) => setAiSelectedMealType(e.target.value as MealType)}
-                  className="bg-white border border-slate-300 text-slate-800 text-xs rounded-xl px-3 py-2 font-medium focus:outline-none shadow-xs"
-                >
-                  <option value="breakfast">Breakfast</option>
-                  <option value="lunch">Lunch</option>
-                  <option value="dinner">Dinner</option>
-                  <option value="pre_workout">Pre-Workout</option>
-                  <option value="post_workout">Post-Workout</option>
-                  <option value="snack">Snack</option>
-                </select>
-                <button
-                  onClick={handleLogAiEstimatedMeal}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-sm transition-all"
-                >
-                  <Check className="w-4 h-4 stroke-[3]" />
-                  <span>Log This Meal</span>
-                </button>
-              </div>
+          {/* Daily Meals Breakdown */}
+          <section className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-slate-900">Today's Meals</h2>
+              <span className="text-xs text-slate-500 bg-white px-3 py-1 rounded-xl border border-slate-200 shadow-xs">
+                {dailyDiet.meals.reduce((acc, m) => acc + m.items.length, 0)} logged food items
+              </span>
             </div>
 
-            {/* Macros breakdown tags */}
-            <div className="grid grid-cols-4 gap-2 text-center">
-              <div className="p-2.5 rounded-xl bg-white border border-slate-200">
-                <div className="text-[10px] text-slate-500 font-medium">Calories</div>
-                <div className="text-sm font-black text-amber-600 font-mono mt-0.5">
-                  {Math.round(estimatedMealResult.calories)} kcal
-                </div>
-              </div>
-              <div className="p-2.5 rounded-xl bg-white border border-slate-200">
-                <div className="text-[10px] text-slate-500 font-medium">Protein</div>
-                <div className="text-sm font-black text-emerald-600 font-mono mt-0.5">
-                  {Math.round(estimatedMealResult.proteinGrams)}g
-                </div>
-              </div>
-              <div className="p-2.5 rounded-xl bg-white border border-slate-200">
-                <div className="text-[10px] text-slate-500 font-medium">Carbs</div>
-                <div className="text-sm font-black text-blue-600 font-mono mt-0.5">
-                  {Math.round(estimatedMealResult.carbsGrams)}g
-                </div>
-              </div>
-              <div className="p-2.5 rounded-xl bg-white border border-slate-200">
-                <div className="text-[10px] text-slate-500 font-medium">Fats</div>
-                <div className="text-sm font-black text-rose-600 font-mono mt-0.5">
-                  {Math.round(estimatedMealResult.fatsGrams)}g
-                </div>
-              </div>
-            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {mealSections.map((sec) => {
+                const loggedMeal = dailyDiet.meals.find((m) => m.mealType === sec.type);
+                const items = loggedMeal?.items || [];
+                const mealCals = loggedMeal?.totalCalories || 0;
+                const mealProtein = loggedMeal?.totalProtein || 0;
 
-            {estimatedMealResult.coachTip && (
-              <div className="text-xs text-slate-700 bg-white p-3 rounded-xl border border-slate-200 flex items-start gap-2">
-                <Info className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                <span>{estimatedMealResult.coachTip}</span>
-              </div>
-            )}
-          </motion.div>
-        )}
-      </div>
-
-      {/* Section: Daily Meals Breakdown */}
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-slate-900">Daily Meals Breakdown</h2>
-          <span className="text-xs text-slate-500 bg-white px-2.5 py-1 rounded-lg border border-slate-200 shadow-xs">
-            {dailyDiet.meals.reduce((acc, m) => acc + m.items.length, 0)} logged food items
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {mealSections.map((sec) => {
-            const loggedMeal = dailyDiet.meals.find((m) => m.mealType === sec.type);
-            const items = loggedMeal?.items || [];
-            const mealCals = loggedMeal?.totalCalories || 0;
-            const mealProtein = loggedMeal?.totalProtein || 0;
-
-            return (
-              <div
-                key={sec.type}
-                className="rounded-2xl bg-white border border-slate-200 p-5 flex flex-col justify-between space-y-4 shadow-sm"
-              >
-                <div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xl">{sec.icon}</span>
-                      <h3 className="font-bold text-slate-900 text-base">{sec.label}</h3>
-                    </div>
-                    {mealCals > 0 && (
-                      <span className="text-xs font-mono font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
-                        {mealCals} kcal • {mealProtein}g P
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Food Items List */}
-                  <div className="mt-4 space-y-2">
-                    {items.length > 0 ? (
-                      items.map((item) => (
-                        <div
-                          key={item.id}
-                          className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs"
-                        >
-                          <div>
-                            <div className="font-semibold text-slate-800">{item.name}</div>
-                            <div className="text-[10px] text-slate-500 font-mono">
-                              {item.servingSize} • P: {item.proteinGrams}g | C: {item.carbsGrams}g | F:{' '}
-                              {item.fatsGrams}g
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono font-bold text-slate-800">{item.calories} kcal</span>
-                            <button
-                              onClick={() => removeFoodItem(sec.type, item.id)}
-                              className="p-1 rounded-lg hover:bg-slate-200 text-slate-400 hover:text-red-500 transition-colors"
-                              title="Delete food"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
+                return (
+                  <div
+                    key={sec.type}
+                    className="rounded-3xl bg-white border border-slate-200 p-5 flex flex-col justify-between space-y-4 shadow-sm"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xl">{sec.icon}</span>
+                          <h3 className="font-bold text-slate-900 text-base">{sec.label}</h3>
                         </div>
-                      ))
-                    ) : (
-                      <p className="text-xs text-slate-400 py-3 text-center italic">No foods logged yet</p>
-                    )}
-                  </div>
-                </div>
+                        {mealCals > 0 && (
+                          <span className="text-xs font-mono font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+                            {mealCals} kcal • {mealProtein}g P
+                          </span>
+                        )}
+                      </div>
 
-                {/* Add Food Button */}
-                <button
-                  onClick={() => handleOpenFoodPicker(sec.type)}
-                  className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors border border-slate-200/80"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Add Food to {sec.label}</span>
-                </button>
-              </div>
-            );
-          })}
-        </div>
-      </section>
+                      {/* Food Items List */}
+                      <div className="mt-4 space-y-2">
+                        {items.length > 0 ? (
+                          items.map((item) => (
+                            <div
+                              key={item.id}
+                              className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs"
+                            >
+                              <div>
+                                <div className="font-semibold text-slate-800 flex items-center gap-1.5">
+                                  {item.name}
+                                  {item.hindiName && (
+                                    <span className="text-[10px] text-emerald-700 bg-emerald-100/60 px-1.5 py-0.5 rounded font-normal">
+                                      {item.hindiName}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="text-[10px] text-slate-500 font-mono mt-0.5">
+                                  {item.servingSize} • P: {item.proteinGrams}g | C: {item.carbsGrams}g | F:{' '}
+                                  {item.fatsGrams}g
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-2">
+                                <span className="font-mono font-bold text-slate-800">{item.calories} kcal</span>
+                                <button
+                                  onClick={() => removeFoodItem(sec.type, item.id)}
+                                  className="p-1 rounded-lg hover:bg-slate-200 text-slate-400 hover:text-red-500 transition-colors"
+                                  title="Delete food"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <p className="text-xs text-slate-400 py-3 text-center italic">No items logged yet</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Add Food Button */}
+                    <button
+                      onClick={() => handleOpenFoodPicker(sec.type)}
+                      className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors border border-slate-200/80"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Add Food to {sec.label}</span>
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        </motion.div>
+      )}
+
+      {/* Tab 2: Personal Diet Maker */}
+      {activeTab === 'diet_maker' && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          <PersonalDietMaker />
+        </motion.div>
+      )}
+
+      {/* Tab 3: Calories Checker */}
+      {activeTab === 'calories_checker' && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          <CaloriesChecker />
+        </motion.div>
+      )}
+
+      {/* Tab 4: Water Reminder */}
+      {activeTab === 'water_reminder' && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          <WaterReminderWidget />
+        </motion.div>
+      )}
+
+      {/* Tab 5: Supplements Stack */}
+      {activeTab === 'supplements' && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          <SupplementTracker />
+        </motion.div>
+      )}
 
       {/* Food Picker Modal */}
       <AnimatePresence>
@@ -519,7 +405,9 @@ export const DietView: React.FC = () => {
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <div>
                   <h3 className="text-lg font-bold text-slate-900">Add Food Item</h3>
-                  <span className="text-xs text-emerald-600 font-medium capitalize">Target: {pickerMealType.replace('_', ' ')}</span>
+                  <span className="text-xs text-emerald-600 font-medium capitalize">
+                    Target: {pickerMealType.replace('_', ' ')}
+                  </span>
                 </div>
                 <button
                   onClick={() => setIsFoodPickerOpen(false)}
@@ -535,7 +423,7 @@ export const DietView: React.FC = () => {
                     <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input
                       type="text"
-                      placeholder="Search fitness food database..."
+                      placeholder="Search Indian & International foods (Paneer, Oats, Chicken...)..."
                       value={foodSearch}
                       onChange={(e) => setFoodSearch(e.target.value)}
                       className="w-full bg-white border border-slate-300 rounded-xl pl-9 pr-4 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 shadow-xs"
@@ -551,8 +439,14 @@ export const DietView: React.FC = () => {
                         className="group cursor-pointer p-3 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200/80 hover:border-emerald-500/60 flex items-center justify-between transition-all"
                       >
                         <div>
-                          <div className="font-bold text-slate-900 text-xs group-hover:text-emerald-700 transition-colors">
+                          <div className="font-bold text-slate-900 text-xs group-hover:text-emerald-700 transition-colors flex items-center gap-1.5">
                             {food.name}
+                            {food.hindiName && (
+                              <span className="text-[10px] text-emerald-700 bg-emerald-100/60 px-1.5 py-0.5 rounded font-normal">
+                                {food.hindiName}
+                              </span>
+                            )}
+                            <span className="text-[10px] text-slate-400">{food.cuisine === 'Indian' ? '🇮🇳' : '🌍'}</span>
                           </div>
                           <div className="text-[10px] text-slate-500 font-mono mt-0.5">
                             {food.servingSize} • P: {food.proteinGrams}g | C: {food.carbsGrams}g | F: {food.fatsGrams}g
@@ -580,11 +474,11 @@ export const DietView: React.FC = () => {
                 /* Custom Food Form */
                 <form onSubmit={handleSaveCustomFood} className="space-y-3">
                   <div className="space-y-1">
-                    <label className="text-xs text-slate-600 font-semibold">Food Name</label>
+                    <label className="text-xs text-slate-600 font-semibold">Food Name *</label>
                     <input
                       type="text"
                       required
-                      placeholder="e.g. Grandma's Protein Smoothie"
+                      placeholder="e.g. Grandma's Protein Ladoo / Chicken Rice Bowl"
                       value={customName}
                       onChange={(e) => setCustomName(e.target.value)}
                       className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-emerald-600"
@@ -596,7 +490,7 @@ export const DietView: React.FC = () => {
                       <label className="text-xs text-slate-600 font-semibold">Serving Size</label>
                       <input
                         type="text"
-                        placeholder="e.g. 1 bowl / 150g"
+                        placeholder="e.g. 1 bowl / 150g / 2 pcs"
                         value={customServing}
                         onChange={(e) => setCustomServing(e.target.value)}
                         className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-emerald-600"
@@ -657,7 +551,7 @@ export const DietView: React.FC = () => {
                       onClick={() => setShowCustomFoodForm(false)}
                       className="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors"
                     >
-                      Back to Database
+                      Back to Search
                     </button>
                     <button
                       type="submit"

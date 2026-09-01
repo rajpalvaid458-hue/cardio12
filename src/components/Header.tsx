@@ -12,6 +12,7 @@ import {
   Play,
   Settings,
   LogIn,
+  ShieldCheck,
   UserCheck,
   Cloud,
   Loader2,
@@ -24,6 +25,7 @@ interface HeaderProps {
   setActiveTab: (tab: TabType) => void;
   onOpenProfile: () => void;
   onOpenActiveWorkoutModal: () => void;
+  onOpenComplianceModal: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -31,6 +33,7 @@ export const Header: React.FC<HeaderProps> = ({
   setActiveTab,
   onOpenProfile,
   onOpenActiveWorkoutModal,
+  onOpenComplianceModal,
 }) => {
   const { activeWorkout, userProfile, isCloudSyncing } = useFitness();
   const { currentUser, openAuthModal } = useAuth();
@@ -159,6 +162,16 @@ export const Header: React.FC<HeaderProps> = ({
                 <span>Log In</span>
               </button>
             )}
+
+            {/* Medical & Trainer Compliance Badge */}
+            <button
+              onClick={onOpenComplianceModal}
+              className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700/80 border border-slate-700 text-emerald-400 text-xs font-semibold transition"
+              title="Doctor & Certified Trainer Verified Standards • Medical Disclaimer"
+            >
+              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <span className="text-[11px] text-slate-200">Verified Health</span>
+            </button>
 
             {/* Profile / Settings */}
             <button

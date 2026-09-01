@@ -142,3 +142,56 @@ export function playClickFeedback() {
     osc.stop(ctx.currentTime + 0.04);
   } catch (e) {}
 }
+
+/** Refreshing water drop sound for hydration logging & reminders */
+export function playWaterDropTone() {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  try {
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'sine';
+    // Frequency sweeps down quickly mimicking a natural water droplet "bloop"
+    osc.frequency.setValueAtTime(1350, now);
+    osc.frequency.exponentialRampToValueAtTime(500, now + 0.12);
+
+    gain.gain.setValueAtTime(0.25, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.18);
+  } catch (e) {}
+}
+
+/** Crisp chime for supplement reminders and intake */
+export function playSupplementTone() {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  try {
+    const now = ctx.currentTime;
+    const notes = [659.25, 987.77]; // E5, B5
+    notes.forEach((freq, idx) => {
+      const startTime = now + idx * 0.08;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, startTime);
+
+      gain.gain.setValueAtTime(0.18, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.22);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(startTime);
+      osc.stop(startTime + 0.25);
+    });
+  } catch (e) {}
+}
+

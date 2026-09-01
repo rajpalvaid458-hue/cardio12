@@ -148,16 +148,37 @@ export interface CompletedWorkoutLog {
 
 export type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack' | 'pre_workout' | 'post_workout';
 
+export type FoodCuisine = 'Indian' | 'International' | 'Universal';
+
+export type FoodCategory = 
+  | 'High Protein'
+  | 'Lentils & Pulses'
+  | 'Dairy & Paneer'
+  | 'Poultry & Meat'
+  | 'Seafood'
+  | 'Grains & Carbs'
+  | 'Fruits & Veggies'
+  | 'Nuts & Healthy Fats'
+  | 'Supplements & Shakes'
+  | 'Traditional Indian Meals'
+  | 'Healthy Bowls & Salads';
+
 export interface FoodItem {
   id: string;
   name: string;
+  hindiName?: string;
+  cuisine?: FoodCuisine;
+  category?: FoodCategory;
   servingSize: string;
+  servingUnitWeightGrams?: number; // Base weight in grams for portion scaling
   calories: number;
   proteinGrams: number;
   carbsGrams: number;
   fatsGrams: number;
   fiberGrams?: number;
   isCustom?: boolean;
+  benefits?: string;
+  dietPreference?: 'veg' | 'non_veg' | 'vegan' | 'eggetarian';
 }
 
 export interface LoggedMeal {
@@ -170,6 +191,57 @@ export interface LoggedMeal {
   totalCarbs: number;
   totalFats: number;
   notes?: string;
+}
+
+export interface SupplementItem {
+  id: string;
+  name: string;
+  hindiName?: string;
+  dosage: string;
+  timing: string; // e.g. "Morning with Breakfast", "30m Pre-Workout", "Post-Workout", "Bedtime"
+  timingLabel: 'Morning' | 'Pre-Workout' | 'Post-Workout' | 'Lunch' | 'Dinner' | 'Bedtime';
+  timeSchedule: string; // e.g. "08:00 AM"
+  taken: boolean;
+  reminderEnabled: boolean;
+  benefit: string;
+  category: 'performance' | 'recovery' | 'vitality' | 'joint_health' | 'sleep';
+  iconType?: string;
+}
+
+export interface WaterReminderSettings {
+  enabled: boolean;
+  intervalMinutes: number; // e.g. 30, 45, 60, 90, 120
+  soundAlert: boolean;
+  dailyGoalMl: number;
+  nextReminderTimestamp: number;
+  remindBetweenStart: string; // "07:00 AM"
+  remindBetweenEnd: string; // "10:00 PM"
+}
+
+export interface PersonalDietPlan {
+  id: string;
+  title: string;
+  tagline: string;
+  goal: FitnessGoal;
+  cuisine: 'Indian' | 'International' | 'Fusion';
+  dietType: 'pure_veg' | 'non_veg' | 'vegan' | 'eggetarian' | 'jain' | 'keto' | 'high_protein';
+  dietTypeLabel: string;
+  dailyCalories: number;
+  macros: {
+    proteinGrams: number;
+    carbsGrams: number;
+    fatsGrams: number;
+  };
+  waterTargetMl: number;
+  meals: {
+    mealType: MealType;
+    title: string;
+    suggestedTime: string;
+    items: FoodItem[];
+    prepTips?: string;
+  }[];
+  recommendedSupplements: string[];
+  keyBenefits: string[];
 }
 
 export interface DailyDietLog {

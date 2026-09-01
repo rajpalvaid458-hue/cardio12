@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useRef } from 'react';
 import {
   WorkoutPlan,
   ActiveWorkoutSession,
@@ -10,6 +10,9 @@ import {
   DailyHabit,
   UserProfile,
   Exercise,
+  SupplementItem,
+  WaterReminderSettings,
+  PersonalDietPlan,
 } from '../types';
 import {
   PRESET_WORKOUT_PLANS,
@@ -17,6 +20,8 @@ import {
   POPULAR_FOODS_DATABASE,
   DEFAULT_DAILY_ROUTINE,
   DEFAULT_HABITS,
+  DEFAULT_SUPPLEMENTS,
+  PRESET_DIET_PLANS,
 } from '../data/fitnessPresets';
 import {
   playCountdownBeep,
@@ -24,6 +29,8 @@ import {
   playRestStartTone,
   playVictoryFanfare,
   playClickFeedback,
+  playWaterDropTone,
+  playSupplementTone,
 } from '../utils/audio';
 import confetti from 'canvas-confetti';
 import { useAuth } from './AuthContext';
@@ -46,6 +53,10 @@ interface FitnessContextType {
   dailyDiet: DailyDietLog;
   routineItems: RoutineItem[];
   habits: DailyHabit[];
+  supplements: SupplementItem[];
+  waterReminder: WaterReminderSettings;
+  savedDietPlans: PersonalDietPlan[];
+  activeDietPlan: PersonalDietPlan | null;
   userProfile: UserProfile;
   restTimer: RestTimerState | null;
   selectedDate: string;
@@ -70,12 +81,28 @@ interface FitnessContextType {
   adjustRestTimer: (deltaSeconds: number) => void;
   stopRestTimer: () => void;
 
-  // Actions - Diet
+  // Actions - Diet & Calories
   logFoodItem: (mealType: MealType, food: FoodItem) => void;
   removeFoodItem: (mealType: MealType, foodId: string) => void;
   addWater: (amountMl: number) => void;
   setWaterGoal: (amountMl: number) => void;
   setMacroGoals: (calories: number, protein: number, carbs: number, fats: number) => void;
+
+  // Actions - Water Reminder
+  updateWaterReminderSettings: (settings: Partial<WaterReminderSettings>) => void;
+  triggerWaterReminderAlert: () => void;
+
+  // Actions - Supplements
+  toggleSupplementTaken: (id: string) => void;
+  addSupplement: (item: Omit<SupplementItem, 'id'>) => void;
+  deleteSupplement: (id: string) => void;
+  toggleSupplementReminder: (id: string) => void;
+
+  // Actions - Personal Diet Plans
+  setActiveDietPlan: (plan: PersonalDietPlan | null) => void;
+  savePersonalDietPlan: (plan: PersonalDietPlan) => void;
+  deletePersonalDietPlan: (planId: string) => void;
+  applyDietPlanToDailyLog: (plan: PersonalDietPlan) => void;
 
   // Actions - Routine & Habits
   toggleRoutineItem: (id: string) => void;
@@ -101,8 +128,22 @@ const STORAGE_KEYS = {
   DIET: 'pulsefit_diet_v1',
   ROUTINE: 'pulsefit_routine_v1',
   HABITS: 'pulsefit_habits_v1',
+  SUPPLEMENTS: 'pulsefit_supplements_v1',
+  WATER_REMINDER: 'pulsefit_water_reminder_v1',
+  DIET_PLANS: 'pulsefit_diet_plans_v1',
+  ACTIVE_DIET_PLAN: 'pulsefit_active_diet_plan_v1',
   PROFILE: 'pulsefit_profile_v1',
   ACTIVE_WORKOUT: 'pulsefit_active_workout_v1',
+};
+
+const DEFAULT_WATER_REMINDER: WaterReminderSettings = {
+  enabled: true,
+  intervalMinutes: 60,
+  soundAlert: true,
+  dailyGoalMl: 3200,
+  nextReminderTimestamp: Date.now() + 60 * 60 * 1000,
+  remindBetweenStart: '07:00 AM',
+  remindBetweenEnd: '10:00 PM',
 };
 
 const getTodayString = () => new Date().toISOString().split('T')[0];
@@ -314,7 +355,46 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
   });
 
-  // 8. Rest Timer
+  // 8. Supplements Tracker & Reminders
+  const [supplements, setSupplements] = useState<SupplementItem[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.SUPPLEMENTS);
+      return saved ? JSON.parse(saved) : DEFAULT_SUPPLEMENTS;
+    } catch {
+      return DEFAULT_SUPPLEMENTS;
+    }
+  });
+
+  // 9. Water Reminder Settings
+  const [waterReminder, setWaterReminder] = useState<WaterReminderSettings>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.WATER_REMINDER);
+      return saved ? JSON.parse(saved) : DEFAULT_WATER_REMINDER;
+    } catch {
+      return DEFAULT_WATER_REMINDER;
+    }
+  });
+
+  // 10. Saved Personal Diet Plans & Active Plan
+  const [savedDietPlans, setSavedDietPlans] = useState<PersonalDietPlan[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.DIET_PLANS);
+      return saved ? JSON.parse(saved) : PRESET_DIET_PLANS;
+    } catch {
+      return PRESET_DIET_PLANS;
+    }
+  });
+
+  const [activeDietPlan, setActiveDietPlanState] = useState<PersonalDietPlan | null>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.ACTIVE_DIET_PLAN);
+      return saved ? JSON.parse(saved) : PRESET_DIET_PLANS[0];
+    } catch {
+      return PRESET_DIET_PLANS[0];
+    }
+  });
+
+  // 11. Rest Timer
   const [restTimer, setRestTimer] = useState<RestTimerState | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>(getTodayString());
 
@@ -334,6 +414,10 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
           if (data.dailyDiet && data.dailyDiet.date === getTodayString()) setDailyDiet(data.dailyDiet);
           if (data.routineItems) setRoutineItems(data.routineItems);
           if (data.habits) setHabits(data.habits);
+          if (data.supplements) setSupplements(data.supplements);
+          if (data.waterReminder) setWaterReminder(data.waterReminder);
+          if (data.savedDietPlans) setSavedDietPlans(data.savedDietPlans);
+          if (data.activeDietPlan) setActiveDietPlanState(data.activeDietPlan);
         } else {
           // Initialize new cloud document for user
           await setDoc(userDocRef, {
@@ -348,6 +432,10 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
             dailyDiet,
             routineItems,
             habits,
+            supplements,
+            waterReminder,
+            savedDietPlans,
+            activeDietPlan,
             updatedAt: new Date().toISOString(),
           });
         }
@@ -389,6 +477,43 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
     localStorage.setItem(STORAGE_KEYS.HABITS, JSON.stringify(habits));
   }, [habits]);
 
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.SUPPLEMENTS, JSON.stringify(supplements));
+  }, [supplements]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.WATER_REMINDER, JSON.stringify(waterReminder));
+  }, [waterReminder]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.DIET_PLANS, JSON.stringify(savedDietPlans));
+  }, [savedDietPlans]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.ACTIVE_DIET_PLAN, JSON.stringify(activeDietPlan));
+  }, [activeDietPlan]);
+
+  // Periodic Hydration Reminder Check Loop
+  useEffect(() => {
+    if (!waterReminder.enabled) return;
+
+    const checkInterval = setInterval(() => {
+      const now = Date.now();
+      if (now >= waterReminder.nextReminderTimestamp) {
+        if (waterReminder.soundAlert) {
+          playWaterDropTone();
+        }
+        // Update next reminder target
+        setWaterReminder((prev) => ({
+          ...prev,
+          nextReminderTimestamp: Date.now() + (prev.intervalMinutes || 60) * 60 * 1000,
+        }));
+      }
+    }, 15000); // check every 15s
+
+    return () => clearInterval(checkInterval);
+  }, [waterReminder.enabled, waterReminder.intervalMinutes, waterReminder.nextReminderTimestamp, waterReminder.soundAlert]);
+
   // Auto-sync debounced to Cloud Firestore if logged in
   const syncToCloud = useCallback(async () => {
     if (!currentUser) return;
@@ -405,16 +530,20 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
           dailyDiet,
           routineItems,
           habits,
+          supplements,
+          waterReminder,
+          savedDietPlans,
+          activeDietPlan,
           updatedAt: new Date().toISOString(),
         },
         { merge: true }
       );
     } catch (err) {
-      console.error('Failed to sync to Cloud:', err);
+      console.error('Error auto-syncing to Firestore:', err);
     } finally {
       setIsCloudSyncing(false);
     }
-  }, [currentUser, userProfile, plans, workoutLogs, dailyDiet, routineItems, habits]);
+  }, [currentUser, userProfile, plans, workoutLogs, dailyDiet, routineItems, habits, supplements, waterReminder, savedDietPlans, activeDietPlan]);
 
   // Active workout elapsed timer
   useEffect(() => {
@@ -844,6 +973,136 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
     }));
   }, []);
 
+  // Water Reminder Controls
+  const updateWaterReminderSettings = useCallback((settings: Partial<WaterReminderSettings>) => {
+    playClickFeedback();
+    setWaterReminder((prev) => {
+      const updated = { ...prev, ...settings };
+      if (settings.intervalMinutes && settings.intervalMinutes !== prev.intervalMinutes) {
+        updated.nextReminderTimestamp = Date.now() + settings.intervalMinutes * 60 * 1000;
+      }
+      return updated;
+    });
+  }, []);
+
+  const triggerWaterReminderAlert = useCallback(() => {
+    playWaterDropTone();
+    confetti({ particleCount: 30, spread: 50, colors: ['#38bdf8', '#0284c7', '#bae6fd'] });
+  }, []);
+
+  // Supplement Controls
+  const toggleSupplementTaken = useCallback((id: string) => {
+    setSupplements((prev) =>
+      prev.map((item) => {
+        if (item.id === id) {
+          const nextTaken = !item.taken;
+          if (nextTaken) {
+            playSupplementTone();
+            confetti({ particleCount: 35, spread: 55, colors: ['#a855f7', '#ec4899', '#f43f5e'] });
+          } else {
+            playClickFeedback();
+          }
+          return { ...item, taken: nextTaken };
+        }
+        return item;
+      })
+    );
+  }, []);
+
+  const addSupplement = useCallback((item: Omit<SupplementItem, 'id'>) => {
+    playClickFeedback();
+    const newItem: SupplementItem = {
+      ...item,
+      id: `supp-${Date.now()}`,
+    };
+    setSupplements((prev) => [newItem, ...prev]);
+  }, []);
+
+  const deleteSupplement = useCallback((id: string) => {
+    playClickFeedback();
+    setSupplements((prev) => prev.filter((item) => item.id !== id));
+  }, []);
+
+  const toggleSupplementReminder = useCallback((id: string) => {
+    playClickFeedback();
+    setSupplements((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, reminderEnabled: !item.reminderEnabled } : item))
+    );
+  }, []);
+
+  // Personal Diet Plan Controls
+  const setActiveDietPlan = useCallback((plan: PersonalDietPlan | null) => {
+    playClickFeedback();
+    setActiveDietPlanState(plan);
+  }, []);
+
+  const savePersonalDietPlan = useCallback((newPlan: PersonalDietPlan) => {
+    playClickFeedback();
+    setSavedDietPlans((prev) => {
+      const idx = prev.findIndex((p) => p.id === newPlan.id);
+      if (idx >= 0) {
+        const next = [...prev];
+        next[idx] = newPlan;
+        return next;
+      }
+      return [newPlan, ...prev];
+    });
+    setActiveDietPlanState(newPlan);
+  }, []);
+
+  const deletePersonalDietPlan = useCallback((planId: string) => {
+    playClickFeedback();
+    setSavedDietPlans((prev) => prev.filter((p) => p.id !== planId));
+    setActiveDietPlanState((prev) => (prev?.id === planId ? null : prev));
+  }, []);
+
+  const applyDietPlanToDailyLog = useCallback((plan: PersonalDietPlan) => {
+    playVictoryFanfare();
+    confetti({ particleCount: 60, spread: 70 });
+    
+    // Set daily macro targets according to diet plan
+    setMacroGoals(
+      plan.dailyCalories,
+      plan.macros.proteinGrams,
+      plan.macros.carbsGrams,
+      plan.macros.fatsGrams
+    );
+
+    if (plan.waterTargetMl) {
+      setWaterGoal(plan.waterTargetMl);
+    }
+
+    // Convert plan meals to daily logged meals
+    const newMeals = plan.meals.map((m, idx) => {
+      const totalCals = m.items.reduce((acc, it) => acc + it.calories, 0);
+      const totalPro = Number(m.items.reduce((acc, it) => acc + it.proteinGrams, 0).toFixed(1));
+      const totalCarb = Number(m.items.reduce((acc, it) => acc + it.carbsGrams, 0).toFixed(1));
+      const totalFat = Number(m.items.reduce((acc, it) => acc + it.fatsGrams, 0).toFixed(1));
+
+      return {
+        id: `plan-meal-${Date.now()}-${idx}`,
+        mealType: m.mealType,
+        time: m.suggestedTime || '08:00 AM',
+        items: m.items,
+        totalCalories: totalCals,
+        totalProtein: totalPro,
+        totalCarbs: totalCarb,
+        totalFats: totalFat,
+        notes: m.prepTips,
+      };
+    });
+
+    setDailyDiet((prev) => ({
+      ...prev,
+      calorieGoal: plan.dailyCalories,
+      proteinGoalGrams: plan.macros.proteinGrams,
+      carbsGoalGrams: plan.macros.carbsGrams,
+      fatsGoalGrams: plan.macros.fatsGrams,
+      waterGoalMl: plan.waterTargetMl || prev.waterGoalMl,
+      meals: newMeals,
+    }));
+  }, [setMacroGoals, setWaterGoal]);
+
   // Routine & Habit controls
   const toggleRoutineItem = useCallback((id: string) => {
     playClickFeedback();
@@ -905,6 +1164,10 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
     setDailyDiet(getInitialDiet(INITIAL_PROFILE));
     setRoutineItems(DEFAULT_DAILY_ROUTINE);
     setHabits(DEFAULT_HABITS);
+    setSupplements(DEFAULT_SUPPLEMENTS);
+    setWaterReminder(DEFAULT_WATER_REMINDER);
+    setSavedDietPlans(PRESET_DIET_PLANS);
+    setActiveDietPlanState(PRESET_DIET_PLANS[0]);
     setUserProfileState(INITIAL_PROFILE);
     setActiveWorkout(null);
     setRestTimer(null);
@@ -918,10 +1181,14 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
       dailyDiet,
       routineItems,
       habits,
+      supplements,
+      waterReminder,
+      savedDietPlans,
+      activeDietPlan,
       exportedAt: new Date().toISOString(),
     };
     return JSON.stringify(data, null, 2);
-  }, [userProfile, plans, workoutLogs, dailyDiet, routineItems, habits]);
+  }, [userProfile, plans, workoutLogs, dailyDiet, routineItems, habits, supplements, waterReminder, savedDietPlans, activeDietPlan]);
 
   const importUserData = useCallback((jsonData: string): boolean => {
     try {
@@ -932,6 +1199,10 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
       if (parsed.dailyDiet) setDailyDiet(parsed.dailyDiet);
       if (parsed.routineItems) setRoutineItems(parsed.routineItems);
       if (parsed.habits) setHabits(parsed.habits);
+      if (parsed.supplements) setSupplements(parsed.supplements);
+      if (parsed.waterReminder) setWaterReminder(parsed.waterReminder);
+      if (parsed.savedDietPlans) setSavedDietPlans(parsed.savedDietPlans);
+      if (parsed.activeDietPlan) setActiveDietPlanState(parsed.activeDietPlan);
       return true;
     } catch (e) {
       console.error('Failed to import user data:', e);
@@ -949,6 +1220,10 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
         dailyDiet,
         routineItems,
         habits,
+        supplements,
+        waterReminder,
+        savedDietPlans,
+        activeDietPlan,
         userProfile,
         restTimer,
         selectedDate,
@@ -976,6 +1251,19 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
         addWater,
         setWaterGoal,
         setMacroGoals,
+
+        updateWaterReminderSettings,
+        triggerWaterReminderAlert,
+
+        toggleSupplementTaken,
+        addSupplement,
+        deleteSupplement,
+        toggleSupplementReminder,
+
+        setActiveDietPlan,
+        savePersonalDietPlan,
+        deletePersonalDietPlan,
+        applyDietPlanToDailyLog,
 
         toggleRoutineItem,
         addRoutineItem,

@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useFitness } from '../context/FitnessContext';
 import { useAuth } from '../context/AuthContext';
 import { UserProfile } from '../types';
+import { MedicalComplianceModal } from './MedicalComplianceModal';
 import { 
   X, 
   User, 
@@ -21,7 +22,8 @@ import {
   LogIn,
   Cloud,
   Check,
-  Loader2
+  Loader2,
+  Stethoscope
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -48,6 +50,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
 
   const [activeTab, setActiveTab] = useState<'profile' | 'milestones'>('profile');
   const [milestoneFilter, setMilestoneFilter] = useState<'all' | 'streak' | 'volume' | 'workouts'>('all');
+  const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
 
   const [name, setName] = useState(userProfile.name);
   const [weightKg, setWeightKg] = useState(userProfile.weightKg.toString());
@@ -471,6 +474,26 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
               </div>
             </div>
 
+            {/* Medical & Legal Compliance Section */}
+            <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-700">
+                  <ShieldCheck className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-slate-800">Medical & Health Disclaimer</div>
+                  <div className="text-[11px] text-slate-500">Play Store & Health Policy Compliant</div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsLegalModalOpen(true)}
+                className="px-3 py-1.5 rounded-xl bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-xs transition"
+              >
+                View Details
+              </button>
+            </div>
+
             <div className="pt-4 flex gap-2 border-t border-slate-200">
               <button
                 type="button"
@@ -628,6 +651,12 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
             </div>
           </div>
         )}
+
+        <MedicalComplianceModal
+          isOpen={isLegalModalOpen}
+          onClose={() => setIsLegalModalOpen(false)}
+          defaultSection="medical"
+        />
       </motion.div>
     </div>
   );
