@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useFitness } from '../context/FitnessContext';
-import { WorkoutPlan, MuscleGroup, Exercise } from '../types';
+import { WorkoutPlan, MuscleGroup, Exercise, TrainingDiscipline } from '../types';
 import {
   Play,
   Plus,
@@ -13,6 +13,12 @@ import {
   Info,
   CheckCircle2,
   Trash2,
+  Waves,
+  Music,
+  Activity,
+  Heart,
+  Shield,
+  Zap,
 } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -22,6 +28,18 @@ interface TrainingViewProps {
   onSelectExerciseDetails: (exercise: Exercise) => void;
   onOpenActiveWorkout: () => void;
 }
+
+const DISCIPLINE_TABS: { id: TrainingDiscipline; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+  { id: 'All', label: 'All Disciplines', icon: Activity },
+  { id: 'Weights & Strength', label: 'Weights & Strength', icon: Dumbbell },
+  { id: 'Cardio & HIIT', label: 'Cardio & HIIT', icon: Flame },
+  { id: 'Zumba & Dance', label: 'Zumba & Dance', icon: Music },
+  { id: 'Swimming', label: 'Swimming & Water', icon: Waves },
+  { id: 'Calisthenics', label: 'Calisthenics', icon: Zap },
+  { id: 'Yoga & Mobility', label: 'Yoga & Mobility', icon: Heart },
+  { id: 'Pilates', label: 'Pilates & Core', icon: Activity },
+  { id: 'Boxing & Combat', label: 'Boxing & Combat', icon: Shield },
+];
 
 const MUSCLE_FILTERS: (MuscleGroup | 'All')[] = [
   'All',
@@ -34,7 +52,13 @@ const MUSCLE_FILTERS: (MuscleGroup | 'All')[] = [
   'Biceps',
   'Triceps',
   'Core & Abs',
-  'Cardio',
+  'Cardio & HIIT',
+  'Zumba & Dance',
+  'Swimming & Aquatics',
+  'Calisthenics & Bodyweight',
+  'Yoga & Mobility',
+  'Pilates & Core',
+  'Boxing & Martial Arts',
 ];
 
 export const TrainingView: React.FC<TrainingViewProps> = ({
@@ -44,17 +68,71 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
   onOpenActiveWorkout,
 }) => {
   const { plans, exercises, workoutLogs, activeWorkout, startWorkout, deleteWorkoutPlan } = useFitness();
+  const [selectedDiscipline, setSelectedDiscipline] = useState<TrainingDiscipline>('All');
   const [selectedMuscle, setSelectedMuscle] = useState<MuscleGroup | 'All'>('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedPlanId, setExpandedPlanId] = useState<string | null>(null);
 
+  const filteredPlans = plans.filter((plan) => {
+    if (selectedDiscipline === 'All') return true;
+    if (selectedDiscipline === 'Weights & Strength') {
+      return plan.splitType.includes('Push') || plan.splitType.includes('Weights') || plan.tags.includes('Weights');
+    }
+    if (selectedDiscipline === 'Cardio & HIIT') {
+      return plan.splitType.includes('Cardio') || plan.tags.includes('Cardio') || plan.tags.includes('HIIT');
+    }
+    if (selectedDiscipline === 'Zumba & Dance') {
+      return plan.splitType.includes('Zumba') || plan.tags.includes('Zumba') || plan.tags.includes('Dance');
+    }
+    if (selectedDiscipline === 'Swimming') {
+      return plan.splitType.includes('Swim') || plan.tags.includes('Swimming');
+    }
+    if (selectedDiscipline === 'Yoga & Mobility') {
+      return plan.splitType.includes('Yoga') || plan.tags.includes('Yoga') || plan.tags.includes('Mobility');
+    }
+    if (selectedDiscipline === 'Pilates') {
+      return plan.splitType.includes('Pilates') || plan.tags.includes('Pilates');
+    }
+    if (selectedDiscipline === 'Boxing & Combat') {
+      return plan.splitType.includes('Boxing') || plan.tags.includes('Boxing');
+    }
+    if (selectedDiscipline === 'Calisthenics') {
+      return plan.splitType.includes('Calisthenics') || plan.tags.includes('Calisthenics');
+    }
+    return true;
+  });
+
   const filteredExercises = exercises.filter((ex) => {
+    // Check discipline filter
+    let matchesDiscipline = true;
+    if (selectedDiscipline !== 'All') {
+      if (selectedDiscipline === 'Weights & Strength') {
+        matchesDiscipline = ['Chest', 'Back', 'Shoulders', 'Biceps', 'Triceps', 'Quadriceps', 'Hamstrings', 'Glutes', 'Calves', 'Core & Abs'].includes(ex.category as string);
+      } else if (selectedDiscipline === 'Cardio & HIIT') {
+        matchesDiscipline = ex.category === 'Cardio & HIIT' || ex.category === 'Cardio' || ex.discipline === 'Cardio & HIIT';
+      } else if (selectedDiscipline === 'Zumba & Dance') {
+        matchesDiscipline = ex.category === 'Zumba & Dance' || ex.discipline === 'Zumba & Dance';
+      } else if (selectedDiscipline === 'Swimming') {
+        matchesDiscipline = ex.category === 'Swimming & Aquatics' || ex.discipline === 'Swimming';
+      } else if (selectedDiscipline === 'Calisthenics') {
+        matchesDiscipline = ex.category === 'Calisthenics & Bodyweight' || ex.discipline === 'Calisthenics';
+      } else if (selectedDiscipline === 'Yoga & Mobility') {
+        matchesDiscipline = ex.category === 'Yoga & Mobility' || ex.discipline === 'Yoga & Mobility';
+      } else if (selectedDiscipline === 'Pilates') {
+        matchesDiscipline = ex.category === 'Pilates & Core' || ex.discipline === 'Pilates';
+      } else if (selectedDiscipline === 'Boxing & Combat') {
+        matchesDiscipline = ex.category === 'Boxing & Martial Arts' || ex.discipline === 'Boxing & Combat';
+      }
+    }
+
     const matchesMuscle = selectedMuscle === 'All' || ex.category === selectedMuscle;
     const matchesSearch =
       ex.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       ex.targetMuscle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      ex.equipment.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesMuscle && matchesSearch;
+      ex.equipment.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      ex.category.toLowerCase().includes(searchQuery.toLowerCase());
+
+    return matchesDiscipline && matchesMuscle && matchesSearch;
   });
 
   const totalVolumeAllTime = workoutLogs.reduce((acc, log) => acc + log.totalVolumeKg, 0);
@@ -62,6 +140,31 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
   const handleStartWorkout = (plan: WorkoutPlan) => {
     startWorkout(plan);
     onOpenActiveWorkout();
+  };
+
+  const getDisciplineBadge = (category: string) => {
+    if (category.includes('Zumba') || category.includes('Dance')) {
+      return { bg: 'bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200', icon: Music, label: 'Zumba & Dance' };
+    }
+    if (category.includes('Swim') || category.includes('Aquatics')) {
+      return { bg: 'bg-cyan-50 text-cyan-700 border-cyan-200', icon: Waves, label: 'Swimming' };
+    }
+    if (category.includes('Boxing') || category.includes('Martial')) {
+      return { bg: 'bg-amber-50 text-amber-700 border-amber-200', icon: Shield, label: 'Boxing & Combat' };
+    }
+    if (category.includes('Yoga') || category.includes('Mobility')) {
+      return { bg: 'bg-purple-50 text-purple-700 border-purple-200', icon: Heart, label: 'Yoga & Flow' };
+    }
+    if (category.includes('Pilates')) {
+      return { bg: 'bg-teal-50 text-teal-700 border-teal-200', icon: Activity, label: 'Pilates' };
+    }
+    if (category.includes('Calisthenics')) {
+      return { bg: 'bg-orange-50 text-orange-700 border-orange-200', icon: Zap, label: 'Calisthenics' };
+    }
+    if (category.includes('Cardio') || category.includes('HIIT')) {
+      return { bg: 'bg-rose-50 text-rose-700 border-rose-200', icon: Flame, label: 'Cardio & HIIT' };
+    }
+    return { bg: 'bg-emerald-50 text-emerald-700 border-emerald-200', icon: Dumbbell, label: category };
   };
 
   return (
@@ -73,13 +176,13 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold uppercase tracking-wider">
-              <Flame className="w-3.5 h-3.5" /> Training & Progressive Overload
+              <Flame className="w-3.5 h-3.5" /> All-in-One Fitness Training
             </div>
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight">
-              Ready to crush your workout?
+              Weight Training, Cardio, Zumba, Swimming & More
             </h1>
             <p className="text-slate-300 text-sm max-w-xl">
-              Track your sets, weights, rest intervals, and progressive overload with zero friction. Choose a proven split or build your custom routine.
+              Track gym lifting, HIIT cardio, Zumba dance sessions, swimming laps, calisthenics, yoga, and boxing workouts with live timers, rest tracking, and form cues.
             </p>
           </div>
 
@@ -121,7 +224,7 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
             <div className="flex items-center gap-2 text-slate-400 text-xs font-medium">
               <Clock className="w-3.5 h-3.5 text-blue-400" /> Avg Session
             </div>
-            <div className="text-xl font-bold text-white mt-1 font-mono">48m</div>
+            <div className="text-xl font-bold text-white mt-1 font-mono">42m</div>
           </div>
           <div className="bg-slate-900/90 rounded-2xl p-3.5 border border-slate-800">
             <div className="flex items-center gap-2 text-slate-400 text-xs font-medium">
@@ -165,19 +268,59 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
         </motion.div>
       )}
 
+      {/* Discipline Category Switcher Pills */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+            Training Discipline & Activity Type
+          </span>
+          <span className="text-xs text-slate-500 font-medium">
+            {filteredPlans.length} plans • {filteredExercises.length} exercises
+          </span>
+        </div>
+        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+          {DISCIPLINE_TABS.map((tab) => {
+            const Icon = tab.icon;
+            const isSelected = selectedDiscipline === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  setSelectedDiscipline(tab.id);
+                  setSelectedMuscle('All');
+                }}
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-xs ${
+                  isSelected
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200 hover:border-slate-300'
+                }`}
+              >
+                <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-emerald-400' : 'text-slate-400'}`} />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Section: Workout Plans & Splits */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-bold text-slate-900">Workout Splits & Routines</h2>
-            <p className="text-xs text-slate-500">Select a training plan to start your session</p>
+            <p className="text-xs text-slate-500">Select a training plan to start your live session</p>
           </div>
-          <span className="text-xs text-slate-500 font-mono bg-white px-2.5 py-1 rounded-lg border border-slate-200 shadow-xs">{plans.length} available</span>
+          <span className="text-xs text-slate-500 font-mono bg-white px-2.5 py-1 rounded-lg border border-slate-200 shadow-xs">
+            {filteredPlans.length} available
+          </span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {plans.map((plan) => {
+          {filteredPlans.map((plan) => {
             const isExpanded = expandedPlanId === plan.id;
+            const badge = getDisciplineBadge(plan.splitType || plan.tags[0] || '');
+            const BadgeIcon = badge.icon;
+
             return (
               <div
                 key={plan.id}
@@ -185,7 +328,8 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
               >
                 <div>
                   <div className="flex items-start justify-between gap-2">
-                    <span className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span className={`inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg border ${badge.bg}`}>
+                      <BadgeIcon className="w-3 h-3" />
                       {plan.splitType}
                     </span>
                     <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
@@ -211,7 +355,7 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
                   {/* Exercise summary list */}
                   <div className="mt-4 pt-3 border-t border-slate-100 space-y-1.5">
                     <div className="flex items-center justify-between text-xs text-slate-500 mb-1 font-medium">
-                      <span>{plan.exercises.length} Exercises</span>
+                      <span>{plan.exercises.length} Exercises / Drills</span>
                       <button
                         onClick={() => setExpandedPlanId(isExpanded ? null : plan.id)}
                         className="text-[11px] text-emerald-600 hover:text-emerald-700 font-semibold"
@@ -251,7 +395,7 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
                     className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition-all shadow-sm"
                   >
                     <Play className="w-3.5 h-3.5 fill-current" />
-                    <span>Start Workout</span>
+                    <span>Start Session</span>
                   </button>
 
                   {plan.id.startsWith('custom-') && (
@@ -274,15 +418,15 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
       <section className="space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div>
-            <h2 className="text-xl font-bold text-slate-900">Exercise Database & Form Guides</h2>
-            <p className="text-xs text-slate-500">Step-by-step instructions, target muscles & cues</p>
+            <h2 className="text-xl font-bold text-slate-900">Exercise & Activity Database</h2>
+            <p className="text-xs text-slate-500">Step-by-step instructions, technique cues & target muscles</p>
           </div>
 
-          <div className="relative w-full md:w-72">
+          <div className="relative w-full md:w-80">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
-              placeholder="Search exercise, muscle, equipment..."
+              placeholder="Search by name, muscle, equipment..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition-colors shadow-xs"
@@ -290,7 +434,7 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
           </div>
         </div>
 
-        {/* Muscle group filter pills */}
+        {/* Specific Muscle group filter pills */}
         <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
           {MUSCLE_FILTERS.map((muscle) => (
             <button
@@ -309,47 +453,53 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
 
         {/* Exercises Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-          {filteredExercises.map((ex) => (
-            <div
-              key={ex.id}
-              onClick={() => onSelectExerciseDetails(ex)}
-              className="group cursor-pointer rounded-2xl bg-white border border-slate-200 hover:border-emerald-500/60 p-4 transition-all hover:shadow-md flex flex-col justify-between shadow-sm"
-            >
-              <div>
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
-                    {ex.category}
-                  </span>
-                  <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-semibold border border-emerald-200">
-                    {ex.equipment}
-                  </span>
-                </div>
+          {filteredExercises.map((ex) => {
+            const badge = getDisciplineBadge(ex.category);
+            const BadgeIcon = badge.icon;
 
-                <h4 className="text-sm font-bold text-slate-900 mt-2 group-hover:text-emerald-600 transition-colors">
-                  {ex.name}
-                </h4>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  <span className="text-slate-400">Target:</span> {ex.targetMuscle}
-                </p>
-
-                <div className="mt-3 bg-slate-50 rounded-xl p-2.5 border border-slate-200/70 text-[11px] text-slate-700 space-y-1">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1">
-                    <Info className="w-3 h-3 text-emerald-600" /> Key Form Cue
+            return (
+              <div
+                key={ex.id}
+                onClick={() => onSelectExerciseDetails(ex)}
+                className="group cursor-pointer rounded-2xl bg-white border border-slate-200 hover:border-emerald-500/60 p-4 transition-all hover:shadow-md flex flex-col justify-between shadow-sm"
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className={`inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${badge.bg}`}>
+                      <BadgeIcon className="w-3 h-3" />
+                      {ex.category}
+                    </span>
+                    <span className="text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold border border-slate-200">
+                      {ex.equipment}
+                    </span>
                   </div>
-                  <p className="line-clamp-2 text-slate-600">{ex.formTips[0] || ex.instructions[0]}</p>
+
+                  <h4 className="text-sm font-bold text-slate-900 mt-2.5 group-hover:text-emerald-600 transition-colors">
+                    {ex.name}
+                  </h4>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    <span className="text-slate-400">Target:</span> {ex.targetMuscle}
+                  </p>
+
+                  <div className="mt-3 bg-slate-50 rounded-xl p-2.5 border border-slate-200/70 text-[11px] text-slate-700 space-y-1">
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1">
+                      <Info className="w-3 h-3 text-emerald-600" /> Key Technique Cue
+                    </div>
+                    <p className="line-clamp-2 text-slate-600">{ex.formTips[0] || ex.instructions[0]}</p>
+                  </div>
+                </div>
+
+                <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                  <span className="font-mono font-medium">
+                    {ex.defaultSets} sets × {ex.defaultReps}
+                  </span>
+                  <span className="text-emerald-600 font-semibold flex items-center gap-1 text-[11px]">
+                    View Guide <ChevronRight className="w-3.5 h-3.5" />
+                  </span>
                 </div>
               </div>
-
-              <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                <span className="font-mono font-medium">
-                  {ex.defaultSets} sets × {ex.defaultReps} reps
-                </span>
-                <span className="text-emerald-600 font-semibold flex items-center gap-1 text-[11px]">
-                  View Guide <ChevronRight className="w-3.5 h-3.5" />
-                </span>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
@@ -358,7 +508,9 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-slate-900">Recent Workout Logs</h2>
-            <span className="text-xs text-slate-500 bg-white px-2.5 py-1 rounded-lg border border-slate-200">{workoutLogs.length} logged sessions</span>
+            <span className="text-xs text-slate-500 bg-white px-2.5 py-1 rounded-lg border border-slate-200">
+              {workoutLogs.length} logged sessions
+            </span>
           </div>
 
           <div className="space-y-3">
@@ -384,7 +536,6 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
                     </span>
                     <span className="flex items-center gap-1">
                       <Dumbbell className="w-3.5 h-3.5 text-emerald-600" /> {log.totalVolumeKg.toLocaleString()} kg total
-                      volume
                     </span>
                     <span className="flex items-center gap-1">
                       <Flame className="w-3.5 h-3.5 text-amber-500" /> ~{log.caloriesBurned} kcal
@@ -405,3 +556,4 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
     </div>
   );
 };
+

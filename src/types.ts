@@ -19,14 +19,50 @@ export type MuscleGroup =
   | 'Glutes' 
   | 'Calves' 
   | 'Core & Abs' 
-  | 'Cardio' 
+  | 'Cardio & HIIT'
+  | 'Cardio'
+  | 'Zumba & Dance'
+  | 'Swimming & Aquatics'
+  | 'Calisthenics & Bodyweight'
+  | 'Yoga & Mobility'
+  | 'Pilates & Core'
+  | 'Boxing & Martial Arts'
+  | 'CrossFit & Functional'
   | 'Full Body';
+
+export type TrainingDiscipline = 
+  | 'All'
+  | 'Weights & Strength'
+  | 'Cardio & HIIT'
+  | 'Zumba & Dance'
+  | 'Swimming'
+  | 'Calisthenics'
+  | 'Yoga & Mobility'
+  | 'Pilates'
+  | 'Boxing & Combat'
+  | 'CrossFit & Functional';
+
+export type EquipmentType = 
+  | 'Barbell' 
+  | 'Dumbbell' 
+  | 'Machine' 
+  | 'Cable' 
+  | 'Bodyweight' 
+  | 'Kettlebell' 
+  | 'Bands' 
+  | 'Cardio' 
+  | 'Pool' 
+  | 'Dance Floor' 
+  | 'Mat' 
+  | 'Heavy Bag' 
+  | 'Other';
 
 export interface Exercise {
   id: string;
   name: string;
   category: MuscleGroup;
-  equipment: 'Barbell' | 'Dumbbell' | 'Machine' | 'Cable' | 'Bodyweight' | 'Kettlebell' | 'Bands' | 'Cardio';
+  discipline?: TrainingDiscipline;
+  equipment: EquipmentType;
   targetMuscle: string;
   secondaryMuscles?: string[];
   instructions: string[];

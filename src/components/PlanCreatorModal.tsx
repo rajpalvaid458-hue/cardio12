@@ -118,12 +118,18 @@ export const PlanCreatorModal: React.FC<PlanCreatorModalProps> = ({ isOpen, onCl
                 onChange={(e) => setSplitType(e.target.value)}
                 className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 shadow-xs focus:outline-none focus:border-emerald-600"
               >
-                <option value="Push / Pull / Legs">Push / Pull / Legs</option>
-                <option value="Upper / Lower">Upper / Lower</option>
-                <option value="Full Body">Full Body</option>
+                <option value="Push / Pull / Legs">Push / Pull / Legs (Weights)</option>
+                <option value="Upper / Lower">Upper / Lower (Strength)</option>
+                <option value="Full Body">Full Body Weights</option>
                 <option value="Chest & Arms">Chest & Arms</option>
                 <option value="HIIT & Cardio">HIIT & Cardio</option>
-                <option value="Custom">Custom</option>
+                <option value="Zumba & Dance">Zumba & Dance Fitness</option>
+                <option value="Swimming & Aquatics">Swimming & Aquatics</option>
+                <option value="Calisthenics & Bodyweight">Calisthenics & Bodyweight</option>
+                <option value="Yoga & Mobility">Yoga & Mobility Flow</option>
+                <option value="Pilates & Core">Pilates & Core Mat</option>
+                <option value="Boxing & Martial Arts">Boxing & Combat Conditioning</option>
+                <option value="Custom">Custom Multi-Discipline</option>
               </select>
             </div>
 

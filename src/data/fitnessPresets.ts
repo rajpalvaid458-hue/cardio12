@@ -425,7 +425,8 @@ export const EXERCISE_DATABASE: Exercise[] = [
   {
     id: 'hiit-burpees',
     name: 'Chest-to-Floor Burpees',
-    category: 'Cardio',
+    category: 'Cardio & HIIT',
+    discipline: 'Cardio & HIIT',
     equipment: 'Bodyweight',
     targetMuscle: 'Full Body Cardio & Power',
     secondaryMuscles: ['Chest', 'Quads', 'Core', 'Shoulders'],
@@ -442,7 +443,8 @@ export const EXERCISE_DATABASE: Exercise[] = [
   {
     id: 'kettlebell-swing',
     name: 'Russian Kettlebell Swing',
-    category: 'Cardio',
+    category: 'Cardio & HIIT',
+    discipline: 'Cardio & HIIT',
     equipment: 'Kettlebell',
     targetMuscle: 'Posterior Chain & Cardio',
     secondaryMuscles: ['Glutes', 'Hamstrings', 'Lats', 'Core'],
@@ -459,7 +461,8 @@ export const EXERCISE_DATABASE: Exercise[] = [
   {
     id: 'treadmill-incline-walk',
     name: 'Zone 2 Incline Treadmill Walk',
-    category: 'Cardio',
+    category: 'Cardio & HIIT',
+    discipline: 'Cardio & HIIT',
     equipment: 'Cardio',
     targetMuscle: 'Cardiovascular & Calves',
     secondaryMuscles: ['Glutes', 'Hamstrings'],
@@ -473,15 +476,733 @@ export const EXERCISE_DATABASE: Exercise[] = [
     defaultRestSeconds: 0,
     caloriesBurnedPerMin: 8,
   },
+  {
+    id: 'rowing-intervals',
+    name: 'Concept2 Rowing Machine Intervals',
+    category: 'Cardio & HIIT',
+    discipline: 'Cardio & HIIT',
+    equipment: 'Cardio',
+    targetMuscle: 'Total Body Cardiovascular (Lats, Legs & Core)',
+    secondaryMuscles: ['Hamstrings', 'Quads', 'Upper Back', 'Arms'],
+    instructions: [
+      'Strap feet in, grab handle with overhand grip.',
+      'Drive through legs first, lean torso back slightly, pull handle to lower ribs.',
+      'Extend arms forward, hinge torso, bend knees to slide forward for recovery.'
+    ],
+    formTips: ['Legs-Core-Arms on drive, Arms-Core-Legs on return', 'Maintain 24-28 strokes/min pace'],
+    defaultSets: 4,
+    defaultReps: '500m split',
+    defaultRestSeconds: 60,
+    caloriesBurnedPerMin: 13,
+  },
+  {
+    id: 'speed-jump-rope',
+    name: 'High-Speed Jump Rope Intervals',
+    category: 'Cardio & HIIT',
+    discipline: 'Cardio & HIIT',
+    equipment: 'Cardio',
+    targetMuscle: 'Calves, Foot Agility & Cardio Endurance',
+    secondaryMuscles: ['Shoulders', 'Forearms', 'Core'],
+    instructions: [
+      'Hold handles loosely with elbows close to ribs.',
+      'Turn rope with wrists, jumping only 1-2 inches off floor with balls of feet.',
+      'Land softly with slightly bent knees in constant rhythm.'
+    ],
+    formTips: ['Rotate from wrists not shoulders', 'Stay on balls of feet'],
+    defaultSets: 4,
+    defaultReps: '60 sec',
+    defaultRestSeconds: 30,
+    caloriesBurnedPerMin: 14,
+  },
+
+  // ZUMBA & DANCE FITNESS
+  {
+    id: 'zumba-salsa-cardio',
+    name: 'Zumba Salsa & Merengue Rhythm Step',
+    category: 'Zumba & Dance',
+    discipline: 'Zumba & Dance',
+    equipment: 'Dance Floor',
+    targetMuscle: 'Full Body Aerobic Conditioning & Hips',
+    secondaryMuscles: ['Calves', 'Quads', 'Glutes', 'Core Obliques'],
+    instructions: [
+      'Step right foot to side with hips following, return to center on beat 3.',
+      'Step left foot to side with hip roll, return to center on beat 7.',
+      'Add double-step Merengue marching with high knees and rhythmic arm sweeps.'
+    ],
+    formTips: ['Engage core while keeping hips fluid and relaxed', 'Sync footwork with 120-140 BPM Latin music'],
+    defaultSets: 4,
+    defaultReps: '3-min song',
+    defaultRestSeconds: 45,
+    caloriesBurnedPerMin: 10,
+  },
+  {
+    id: 'zumba-reggaeton-bounce',
+    name: 'Reggaeton Dance Squat & Bounce',
+    category: 'Zumba & Dance',
+    discipline: 'Zumba & Dance',
+    equipment: 'Dance Floor',
+    targetMuscle: 'Glutes, Quads & Core Stability',
+    secondaryMuscles: ['Hamstrings', 'Lower Back', 'Calves'],
+    instructions: [
+      'Drop into a quarter squat athletic stance.',
+      'Perform rhythmic pelvic tilts and chest pops while stepping laterally.',
+      'Add explosive jump turns on the drop beats.'
+    ],
+    formTips: ['Keep knees soft and springy to absorb dance impacts', 'Maintain low center of gravity for maximum burn'],
+    defaultSets: 4,
+    defaultReps: '3-min song',
+    defaultRestSeconds: 45,
+    caloriesBurnedPerMin: 11,
+  },
+  {
+    id: 'zumba-cumbia-cross',
+    name: 'Cumbia Machete & Sleepy Step',
+    category: 'Zumba & Dance',
+    discipline: 'Zumba & Dance',
+    equipment: 'Dance Floor',
+    targetMuscle: 'Obliques, Calves & Agility',
+    secondaryMuscles: ['Deltoids', 'Inner Thighs'],
+    instructions: [
+      'Step right foot back on heel pivot while swinging left arm overhead.',
+      'Switch sides continuously with sweeping arm motions and rhythmic waist swivel.'
+    ],
+    formTips: ['Extend arm fully during sweeps', 'Let shoulders roll with the rhythm'],
+    defaultSets: 3,
+    defaultReps: '3-min track',
+    defaultRestSeconds: 45,
+    caloriesBurnedPerMin: 9,
+  },
+  {
+    id: 'zumba-toning-sticks',
+    name: 'Zumba Toning & Light Weight Dance Sculpt',
+    category: 'Zumba & Dance',
+    discipline: 'Zumba & Dance',
+    equipment: 'Dumbbell',
+    targetMuscle: 'Shoulders, Arms & Full Body Dance Cardio',
+    secondaryMuscles: ['Upper Back', 'Core', 'Glutes'],
+    instructions: [
+      'Hold light 1-2kg dumbbells or toning sticks.',
+      'Execute continuous Latin dance footwork while performing synchronized bicep pulses and overhead presses.'
+    ],
+    formTips: ['Avoid locking elbows on rapid movements', 'Keep core braced through all rotations'],
+    defaultSets: 3,
+    defaultReps: '4-min track',
+    defaultRestSeconds: 60,
+    caloriesBurnedPerMin: 11,
+  },
+
+  // SWIMMING & AQUATICS
+  {
+    id: 'swim-freestyle-laps',
+    name: 'Freestyle (Front Crawl) High-Pace Laps',
+    category: 'Swimming & Aquatics',
+    discipline: 'Swimming',
+    equipment: 'Pool',
+    targetMuscle: 'Lats, Shoulders & Full Body Cardiovascular',
+    secondaryMuscles: ['Chest', 'Core', 'Glutes', 'Quads'],
+    instructions: [
+      'Push off pool wall in streamlined glide position.',
+      'Alternate high-elbow arm pulls with continuous flutter kick from hips.',
+      'Rotate torso side-to-side and breathe bilaterally every 3 strokes.'
+    ],
+    formTips: ['Keep head down and water level at hairline', 'Kick from hips, not knees'],
+    defaultSets: 6,
+    defaultReps: '50m (2 laps)',
+    defaultRestSeconds: 30,
+    caloriesBurnedPerMin: 12,
+  },
+  {
+    id: 'swim-breaststroke',
+    name: 'Breaststroke Power Glide',
+    category: 'Swimming & Aquatics',
+    discipline: 'Swimming',
+    equipment: 'Pool',
+    targetMuscle: 'Chest, Inner Thighs (Adductors) & Lats',
+    secondaryMuscles: ['Hamstrings', 'Shoulders', 'Core'],
+    instructions: [
+      'Sweep arms out and pull back in heart shape, lifting chest to breathe.',
+      'Whip kick feet outward and snap heels together while extending arms into long glide.'
+    ],
+    formTips: ['Hold the streamlined glide for 1-2 seconds after each kick', 'Do not drop hips'],
+    defaultSets: 5,
+    defaultReps: '50m (2 laps)',
+    defaultRestSeconds: 45,
+    caloriesBurnedPerMin: 10,
+  },
+  {
+    id: 'swim-butterfly-intervals',
+    name: 'Butterfly Stroke Power Intervals',
+    category: 'Swimming & Aquatics',
+    discipline: 'Swimming',
+    equipment: 'Pool',
+    targetMuscle: 'Deltoids, Trapezius, Core & Hip Undulation',
+    secondaryMuscles: ['Lats', 'Chest', 'Lower Back'],
+    instructions: [
+      'Execute dual dolphin kicks per arm stroke cycle.',
+      'Pull both arms simultaneously under chest and recover over surface of water.',
+      'Press chest forward into the water wave.'
+    ],
+    formTips: ['Generate movement from deep core undulation, not arms alone'],
+    defaultSets: 4,
+    defaultReps: '25m (1 lap)',
+    defaultRestSeconds: 60,
+    caloriesBurnedPerMin: 15,
+  },
+  {
+    id: 'swim-backstroke',
+    name: 'Backstroke Endurance Recovery Laps',
+    category: 'Swimming & Aquatics',
+    discipline: 'Swimming',
+    equipment: 'Pool',
+    targetMuscle: 'Upper Back, Posterior Deltoids & Calves',
+    secondaryMuscles: ['Core', 'Glutes'],
+    instructions: [
+      'Float on back in horizontal alignment.',
+      'Alternate windmill arm strokes with straight arms passing by ears.',
+      'Perform steady flutter kick keeping toes near surface.'
+    ],
+    formTips: ['Keep chin tucked slightly, hips high near the surface'],
+    defaultSets: 5,
+    defaultReps: '50m (2 laps)',
+    defaultRestSeconds: 30,
+    caloriesBurnedPerMin: 9,
+  },
+  {
+    id: 'treading-water-intervals',
+    name: 'High-Knee Treading Water & Eggbeater',
+    category: 'Swimming & Aquatics',
+    discipline: 'Swimming',
+    equipment: 'Pool',
+    targetMuscle: 'Core, Hip Flexors & Heart Rate Spike',
+    secondaryMuscles: ['Shoulders', 'Quads', 'Calves'],
+    instructions: [
+      'Stay vertical in deep water without touching bottom.',
+      'Perform continuous eggbeater or scissor kick while sculling hands in water.',
+      'Raise hands above water surface for extreme intensity.'
+    ],
+    formTips: ['Holding hands out of water doubles the workload on core & legs'],
+    defaultSets: 4,
+    defaultReps: '60 sec',
+    defaultRestSeconds: 45,
+    caloriesBurnedPerMin: 13,
+  },
+
+  // CALISTHENICS & BODYWEIGHT
+  {
+    id: 'muscle-up-rings',
+    name: 'Bar / Gymnastic Ring Muscle-Up',
+    category: 'Calisthenics & Bodyweight',
+    discipline: 'Calisthenics',
+    equipment: 'Bodyweight',
+    targetMuscle: 'Lats, Chest, Triceps & Explosive Pulling',
+    secondaryMuscles: ['Shoulders', 'Grip', 'Abs'],
+    instructions: [
+      'Hang from bar or rings with false grip.',
+      'Pull explosively toward lower sternum, drive head and chest over bar, and transition into top dip lockout.'
+    ],
+    formTips: ['Aggressive wrist rotation during transition', 'Maintain hollow body tension'],
+    defaultSets: 4,
+    defaultReps: '3-6 reps',
+    defaultRestSeconds: 120,
+    caloriesBurnedPerMin: 10,
+  },
+  {
+    id: 'pistol-squat',
+    name: 'Single-Leg Pistol Squat',
+    category: 'Calisthenics & Bodyweight',
+    discipline: 'Calisthenics',
+    equipment: 'Bodyweight',
+    targetMuscle: 'Quadriceps, Glutes & Ankle Mobility',
+    secondaryMuscles: ['Hamstrings', 'Calves', 'Core'],
+    instructions: [
+      'Stand on one leg, extend opposite leg straight out in front.',
+      'Descend into a full single-leg squat until hamstring touches calf.',
+      'Drive through heel to return to standing.'
+    ],
+    formTips: ['Reach arms forward to counterbalance', 'Keep standing heel glued down'],
+    defaultSets: 3,
+    defaultReps: '6-8 per leg',
+    defaultRestSeconds: 90,
+    caloriesBurnedPerMin: 8,
+  },
+
+  // YOGA & MOBILITY
+  {
+    id: 'vinyasa-flow-sun-salutation',
+    name: 'Vinyasa Sun Salutation Flow (Surya Namaskar)',
+    category: 'Yoga & Mobility',
+    discipline: 'Yoga & Mobility',
+    equipment: 'Mat',
+    targetMuscle: 'Spine Decompression, Hamstrings & Full Body Flow',
+    secondaryMuscles: ['Shoulders', 'Hip Flexors', 'Chest'],
+    instructions: [
+      'Start in Mountain Pose (Tadasana), inhale and sweep arms overhead.',
+      'Exhale into Forward Fold (Uttanasana), step back into Plank, lower to Chaturanga.',
+      'Inhale to Upward-Facing Dog, exhale to Downward-Facing Dog. Hold 5 breaths.'
+    ],
+    formTips: ['Link each movement to deep Ujjayi nasal breath', 'Never strain lower back in backbends'],
+    defaultSets: 5,
+    defaultReps: 'Flow sequence',
+    defaultRestSeconds: 30,
+    caloriesBurnedPerMin: 5,
+  },
+  {
+    id: 'pigeon-pose-mobility',
+    name: 'Pigeon Pose & Deep Hip Opener',
+    category: 'Yoga & Mobility',
+    discipline: 'Yoga & Mobility',
+    equipment: 'Mat',
+    targetMuscle: 'Gluteus Medius, Piriformis & Hip Flexors',
+    secondaryMuscles: ['Lower Back', 'Groin'],
+    instructions: [
+      'From Downward Dog, bring right knee forward behind right wrist.',
+      'Extend left leg straight back with top of foot on floor.',
+      'Square hips and fold forward onto forearms.'
+    ],
+    formTips: ['Keep hips level, do not roll onto side', 'Breathe deeply into tightness'],
+    defaultSets: 2,
+    defaultReps: '90 sec / side',
+    defaultRestSeconds: 20,
+    caloriesBurnedPerMin: 3,
+  },
+
+  // PILATES & CORE
+  {
+    id: 'pilates-the-hundred',
+    name: 'Classical Pilates: The Hundred',
+    category: 'Pilates & Core',
+    discipline: 'Pilates',
+    equipment: 'Mat',
+    targetMuscle: 'Transverse Abdominis & Deep Core Stability',
+    secondaryMuscles: ['Neck Flexors', 'Hip Flexors'],
+    instructions: [
+      'Lie on back, curl head and shoulders up, extend legs to 45-degree angle.',
+      'Pump arms vigorously up and down at sides: inhale for 5 counts, exhale for 5 counts (total 100 pumps).'
+    ],
+    formTips: ['Keep lower spine anchored to mat', 'Maintain tight navel-to-spine scoop'],
+    defaultSets: 1,
+    defaultReps: '100 pumps',
+    defaultRestSeconds: 45,
+    caloriesBurnedPerMin: 6,
+  },
+  {
+    id: 'pilates-teaser',
+    name: 'Pilates Teaser V-Hold',
+    category: 'Pilates & Core',
+    discipline: 'Pilates',
+    equipment: 'Mat',
+    targetMuscle: 'Rectus Abdominis & Hip Flexors',
+    secondaryMuscles: ['Spine Articulators', 'Quads'],
+    instructions: [
+      'Lie flat, simultaneously roll torso up while lifting straight legs into a crisp V-shape.',
+      'Hold at balance point with arms parallel to legs, then articulate spine down with control.'
+    ],
+    formTips: ['Roll through each vertebra sequentially', 'Avoid jerky momentum'],
+    defaultSets: 3,
+    defaultReps: '6-8 reps',
+    defaultRestSeconds: 45,
+    caloriesBurnedPerMin: 7,
+  },
+
+  // BOXING & MARTIAL ARTS
+  {
+    id: 'boxing-heavy-bag-combos',
+    name: 'Heavy Bag 6-Punch Power Combinations',
+    category: 'Boxing & Martial Arts',
+    discipline: 'Boxing & Combat',
+    equipment: 'Heavy Bag',
+    targetMuscle: 'Rotational Core, Deltoids & Cardio Stamina',
+    secondaryMuscles: ['Lats', 'Chest', 'Calves', 'Triceps'],
+    instructions: [
+      'Maintain boxing guard: Jab (1), Cross (2), Lead Hook (3), Rear Uppercut (4).',
+      'Slip under counter-hook, fire Lead Body Hook (5) and Cross (6).',
+      'Step out with swift pivot footwork.'
+    ],
+    formTips: ['Rotate hips and pivot ball of foot on punches', 'Keep opposite hand glued to chin guard'],
+    defaultSets: 5,
+    defaultReps: '3-min round',
+    defaultRestSeconds: 60,
+    caloriesBurnedPerMin: 14,
+  },
+  {
+    id: 'boxing-shadow-footwork',
+    name: 'Shadow Boxing & Defensive Slip Drills',
+    category: 'Boxing & Martial Arts',
+    discipline: 'Boxing & Combat',
+    equipment: 'Bodyweight',
+    targetMuscle: 'Shoulder Endurance, Agility & Footwork',
+    secondaryMuscles: ['Core Obliques', 'Calves'],
+    instructions: [
+      'Circle around imaginary opponent with light, bouncy footwork.',
+      'Throw crisp combinations while constantly changing angles, slipping, and rolling under imaginary punches.'
+    ],
+    formTips: ['Stay light on balls of feet', 'Exhale sharp breaths on every strike'],
+    defaultSets: 4,
+    defaultReps: '3-min round',
+    defaultRestSeconds: 45,
+    caloriesBurnedPerMin: 11,
+  },
 ];
 
 export const PRESET_WORKOUT_PLANS: WorkoutPlan[] = [
   {
     id: 'plan-push-hypertrophy',
     title: 'Push Power & Hypertrophy',
-    splitType: 'Push / Pull / Legs',
+    splitType: 'Weights & Strength',
     level: 'intermediate',
     durationMinutes: 50,
+    daysPerWeek: 4,
+    description: 'Target Chest, Shoulders, and Triceps with heavy compound lifting and high-volume isolation.',
+    tags: ['Weights', 'Muscle Gain', 'Chest & Arms'],
+    exercises: [
+      {
+        id: 'p1',
+        exerciseId: 'bench-press-bb',
+        name: 'Barbell Flat Bench Press',
+        targetMuscle: 'Chest (Mid/Lower)',
+        restSec: 120,
+        formTip: 'Pinch shoulder blades, drive through floor',
+        sets: [
+          { id: 's1', setNumber: 1, weightKg: 60, reps: 8, completed: false, isWarmup: true },
+          { id: 's2', setNumber: 2, weightKg: 75, reps: 6, completed: false },
+          { id: 's3', setNumber: 3, weightKg: 75, reps: 6, completed: false },
+          { id: 's4', setNumber: 4, weightKg: 75, reps: 6, completed: false },
+        ]
+      },
+      {
+        id: 'p2',
+        exerciseId: 'incline-db-press',
+        name: 'Incline Dumbbell Press',
+        targetMuscle: 'Upper Chest',
+        restSec: 90,
+        formTip: '30 degree bench, full stretch at bottom',
+        sets: [
+          { id: 's5', setNumber: 1, weightKg: 26, reps: 10, completed: false },
+          { id: 's6', setNumber: 2, weightKg: 26, reps: 10, completed: false },
+          { id: 's7', setNumber: 3, weightKg: 26, reps: 8, completed: false },
+        ]
+      },
+      {
+        id: 'p3',
+        exerciseId: 'overhead-db-press',
+        name: 'Seated Dumbbell Shoulder Press',
+        targetMuscle: 'Shoulders (Front/Side)',
+        restSec: 90,
+        formTip: 'Keep core tight against back pad',
+        sets: [
+          { id: 's8', setNumber: 1, weightKg: 20, reps: 10, completed: false },
+          { id: 's9', setNumber: 2, weightKg: 20, reps: 10, completed: false },
+          { id: 's10', setNumber: 3, weightKg: 20, reps: 8, completed: false },
+        ]
+      },
+      {
+        id: 'p4',
+        exerciseId: 'db-lateral-raise',
+        name: 'Dumbbell Lateral Raise',
+        targetMuscle: 'Side Delts',
+        restSec: 60,
+        formTip: 'Control the descent, lead with elbows',
+        sets: [
+          { id: 's11', setNumber: 1, weightKg: 10, reps: 15, completed: false },
+          { id: 's12', setNumber: 2, weightKg: 10, reps: 14, completed: false },
+          { id: 's13', setNumber: 3, weightKg: 10, reps: 12, completed: false },
+        ]
+      },
+      {
+        id: 'p5',
+        exerciseId: 'tricep-rope-pushdown',
+        name: 'Cable Tricep Rope Pushdown',
+        targetMuscle: 'Triceps',
+        restSec: 60,
+        formTip: 'Spread rope handles wide at lockout',
+        sets: [
+          { id: 's14', setNumber: 1, weightKg: 25, reps: 12, completed: false },
+          { id: 's15', setNumber: 2, weightKg: 25, reps: 12, completed: false },
+          { id: 's16', setNumber: 3, weightKg: 25, reps: 10, completed: false },
+        ]
+      },
+    ]
+  },
+  {
+    id: 'plan-zumba-fiesta',
+    title: 'Zumba Latin Fiesta & Dance Blast',
+    splitType: 'Zumba & Dance',
+    level: 'beginner',
+    durationMinutes: 40,
+    daysPerWeek: 3,
+    description: 'High-energy, mood-boosting Latin dance workout combining Salsa, Reggaeton, Merengue, and Cumbia rhythm sculpt.',
+    tags: ['Zumba', 'Dance', 'High Calorie Burn', 'Cardio'],
+    exercises: [
+      {
+        id: 'zm1',
+        exerciseId: 'zumba-salsa-cardio',
+        name: 'Zumba Salsa & Merengue Rhythm Step',
+        targetMuscle: 'Full Body Aerobic',
+        restSec: 45,
+        formTip: 'Keep hips fluid and step to the beat',
+        sets: [
+          { id: 'zms1', setNumber: 1, weightKg: 0, reps: 1, completed: false },
+          { id: 'zms2', setNumber: 2, weightKg: 0, reps: 1, completed: false },
+          { id: 'zms3', setNumber: 3, weightKg: 0, reps: 1, completed: false },
+        ]
+      },
+      {
+        id: 'zm2',
+        exerciseId: 'zumba-reggaeton-bounce',
+        name: 'Reggaeton Dance Squat & Bounce',
+        targetMuscle: 'Glutes & Quads',
+        restSec: 45,
+        formTip: 'Stay low in athletic squat stance',
+        sets: [
+          { id: 'zms4', setNumber: 1, weightKg: 0, reps: 1, completed: false },
+          { id: 'zms5', setNumber: 2, weightKg: 0, reps: 1, completed: false },
+          { id: 'zms6', setNumber: 3, weightKg: 0, reps: 1, completed: false },
+        ]
+      },
+      {
+        id: 'zm3',
+        exerciseId: 'zumba-cumbia-cross',
+        name: 'Cumbia Machete & Sleepy Step',
+        targetMuscle: 'Obliques & Calves',
+        restSec: 45,
+        formTip: 'Sweeping arms with waist swivel',
+        sets: [
+          { id: 'zms7', setNumber: 1, weightKg: 0, reps: 1, completed: false },
+          { id: 'zms8', setNumber: 2, weightKg: 0, reps: 1, completed: false },
+        ]
+      },
+      {
+        id: 'zm4',
+        exerciseId: 'zumba-toning-sticks',
+        name: 'Zumba Toning & Light Weight Dance Sculpt',
+        targetMuscle: 'Shoulders & Full Body',
+        restSec: 60,
+        formTip: 'Controlled arm pulses while dancing',
+        sets: [
+          { id: 'zms9', setNumber: 1, weightKg: 2, reps: 1, completed: false },
+          { id: 'zms10', setNumber: 2, weightKg: 2, reps: 1, completed: false },
+        ]
+      },
+    ]
+  },
+  {
+    id: 'plan-swim-endurance',
+    title: 'Aquatic Swim Endurance & Laps',
+    splitType: 'Swimming & Aquatics',
+    level: 'intermediate',
+    durationMinutes: 45,
+    daysPerWeek: 3,
+    description: 'Full-body zero-impact aerobic conditioning: freestyle interval laps, breaststroke power glides, and deep-water treading.',
+    tags: ['Swimming', 'Cardio', 'Low Impact', 'Endurance'],
+    exercises: [
+      {
+        id: 'sw1',
+        exerciseId: 'swim-freestyle-laps',
+        name: 'Freestyle High-Pace Laps',
+        targetMuscle: 'Lats & Cardio',
+        restSec: 30,
+        formTip: 'Bilateral breathing, long stroke pull',
+        sets: [
+          { id: 'sws1', setNumber: 1, weightKg: 0, reps: 50, completed: false },
+          { id: 'sws2', setNumber: 2, weightKg: 0, reps: 50, completed: false },
+          { id: 'sws3', setNumber: 3, weightKg: 0, reps: 50, completed: false },
+          { id: 'sws4', setNumber: 4, weightKg: 0, reps: 50, completed: false },
+        ]
+      },
+      {
+        id: 'sw2',
+        exerciseId: 'swim-breaststroke',
+        name: 'Breaststroke Power Glide',
+        targetMuscle: 'Chest & Inner Thighs',
+        restSec: 45,
+        formTip: 'Glide 2 seconds after each powerful whip kick',
+        sets: [
+          { id: 'sws5', setNumber: 1, weightKg: 0, reps: 50, completed: false },
+          { id: 'sws6', setNumber: 2, weightKg: 0, reps: 50, completed: false },
+          { id: 'sws7', setNumber: 3, weightKg: 0, reps: 50, completed: false },
+        ]
+      },
+      {
+        id: 'sw3',
+        exerciseId: 'swim-backstroke',
+        name: 'Backstroke Endurance Recovery Laps',
+        targetMuscle: 'Upper Back & Calves',
+        restSec: 30,
+        formTip: 'Continuous windmill arms, high hips',
+        sets: [
+          { id: 'sws8', setNumber: 1, weightKg: 0, reps: 50, completed: false },
+          { id: 'sws9', setNumber: 2, weightKg: 0, reps: 50, completed: false },
+        ]
+      },
+      {
+        id: 'sw4',
+        exerciseId: 'treading-water-intervals',
+        name: 'High-Knee Treading Water',
+        targetMuscle: 'Core & Hip Flexors',
+        restSec: 45,
+        formTip: 'Keep hands out of water for max intensity',
+        sets: [
+          { id: 'sws10', setNumber: 1, weightKg: 0, reps: 60, completed: false },
+          { id: 'sws11', setNumber: 2, weightKg: 0, reps: 60, completed: false },
+        ]
+      },
+    ]
+  },
+  {
+    id: 'plan-boxing-conditioning',
+    title: 'Boxer Heavy Bag & Combat Stamina',
+    splitType: 'Boxing & Martial Arts',
+    level: 'intermediate',
+    durationMinutes: 40,
+    daysPerWeek: 3,
+    description: 'High-intensity fight conditioning: 6-punch power combinations, fast-paced shadow slip drills, and speed jump rope.',
+    tags: ['Boxing', 'Martial Arts', 'HIIT', 'Core Power'],
+    exercises: [
+      {
+        id: 'bx1',
+        exerciseId: 'speed-jump-rope',
+        name: 'High-Speed Jump Rope Intervals',
+        targetMuscle: 'Calves & Foot Agility',
+        restSec: 30,
+        formTip: 'Stay on balls of feet, turn from wrists',
+        sets: [
+          { id: 'bxs1', setNumber: 1, weightKg: 0, reps: 60, completed: false },
+          { id: 'bxs2', setNumber: 2, weightKg: 0, reps: 60, completed: false },
+          { id: 'bxs3', setNumber: 3, weightKg: 0, reps: 60, completed: false },
+        ]
+      },
+      {
+        id: 'bx2',
+        exerciseId: 'boxing-heavy-bag-combos',
+        name: 'Heavy Bag 6-Punch Combinations',
+        targetMuscle: 'Rotational Core & Shoulders',
+        restSec: 60,
+        formTip: 'Pivot hips on crosses and hooks',
+        sets: [
+          { id: 'bxs4', setNumber: 1, weightKg: 0, reps: 3, completed: false },
+          { id: 'bxs5', setNumber: 2, weightKg: 0, reps: 3, completed: false },
+          { id: 'bxs6', setNumber: 3, weightKg: 0, reps: 3, completed: false },
+          { id: 'bxs7', setNumber: 4, weightKg: 0, reps: 3, completed: false },
+        ]
+      },
+      {
+        id: 'bx3',
+        exerciseId: 'boxing-shadow-footwork',
+        name: 'Shadow Boxing & Defensive Slips',
+        targetMuscle: 'Shoulders & Agility',
+        restSec: 45,
+        formTip: 'Change angles and keep tight guard',
+        sets: [
+          { id: 'bxs8', setNumber: 1, weightKg: 0, reps: 3, completed: false },
+          { id: 'bxs9', setNumber: 2, weightKg: 0, reps: 3, completed: false },
+          { id: 'bxs10', setNumber: 3, weightKg: 0, reps: 3, completed: false },
+        ]
+      },
+    ]
+  },
+  {
+    id: 'plan-yoga-flow',
+    title: 'Vinyasa Flow & Deep Hip Mobility',
+    splitType: 'Yoga & Mobility',
+    level: 'beginner',
+    durationMinutes: 35,
+    daysPerWeek: 4,
+    description: 'Dynamic breath-to-movement flow, spinal articulation, deep hip unlocking, and posture correction.',
+    tags: ['Yoga', 'Mobility', 'Flexibility', 'Recovery'],
+    exercises: [
+      {
+        id: 'yg1',
+        exerciseId: 'vinyasa-flow-sun-salutation',
+        name: 'Vinyasa Sun Salutation Flow',
+        targetMuscle: 'Spine & Full Body Flow',
+        restSec: 30,
+        formTip: 'Match each breath with movement',
+        sets: [
+          { id: 'ygs1', setNumber: 1, weightKg: 0, reps: 5, completed: false },
+          { id: 'ygs2', setNumber: 2, weightKg: 0, reps: 5, completed: false },
+          { id: 'ygs3', setNumber: 3, weightKg: 0, reps: 5, completed: false },
+        ]
+      },
+      {
+        id: 'yg2',
+        exerciseId: 'pigeon-pose-mobility',
+        name: 'Pigeon Pose Deep Hip Opener',
+        targetMuscle: 'Glutes & Hip Flexors',
+        restSec: 20,
+        formTip: 'Square hips, surrender into stretch',
+        sets: [
+          { id: 'ygs4', setNumber: 1, weightKg: 0, reps: 90, completed: false },
+          { id: 'ygs5', setNumber: 2, weightKg: 0, reps: 90, completed: false },
+        ]
+      },
+      {
+        id: 'yg3',
+        exerciseId: 'plank-hold',
+        name: 'Plank Hold & Center Alignment',
+        targetMuscle: 'Deep Core',
+        restSec: 30,
+        formTip: 'Tuck pelvis, hold active line',
+        sets: [
+          { id: 'ygs6', setNumber: 1, weightKg: 0, reps: 45, completed: false },
+          { id: 'ygs7', setNumber: 2, weightKg: 0, reps: 45, completed: false },
+        ]
+      },
+    ]
+  },
+  {
+    id: 'plan-pilates-core',
+    title: 'Pilates Sculpt & Core Power Mat',
+    splitType: 'Pilates & Core',
+    level: 'intermediate',
+    durationMinutes: 30,
+    daysPerWeek: 3,
+    description: 'Precision core activation, pelvic stability, spinal control, and lean muscular conditioning.',
+    tags: ['Pilates', 'Core', 'Toning', 'Posture'],
+    exercises: [
+      {
+        id: 'pl1_core',
+        exerciseId: 'pilates-the-hundred',
+        name: 'Classical Pilates: The Hundred',
+        targetMuscle: 'Transverse Abdominis',
+        restSec: 45,
+        formTip: 'Lower back glued to mat, strong rhythmic pumps',
+        sets: [
+          { id: 'pls1_c', setNumber: 1, weightKg: 0, reps: 100, completed: false },
+        ]
+      },
+      {
+        id: 'pl2_core',
+        exerciseId: 'pilates-teaser',
+        name: 'Pilates Teaser V-Hold',
+        targetMuscle: 'Abs & Hip Flexors',
+        restSec: 45,
+        formTip: 'Articulate spine smoothly into V',
+        sets: [
+          { id: 'pls2_c', setNumber: 1, weightKg: 0, reps: 8, completed: false },
+          { id: 'pls3_c', setNumber: 2, weightKg: 0, reps: 8, completed: false },
+          { id: 'pls4_c', setNumber: 3, weightKg: 0, reps: 8, completed: false },
+        ]
+      },
+      {
+        id: 'pl3_core',
+        exerciseId: 'cable-woodchopper',
+        name: 'Rotational Oblique Control',
+        targetMuscle: 'Obliques',
+        restSec: 45,
+        formTip: 'Rotate purely from torso',
+        sets: [
+          { id: 'pls5_c', setNumber: 1, weightKg: 15, reps: 12, completed: false },
+          { id: 'pls6_c', setNumber: 2, weightKg: 15, reps: 12, completed: false },
+        ]
+      },
+    ]
+  },
+  {
+    id: 'plan-push-power',
+    title: 'Push Power & Hypertrophy',
+    splitType: 'Push / Pull / Legs',
+    level: 'intermediate',
+    durationMinutes: 55,
     daysPerWeek: 4,
     description: 'Target Chest, Shoulders, and Triceps with heavy compound lifting and high-volume isolation.',
     tags: ['Muscle Gain', 'Strength', 'Upper Body'],
