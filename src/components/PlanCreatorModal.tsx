@@ -14,6 +14,8 @@ export const PlanCreatorModal: React.FC<PlanCreatorModalProps> = ({ isOpen, onCl
 
   const [title, setTitle] = useState('');
   const [splitType, setSplitType] = useState('Push / Pull / Legs');
+  const [level, setLevel] = useState<'beginner' | 'intermediate' | 'athlete'>('intermediate');
+  const [targetGender, setTargetGender] = useState<'all' | 'female' | 'male'>('all');
   const [durationMinutes, setDurationMinutes] = useState(45);
   const [description, setDescription] = useState('');
   const [selectedExercises, setSelectedExercises] = useState<
@@ -44,13 +46,20 @@ export const PlanCreatorModal: React.FC<PlanCreatorModalProps> = ({ isOpen, onCl
     e.preventDefault();
     if (!title.trim() || selectedExercises.length === 0) return;
 
+    const tags = ['Custom', splitType];
+    if (targetGender === 'female') tags.push('Female Focus');
+    if (level === 'beginner') tags.push('Beginner');
+    if (level === 'athlete') tags.push('Athlete');
+
     const newPlan: WorkoutPlan = {
       id: `custom-${Date.now()}`,
       title: title.trim(),
       splitType,
+      level,
+      targetGender,
       durationMinutes,
       description: description.trim() || 'Custom user training routine',
-      tags: ['Custom', splitType],
+      tags,
       exercises: selectedExercises.map((item, idx) => ({
         id: `cust-ex-${Date.now()}-${idx}`,
         name: item.exercise.name,
@@ -108,6 +117,34 @@ export const PlanCreatorModal: React.FC<PlanCreatorModalProps> = ({ isOpen, onCl
               onChange={(e) => setTitle(e.target.value)}
               className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-600 shadow-xs"
             />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <label className="text-xs text-slate-600 font-semibold">Target Gender</label>
+              <select
+                value={targetGender}
+                onChange={(e) => setTargetGender(e.target.value as 'all' | 'female' | 'male')}
+                className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 shadow-xs focus:outline-none focus:border-emerald-600"
+              >
+                <option value="all">🌟 All / Unisex</option>
+                <option value="female">👩 Female Focus (Glutes / Sculpt)</option>
+                <option value="male">👨 Male Focus / General</option>
+              </select>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs text-slate-600 font-semibold">Experience Level</label>
+              <select
+                value={level}
+                onChange={(e) => setLevel(e.target.value as 'beginner' | 'intermediate' | 'athlete')}
+                className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 shadow-xs focus:outline-none focus:border-emerald-600"
+              >
+                <option value="beginner">🟢 Beginner (Foundation)</option>
+                <option value="intermediate">🟡 Intermediate (Hypertrophy)</option>
+                <option value="athlete">🔴 Athlete / Pro (1RM / Explosive)</option>
+              </select>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">

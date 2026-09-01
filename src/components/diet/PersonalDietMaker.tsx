@@ -40,11 +40,15 @@ export const PersonalDietMaker: React.FC = () => {
   );
   const [showAiModal, setShowAiModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [dietGenderFilter, setDietGenderFilter] = useState<'all' | 'female' | 'male'>('all');
+  const [dietLevelFilter, setDietLevelFilter] = useState<'all' | 'beginner' | 'intermediate' | 'athlete'>('all');
 
   // AI Generator Form States
   const [goal, setGoal] = useState('Muscle Building & Lean Mass');
   const [cuisinePreference, setCuisinePreference] = useState('Indian & International Fusion');
   const [dietType, setDietType] = useState('High Protein (Desi + Clean International)');
+  const [aiTargetGender, setAiTargetGender] = useState<'all' | 'female' | 'male'>('all');
+  const [aiTargetLevel, setAiTargetLevel] = useState<'beginner' | 'intermediate' | 'athlete'>('intermediate');
   const [targetCalories, setTargetCalories] = useState(
     userProfile.dailyCalorieTarget ? userProfile.dailyCalorieTarget.toString() : '2400'
   );
@@ -54,6 +58,23 @@ export const PersonalDietMaker: React.FC = () => {
   const [targetWeight, setTargetWeight] = useState(
     (userProfile.weightKg + (userProfile.fitnessGoal === 'gain_muscle' ? 4 : -4)).toString()
   );
+
+  const filteredDietPlans = savedDietPlans.filter((p) => {
+    if (dietGenderFilter === 'female') {
+      if (p.targetGender && p.targetGender !== 'female' && p.targetGender !== 'all') return false;
+      const isFemale = p.targetGender === 'female' || p.title.toLowerCase().includes('women') || p.title.toLowerCase().includes('female') || p.tagline.toLowerCase().includes('hormone');
+      if (!isFemale && p.targetGender !== 'all') return false;
+    } else if (dietGenderFilter === 'male') {
+      if (p.targetGender === 'female') return false;
+    }
+
+    if (dietLevelFilter !== 'all') {
+      if (dietLevelFilter === 'beginner' && p.targetLevel && p.targetLevel !== 'beginner') return false;
+      if (dietLevelFilter === 'athlete' && p.targetLevel && p.targetLevel !== 'athlete' && p.targetLevel !== 'advanced') return false;
+    }
+
+    return true;
+  });
 
   const handleGenerateAiDiet = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,6 +89,8 @@ export const PersonalDietMaker: React.FC = () => {
           goal,
           cuisinePreference,
           dietType,
+          targetGender: aiTargetGender,
+          targetLevel: aiTargetLevel,
           targetCalories: parseInt(targetCalories, 10) || 2400,
           weightKg: parseFloat(currentWeight) || 75,
           targetWeightKg: parseFloat(targetWeight) || 80,
@@ -147,16 +170,104 @@ export const PersonalDietMaker: React.FC = () => {
       </div>
 
       {/* Plan Selector Carousel / Badges */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Available Diet Protocols</span>
-          <span className="text-xs text-slate-400">{savedDietPlans.length} plans available</span>
+      <div className="space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Available Diet Protocols</span>
+            <p className="text-[11px] text-slate-400">Tailored for Women, Beginners, Intermediates, and Pro Athletes</p>
+          </div>
+          <span className="text-xs text-slate-500 font-mono bg-white px-2.5 py-1 rounded-lg border border-slate-200 shadow-xs self-start sm:self-auto">
+            {filteredDietPlans.length} of {savedDietPlans.length} plans
+          </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {savedDietPlans.map((plan) => {
+        {/* Filters for Diets */}
+        <div className="flex flex-wrap items-center gap-2 p-2.5 bg-slate-50 rounded-2xl border border-slate-200 text-xs">
+          {/* Gender */}
+          <div className="flex items-center gap-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mr-1">Gender:</span>
+            <button
+              type="button"
+              onClick={() => setDietGenderFilter('all')}
+              className={`px-2.5 py-1 rounded-xl font-bold transition-all ${
+                dietGenderFilter === 'all'
+                  ? 'bg-slate-900 text-white'
+                  : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200'
+              }`}
+            >
+              🌟 All
+            </button>
+            <button
+              type="button"
+              onClick={() => setDietGenderFilter('female')}
+              className={`px-2.5 py-1 rounded-xl font-bold transition-all ${
+                dietGenderFilter === 'female'
+                  ? 'bg-pink-600 text-white'
+                  : 'bg-white text-pink-700 hover:bg-pink-50 border border-pink-200'
+              }`}
+            >
+              👩 Female (महिला)
+            </button>
+            <button
+              type="button"
+              onClick={() => setDietGenderFilter('male')}
+              className={`px-2.5 py-1 rounded-xl font-bold transition-all ${
+                dietGenderFilter === 'male'
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-white text-indigo-700 hover:bg-indigo-50 border border-indigo-200'
+              }`}
+            >
+              👨 Male / General
+            </button>
+          </div>
+
+          <div className="hidden sm:block w-px h-5 bg-slate-200 mx-1" />
+
+          {/* Level */}
+          <div className="flex items-center gap-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mr-1">Level:</span>
+            <button
+              type="button"
+              onClick={() => setDietLevelFilter('all')}
+              className={`px-2.5 py-1 rounded-xl font-bold transition-all ${
+                dietLevelFilter === 'all'
+                  ? 'bg-slate-900 text-white'
+                  : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200'
+              }`}
+            >
+              ⚡ All
+            </button>
+            <button
+              type="button"
+              onClick={() => setDietLevelFilter('beginner')}
+              className={`px-2.5 py-1 rounded-xl font-bold transition-all ${
+                dietLevelFilter === 'beginner'
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-white text-emerald-700 hover:bg-emerald-50 border border-emerald-200'
+              }`}
+            >
+              🟢 Beginner
+            </button>
+            <button
+              type="button"
+              onClick={() => setDietLevelFilter('athlete')}
+              className={`px-2.5 py-1 rounded-xl font-bold transition-all ${
+                dietLevelFilter === 'athlete'
+                  ? 'bg-rose-600 text-white'
+                  : 'bg-white text-rose-700 hover:bg-rose-50 border border-rose-200'
+              }`}
+            >
+              🔴 Pro Athlete
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {filteredDietPlans.map((plan) => {
             const isSelected = selectedPlan?.id === plan.id;
             const isActive = activeDietPlan?.id === plan.id;
+            const isFemale = plan.targetGender === 'female' || plan.title.toLowerCase().includes('women') || plan.title.toLowerCase().includes('female');
+            const isAthlete = plan.targetLevel === 'athlete';
 
             return (
               <button
@@ -169,10 +280,22 @@ export const PersonalDietMaker: React.FC = () => {
                 }`}
               >
                 <div>
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 px-2 py-0.5 rounded-md bg-emerald-100/60">
-                      {plan.cuisine}
-                    </span>
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <div className="flex items-center gap-1 flex-wrap">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 px-2 py-0.5 rounded-md bg-emerald-100/60">
+                        {plan.cuisine}
+                      </span>
+                      {isFemale && (
+                        <span className="text-[10px] font-bold text-pink-700 px-1.5 py-0.5 rounded-md bg-pink-100/80 border border-pink-200">
+                          🌸 Female Focus
+                        </span>
+                      )}
+                      {isAthlete && (
+                        <span className="text-[10px] font-bold text-rose-700 px-1.5 py-0.5 rounded-md bg-rose-100/80 border border-rose-200">
+                          🔴 Athlete
+                        </span>
+                      )}
+                    </div>
                     {isActive && (
                       <span className="text-[10px] font-bold text-white bg-emerald-600 px-2 py-0.5 rounded-full flex items-center gap-1">
                         <Check className="w-3 h-3 stroke-[3]" /> Active
@@ -180,7 +303,7 @@ export const PersonalDietMaker: React.FC = () => {
                     )}
                   </div>
                   <h4 className="font-extrabold text-sm text-slate-900 mt-2">{plan.title}</h4>
-                  <p className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">{plan.tagline}</p>
+                  <p className="text-[11px] text-slate-500 line-clamp-2 mt-0.5">{plan.tagline}</p>
                 </div>
 
                 <div className="flex items-center justify-between pt-3 mt-3 border-t border-slate-100 text-xs font-mono">
@@ -421,6 +544,34 @@ export const PersonalDietMaker: React.FC = () => {
               )}
 
               <form onSubmit={handleGenerateAiDiet} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-xs text-slate-700 font-semibold">Target Gender (लिंग)</label>
+                    <select
+                      value={aiTargetGender}
+                      onChange={(e) => setAiTargetGender(e.target.value as 'all' | 'female' | 'male')}
+                      className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-medium focus:outline-none focus:border-emerald-600"
+                    >
+                      <option value="all">🌟 All / Unisex</option>
+                      <option value="female">👩 Female (महिला - Tone & Hormones)</option>
+                      <option value="male">👨 Male / General (पुरुष)</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs text-slate-700 font-semibold">Fitness Level (स्तर)</label>
+                    <select
+                      value={aiTargetLevel}
+                      onChange={(e) => setAiTargetLevel(e.target.value as 'beginner' | 'intermediate' | 'athlete')}
+                      className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-medium focus:outline-none focus:border-emerald-600"
+                    >
+                      <option value="beginner">🟢 Beginner (शुरुआती - Simple & Sustainable)</option>
+                      <option value="intermediate">🟡 Intermediate (मध्यम - Hypertrophy / Cut)</option>
+                      <option value="athlete">🔴 Athlete / Pro (एथलीट - High Performance Fuel)</option>
+                    </select>
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <label className="text-xs text-slate-700 font-semibold">Primary Goal</label>

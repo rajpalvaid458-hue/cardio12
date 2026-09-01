@@ -6,7 +6,7 @@ export type FitnessGoal =
   | 'recomposition' 
   | 'general_health';
 
-export type FitnessLevel = 'beginner' | 'intermediate' | 'advanced';
+export type FitnessLevel = 'beginner' | 'intermediate' | 'advanced' | 'athlete';
 
 export type MuscleGroup = 
   | 'Chest' 
@@ -107,6 +107,7 @@ export interface WorkoutPlan {
   title: string;
   splitType: string;
   level?: FitnessLevel;
+  targetGender?: 'all' | 'female' | 'male';
   durationMinutes: number;
   daysPerWeek?: number;
   description: string;
@@ -223,6 +224,8 @@ export interface PersonalDietPlan {
   title: string;
   tagline: string;
   goal: FitnessGoal;
+  targetGender?: 'all' | 'female' | 'male';
+  targetLevel?: FitnessLevel;
   cuisine: 'Indian' | 'International' | 'Fusion';
   dietType: 'pure_veg' | 'non_veg' | 'vegan' | 'eggetarian' | 'jain' | 'keto' | 'high_protein';
   dietTypeLabel: string;

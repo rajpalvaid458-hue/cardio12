@@ -842,6 +842,123 @@ export const EXERCISE_DATABASE: Exercise[] = [
     defaultRestSeconds: 45,
     caloriesBurnedPerMin: 11,
   },
+
+  // GLUTES & FEMALE TONING SPECIALTIES
+  {
+    id: 'barbell-hip-thrust',
+    name: 'Barbell Hip Thrust (Glute Hypertrophy)',
+    category: 'Glutes',
+    equipment: 'Barbell',
+    targetMuscle: 'Gluteus Maximus (Upper & Mid Glute)',
+    secondaryMuscles: ['Hamstrings', 'Adductors', 'Core'],
+    instructions: [
+      'Sit on floor with upper back against sturdy bench, padded barbell over hips.',
+      'Feet flat on floor shoulder-width apart, knees at 90 degrees at apex.',
+      'Drive hips upward through heels until thighs and torso are in straight line.',
+      'Hold hard glute contraction at top for 2 seconds before lowering under control.'
+    ],
+    formTips: ['Keep chin tucked to chest throughout', 'Do not hyperextend lower back at apex', 'Drive strictly through heels'],
+    defaultSets: 4,
+    defaultReps: '10-12',
+    defaultRestSeconds: 90,
+    caloriesBurnedPerMin: 9,
+  },
+  {
+    id: 'bulgarian-split-squat',
+    name: 'Bulgarian Split Squat (Rear Foot Elevated)',
+    category: 'Glutes',
+    equipment: 'Dumbbell',
+    targetMuscle: 'Glutes & Quadriceps',
+    secondaryMuscles: ['Hamstrings', 'Core Stabilizers'],
+    instructions: [
+      'Stand 2 feet in front of bench, place top of rear foot flat on bench.',
+      'Hold dumbbells at sides, lean torso forward ~20 degrees to bias glutes.',
+      'Lower hips until front thigh is parallel to ground.',
+      'Drive up through front heel.'
+    ],
+    formTips: ['Keep front shin relatively vertical for glute bias', 'Control the 3-second descent'],
+    defaultSets: 3,
+    defaultReps: '10 per leg',
+    defaultRestSeconds: 75,
+    caloriesBurnedPerMin: 8,
+  },
+  {
+    id: 'cable-glute-kickback',
+    name: 'Cable Glute Kickback & Abduction',
+    category: 'Glutes',
+    equipment: 'Cable',
+    targetMuscle: 'Gluteus Maximus & Gluteus Medius',
+    secondaryMuscles: ['Hamstrings'],
+    instructions: [
+      'Attach ankle cuff to low cable pulley, face the machine holding frame for balance.',
+      'Hinge forward slightly, kick leg backward and slightly outward in 45-degree arc.',
+      'Squeeze glute hard at apex for 1 second, resist return.'
+    ],
+    formTips: ['Do not arch lower back to lift leg', 'Maintain constant cable tension throughout'],
+    defaultSets: 3,
+    defaultReps: '12-15 per leg',
+    defaultRestSeconds: 45,
+    caloriesBurnedPerMin: 6,
+  },
+  {
+    id: 'db-goblet-squat',
+    name: 'Dumbbell / Kettlebell Goblet Squat',
+    category: 'Quadriceps',
+    equipment: 'Dumbbell',
+    targetMuscle: 'Quads, Glutes & Core (Beginner Safe)',
+    secondaryMuscles: ['Upper Back', 'Calves'],
+    instructions: [
+      'Hold dumbbell vertically against chest with elbows pointing down.',
+      'Stand feet shoulder-width with slight toe flare.',
+      'Squat deep between knees while keeping chest upright and heels planted.',
+      'Drive up through whole foot.'
+    ],
+    formTips: ['Perfect beginner squat builder', 'Use elbows inside knees at bottom to open hips'],
+    defaultSets: 3,
+    defaultReps: '12-15',
+    defaultRestSeconds: 60,
+    caloriesBurnedPerMin: 7,
+  },
+
+  // ATHLETIC & EXPLOSIVE CROSS-TRAINING
+  {
+    id: 'dumbbell-thruster',
+    name: 'Dumbbell Thrusters (Squat to Overhead Press)',
+    category: 'CrossFit & Functional',
+    discipline: 'CrossFit & Functional',
+    equipment: 'Dumbbell',
+    targetMuscle: 'Full Body Explosive Power (Quads, Glutes & Deltoids)',
+    secondaryMuscles: ['Triceps', 'Core', 'Cardiovascular'],
+    instructions: [
+      'Hold dumbbells at shoulders in front rack position.',
+      'Descend into a full deep squat.',
+      'Drive up explosively and transfer leg drive directly into an overhead press in one continuous motion.'
+    ],
+    formTips: ['Do not pause between squat and press', 'Exhale hard at lockout'],
+    defaultSets: 4,
+    defaultReps: '12-15',
+    defaultRestSeconds: 60,
+    caloriesBurnedPerMin: 13,
+  },
+  {
+    id: 'box-jump-explosive',
+    name: 'Plyometric Box Jumps (Reactive Power)',
+    category: 'CrossFit & Functional',
+    discipline: 'CrossFit & Functional',
+    equipment: 'Other',
+    targetMuscle: 'Fast-Twitch Leg Explosiveness & Vertical Jump',
+    secondaryMuscles: ['Glutes', 'Calves', 'Core'],
+    instructions: [
+      'Stand in athletic stance 1 foot in front of 24-30" plyo box.',
+      'Swing arms back and hinge hips, then explode upward onto the box.',
+      'Land softly in quarter squat with feet fully on the platform. Step down carefully.'
+    ],
+    formTips: ['Focus on soft, quiet landings to protect joints', 'Step down rather than jumping down'],
+    defaultSets: 4,
+    defaultReps: '8-10 jumps',
+    defaultRestSeconds: 60,
+    caloriesBurnedPerMin: 11,
+  },
 ];
 
 export const PRESET_WORKOUT_PLANS: WorkoutPlan[] = [
@@ -1463,6 +1580,362 @@ export const PRESET_WORKOUT_PLANS: WorkoutPlan[] = [
         sets: [
           { id: 'hts7', setNumber: 1, weightKg: 0, reps: 60, completed: false },
           { id: 'hts8', setNumber: 2, weightKg: 0, reps: 60, completed: false },
+        ]
+      },
+    ]
+  },
+
+  // ===================== FEMALE SPECIALIZED WORKOUTS =====================
+  {
+    id: 'plan-female-glute-sculpt',
+    title: 'Female Glute Hypertrophy & Waist Sculpt',
+    splitType: 'Weights & Strength',
+    level: 'intermediate',
+    targetGender: 'female',
+    durationMinutes: 50,
+    daysPerWeek: 4,
+    description: 'Designed specifically for lower-body curves, upper glute shelf development, hip stability, and a tight sculpted waist.',
+    tags: ['Female Focus', 'Glute Growth', 'Hourglass', 'Toning'],
+    exercises: [
+      {
+        id: 'fg1',
+        exerciseId: 'barbell-hip-thrust',
+        name: 'Barbell Hip Thrust (Glute Hypertrophy)',
+        targetMuscle: 'Gluteus Maximus (Upper/Mid)',
+        restSec: 90,
+        formTip: '2-second hard squeeze at top, chin tucked',
+        sets: [
+          { id: 'fgs1', setNumber: 1, weightKg: 40, reps: 12, completed: false, isWarmup: true },
+          { id: 'fgs2', setNumber: 2, weightKg: 55, reps: 10, completed: false },
+          { id: 'fgs3', setNumber: 3, weightKg: 60, reps: 10, completed: false },
+          { id: 'fgs4', setNumber: 4, weightKg: 60, reps: 8, completed: false },
+        ]
+      },
+      {
+        id: 'fg2',
+        exerciseId: 'bulgarian-split-squat',
+        name: 'Bulgarian Split Squat (Rear Foot Elevated)',
+        targetMuscle: 'Glutes & Quads',
+        restSec: 75,
+        formTip: 'Forward torso lean for deep glute stretch',
+        sets: [
+          { id: 'fgs5', setNumber: 1, weightKg: 10, reps: 10, completed: false },
+          { id: 'fgs6', setNumber: 2, weightKg: 12, reps: 10, completed: false },
+          { id: 'fgs7', setNumber: 3, weightKg: 12, reps: 10, completed: false },
+        ]
+      },
+      {
+        id: 'fg3',
+        exerciseId: 'romanian-deadlift',
+        name: 'Romanian Deadlift (RDL)',
+        targetMuscle: 'Hamstrings & Glute-Ham Tie-in',
+        restSec: 75,
+        formTip: 'Push hips back, tight core, soft knees',
+        sets: [
+          { id: 'fgs8', setNumber: 1, weightKg: 40, reps: 12, completed: false },
+          { id: 'fgs9', setNumber: 2, weightKg: 45, reps: 10, completed: false },
+          { id: 'fgs10', setNumber: 3, weightKg: 45, reps: 10, completed: false },
+        ]
+      },
+      {
+        id: 'fg4',
+        exerciseId: 'cable-glute-kickback',
+        name: 'Cable Glute Kickback & Abduction',
+        targetMuscle: 'Gluteus Medius & Shelf',
+        restSec: 45,
+        formTip: 'Kick 45-degrees back, pause 1s at apex',
+        sets: [
+          { id: 'fgs11', setNumber: 1, weightKg: 7.5, reps: 15, completed: false },
+          { id: 'fgs12', setNumber: 2, weightKg: 10, reps: 12, completed: false },
+          { id: 'fgs13', setNumber: 3, weightKg: 10, reps: 12, completed: false },
+        ]
+      },
+      {
+        id: 'fg5',
+        exerciseId: 'plank-hold',
+        name: 'Plank with Pelvic Tilt Core Tightening',
+        targetMuscle: 'Transverse Abdominis & Deep Core',
+        restSec: 45,
+        formTip: 'Pull belly button to spine to tighten waistline',
+        sets: [
+          { id: 'fgs14', setNumber: 1, weightKg: 0, reps: 45, completed: false },
+          { id: 'fgs15', setNumber: 2, weightKg: 0, reps: 45, completed: false },
+        ]
+      },
+    ]
+  },
+  {
+    id: 'plan-female-fullbody-tone',
+    title: 'Female Full-Body Tone & Posture Sculpt',
+    splitType: 'Weights & Strength',
+    level: 'beginner',
+    targetGender: 'female',
+    durationMinutes: 45,
+    daysPerWeek: 3,
+    description: 'Beginner-friendly full body toning split focusing on posture correction, back contouring, toned arms, and leg shaping.',
+    tags: ['Female Focus', 'Full Body', 'Beginner', 'Toning', 'Posture'],
+    exercises: [
+      {
+        id: 'fbt1',
+        exerciseId: 'db-goblet-squat',
+        name: 'Dumbbell Goblet Squat',
+        targetMuscle: 'Quads & Glutes',
+        restSec: 60,
+        formTip: 'Hold dumbbell tight at chest, sit deep',
+        sets: [
+          { id: 'fbts1', setNumber: 1, weightKg: 8, reps: 12, completed: false },
+          { id: 'fbts2', setNumber: 2, weightKg: 10, reps: 12, completed: false },
+          { id: 'fbts3', setNumber: 3, weightKg: 10, reps: 12, completed: false },
+        ]
+      },
+      {
+        id: 'fbt2',
+        exerciseId: 'lat-pulldown',
+        name: 'Lat Pulldown (Wide Grip)',
+        targetMuscle: 'Upper Back & Posture',
+        restSec: 60,
+        formTip: 'Open chest and pull shoulder blades together',
+        sets: [
+          { id: 'fbts4', setNumber: 1, weightKg: 25, reps: 12, completed: false },
+          { id: 'fbts5', setNumber: 2, weightKg: 30, reps: 12, completed: false },
+          { id: 'fbts6', setNumber: 3, weightKg: 30, reps: 10, completed: false },
+        ]
+      },
+      {
+        id: 'fbt3',
+        exerciseId: 'db-lateral-raise',
+        name: 'Dumbbell Lateral Raise',
+        targetMuscle: 'Shoulder Definition',
+        restSec: 45,
+        formTip: 'Light weights, smooth controlled tempo',
+        sets: [
+          { id: 'fbts7', setNumber: 1, weightKg: 4, reps: 15, completed: false },
+          { id: 'fbts8', setNumber: 2, weightKg: 4, reps: 15, completed: false },
+          { id: 'fbts9', setNumber: 3, weightKg: 4, reps: 12, completed: false },
+        ]
+      },
+      {
+        id: 'fbt4',
+        exerciseId: 'tricep-rope-pushdown',
+        name: 'Cable Tricep Rope Pushdown',
+        targetMuscle: 'Toned Triceps',
+        restSec: 45,
+        formTip: 'Spread rope at bottom for arm tightening',
+        sets: [
+          { id: 'fbts10', setNumber: 1, weightKg: 12, reps: 15, completed: false },
+          { id: 'fbts11', setNumber: 2, weightKg: 15, reps: 12, completed: false },
+        ]
+      },
+      {
+        id: 'fbt5',
+        exerciseId: 'treadmill-incline-walk',
+        name: 'Zone 2 Incline Glute Treadmill Walk',
+        targetMuscle: 'Cardio & Fat Burning',
+        restSec: 0,
+        formTip: '12% incline, 4.8 km/h, hands free',
+        sets: [
+          { id: 'fbts12', setNumber: 1, weightKg: 0, reps: 15, completed: false },
+        ]
+      },
+    ]
+  },
+
+  // ===================== BEGINNER FOUNDATION PLANS =====================
+  {
+    id: 'plan-beginner-3day',
+    title: '3-Day Beginner Full-Body Foundation',
+    splitType: 'Weights & Strength',
+    level: 'beginner',
+    targetGender: 'all',
+    durationMinutes: 45,
+    daysPerWeek: 3,
+    description: 'Safe, foundational gym introduction covering essential compound movements, correct joint alignment, and gradual strength progression.',
+    tags: ['Beginner', 'Foundation', 'Full Body', 'Linear Progress'],
+    exercises: [
+      {
+        id: 'bg1',
+        exerciseId: 'db-goblet-squat',
+        name: 'Dumbbell Goblet Squat',
+        targetMuscle: 'Quads & Glutes',
+        restSec: 75,
+        formTip: 'Keep heels glued to floor, chest upright',
+        sets: [
+          { id: 'bgs1', setNumber: 1, weightKg: 10, reps: 12, completed: false },
+          { id: 'bgs2', setNumber: 2, weightKg: 12, reps: 10, completed: false },
+          { id: 'bgs3', setNumber: 3, weightKg: 12, reps: 10, completed: false },
+        ]
+      },
+      {
+        id: 'bg2',
+        exerciseId: 'incline-db-press',
+        name: 'Incline Dumbbell Press',
+        targetMuscle: 'Chest & Shoulders',
+        restSec: 75,
+        formTip: '30-degree angle, controlled descent',
+        sets: [
+          { id: 'bgs4', setNumber: 1, weightKg: 12, reps: 10, completed: false },
+          { id: 'bgs5', setNumber: 2, weightKg: 14, reps: 10, completed: false },
+          { id: 'bgs6', setNumber: 3, weightKg: 14, reps: 10, completed: false },
+        ]
+      },
+      {
+        id: 'bg3',
+        exerciseId: 'lat-pulldown',
+        name: 'Lat Pulldown (Wide Grip)',
+        targetMuscle: 'Lats & Upper Back',
+        restSec: 75,
+        formTip: 'Pull bar smoothly to collarbone',
+        sets: [
+          { id: 'bgs7', setNumber: 1, weightKg: 35, reps: 12, completed: false },
+          { id: 'bgs8', setNumber: 2, weightKg: 40, reps: 10, completed: false },
+          { id: 'bgs9', setNumber: 3, weightKg: 40, reps: 10, completed: false },
+        ]
+      },
+      {
+        id: 'bg4',
+        exerciseId: 'face-pulls',
+        name: 'Cable Rope Face Pulls',
+        targetMuscle: 'Shoulder Health & Upper Back',
+        restSec: 60,
+        formTip: 'Pull rope apart to ear level',
+        sets: [
+          { id: 'bgs10', setNumber: 1, weightKg: 15, reps: 15, completed: false },
+          { id: 'bgs11', setNumber: 2, weightKg: 15, reps: 15, completed: false },
+        ]
+      },
+      {
+        id: 'bg5',
+        exerciseId: 'plank-hold',
+        name: 'Forearm Core Plank',
+        targetMuscle: 'Core & Abdominals',
+        restSec: 60,
+        formTip: 'Breathe normally, do not let lower back sag',
+        sets: [
+          { id: 'bgs12', setNumber: 1, weightKg: 0, reps: 30, completed: false },
+          { id: 'bgs13', setNumber: 2, weightKg: 0, reps: 30, completed: false },
+        ]
+      },
+    ]
+  },
+
+  // ===================== PRO ATHLETE & ADVANCED PLANS =====================
+  {
+    id: 'plan-athlete-powerlifting',
+    title: 'Pro Powerlifting & 1RM Strength Peak',
+    splitType: 'Weights & Strength',
+    level: 'athlete',
+    targetGender: 'all',
+    durationMinutes: 65,
+    daysPerWeek: 4,
+    description: 'High-intensity neuromuscular strength block focusing on heavy squats, paused bench press, and deadlifts with RPE 8-9.5 CNS loading.',
+    tags: ['Athlete', 'Powerlifting', '1RM Strength', 'Heavy Compound'],
+    exercises: [
+      {
+        id: 'ath1',
+        exerciseId: 'barbell-squat',
+        name: 'Barbell Back Squat (Heavy 1RM Focus)',
+        targetMuscle: 'Lower Body Maximal Force',
+        restSec: 180,
+        formTip: 'Brace core with belt, drive explosively out of hole',
+        sets: [
+          { id: 'aths1', setNumber: 1, weightKg: 80, reps: 5, completed: false, isWarmup: true },
+          { id: 'aths2', setNumber: 2, weightKg: 110, reps: 3, completed: false, isWarmup: true },
+          { id: 'aths3', setNumber: 3, weightKg: 130, reps: 3, completed: false },
+          { id: 'aths4', setNumber: 4, weightKg: 140, reps: 2, completed: false },
+          { id: 'aths5', setNumber: 5, weightKg: 145, reps: 2, completed: false },
+        ]
+      },
+      {
+        id: 'ath2',
+        exerciseId: 'bench-press-bb',
+        name: 'Barbell Flat Bench Press (1s Paused)',
+        targetMuscle: 'Upper Body Pressing Power',
+        restSec: 150,
+        formTip: '1-second pause on chest, explosive leg drive press',
+        sets: [
+          { id: 'aths6', setNumber: 1, weightKg: 70, reps: 5, completed: false, isWarmup: true },
+          { id: 'aths7', setNumber: 2, weightKg: 95, reps: 3, completed: false },
+          { id: 'aths8', setNumber: 3, weightKg: 105, reps: 3, completed: false },
+          { id: 'aths9', setNumber: 4, weightKg: 110, reps: 2, completed: false },
+        ]
+      },
+      {
+        id: 'ath3',
+        exerciseId: 'deadlift-bb',
+        name: 'Conventional Barbell Deadlift',
+        targetMuscle: 'Posterior Chain Raw Power',
+        restSec: 180,
+        formTip: 'Lock lats, push floor away through heels',
+        sets: [
+          { id: 'aths10', setNumber: 1, weightKg: 100, reps: 5, completed: false, isWarmup: true },
+          { id: 'aths11', setNumber: 2, weightKg: 140, reps: 3, completed: false },
+          { id: 'aths12', setNumber: 3, weightKg: 160, reps: 2, completed: false },
+          { id: 'aths13', setNumber: 4, weightKg: 170, reps: 2, completed: false },
+        ]
+      },
+    ]
+  },
+  {
+    id: 'plan-athlete-crossfit',
+    title: 'CrossFit WOD & High-Threshold Conditioning',
+    splitType: 'CrossFit & Functional',
+    level: 'athlete',
+    targetGender: 'all',
+    durationMinutes: 45,
+    daysPerWeek: 5,
+    description: 'Elite conditioning circuit combining dumbbell thrusters, explosive plyometric box jumps, pull-ups, and rowing sprint intervals.',
+    tags: ['Athlete', 'CrossFit', 'HIIT', 'Power Endurance', 'VO2 Max'],
+    exercises: [
+      {
+        id: 'cf1',
+        exerciseId: 'dumbbell-thruster',
+        name: 'Dumbbell Thrusters (Squat to Overhead)',
+        targetMuscle: 'Full Body Power & VO2 Max',
+        restSec: 45,
+        formTip: 'Continuous momentum from squat to press',
+        sets: [
+          { id: 'cfs1', setNumber: 1, weightKg: 18, reps: 15, completed: false },
+          { id: 'cfs2', setNumber: 2, weightKg: 20, reps: 12, completed: false },
+          { id: 'cfs3', setNumber: 3, weightKg: 20, reps: 12, completed: false },
+          { id: 'cfs4', setNumber: 4, weightKg: 20, reps: 10, completed: false },
+        ]
+      },
+      {
+        id: 'cf2',
+        exerciseId: 'pull-ups',
+        name: 'Pull-Ups / Butterfly Kips',
+        targetMuscle: 'Upper Body Pulling Density',
+        restSec: 45,
+        formTip: 'Full range of motion, chin over bar',
+        sets: [
+          { id: 'cfs5', setNumber: 1, weightKg: 0, reps: 12, completed: false },
+          { id: 'cfs6', setNumber: 2, weightKg: 0, reps: 12, completed: false },
+          { id: 'cfs7', setNumber: 3, weightKg: 0, reps: 10, completed: false },
+        ]
+      },
+      {
+        id: 'cf3',
+        exerciseId: 'box-jump-explosive',
+        name: 'Plyometric Box Jumps (24/30 Inch)',
+        targetMuscle: 'Leg Explosiveness',
+        restSec: 45,
+        formTip: 'Soft landing, aggressive hip opening at apex',
+        sets: [
+          { id: 'cfs8', setNumber: 1, weightKg: 0, reps: 10, completed: false },
+          { id: 'cfs9', setNumber: 2, weightKg: 0, reps: 10, completed: false },
+          { id: 'cfs10', setNumber: 3, weightKg: 0, reps: 10, completed: false },
+        ]
+      },
+      {
+        id: 'cf4',
+        exerciseId: 'rowing-intervals',
+        name: 'Rowing Machine 500m Max Sprint',
+        targetMuscle: 'Cardio & Lactic Tolerance',
+        restSec: 60,
+        formTip: 'Drive through legs first, hold sub-1:40 split pace',
+        sets: [
+          { id: 'cfs11', setNumber: 1, weightKg: 0, reps: 500, completed: false },
+          { id: 'cfs12', setNumber: 2, weightKg: 0, reps: 500, completed: false },
         ]
       },
     ]
@@ -2432,6 +2905,154 @@ export const PRESET_DIET_PLANS: PersonalDietPlan[] = [
           { id: 'dp3-8', name: 'Atlantic Salmon Fillet', servingSize: '150g fillet', calories: 312, proteinGrams: 34.0, carbsGrams: 0, fatsGrams: 18.5, cuisine: 'International' },
           { id: 'dp3-9', name: 'Quinoa Bowl (Cooked)', servingSize: '120g', calories: 144, proteinGrams: 5.2, carbsGrams: 25.5, fatsGrams: 2.2, cuisine: 'International' },
           { id: 'dp3-10', name: 'Avocado on the side', servingSize: '50g (1/4 avocado)', calories: 80, proteinGrams: 1.0, carbsGrams: 4.2, fatsGrams: 7.4, cuisine: 'Universal' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'diet-female-tone-hormone',
+    title: "Women's Lean Tone & Hormone Balance (महिला स्पेशल)",
+    tagline: 'Calibrated 1,650 kcal plan with bioavailable iron, calcium, clean proteins, and healthy hormone-balancing fats',
+    goal: 'fat_loss',
+    targetGender: 'female',
+    targetLevel: 'beginner',
+    cuisine: 'Fusion',
+    dietType: 'high_protein',
+    dietTypeLabel: "Women's Hormone-Friendly Nutrition (1,650 kcal)",
+    dailyCalories: 1650,
+    macros: {
+      proteinGrams: 125,
+      carbsGrams: 160,
+      fatsGrams: 48,
+    },
+    waterTargetMl: 3200,
+    recommendedSupplements: ['Omega-3 (Algal / Fish Oil)', 'Vitamin D3 + K2', 'Iron & Folate Rich Greens', 'Magnesium Glycinate (Bedtime)'],
+    keyBenefits: [
+      'Rich in hormone-supporting healthy fats (Avocado, Chia, Almonds) and slow-digesting complex carbs',
+      'High iron and calcium from sprouted moong, curd, spinach, sattu, and low-fat paneer',
+      'Prevents menstrual energy crashes and reduces water retention / bloating'
+    ],
+    meals: [
+      {
+        mealType: 'breakfast',
+        title: 'Chia Berry Pudding & Boiled Eggs / Besan Chilla',
+        suggestedTime: '08:00 AM',
+        prepTips: 'Overnight soaked chia seeds with almond milk, topped with pomegranate and 2 boiled egg whites or besan chilla.',
+        items: [
+          { id: 'dp4-1', name: 'Chia Seed Pudding (with Almond Milk & Berries)', servingSize: '1 bowl (180g)', calories: 175, proteinGrams: 5.5, carbsGrams: 18.0, fatsGrams: 9.0, cuisine: 'International' },
+          { id: 'dp4-2', name: 'Boiled Egg Whites (3 whites) / Besan Chilla', servingSize: '100g', calories: 52, proteinGrams: 11.0, carbsGrams: 0.7, fatsGrams: 0.2, cuisine: 'Universal' },
+          { id: 'dp4-3', name: 'Fresh Curd / Dahi', servingSize: '100g', calories: 65, proteinGrams: 4.0, carbsGrams: 4.5, fatsGrams: 3.5, cuisine: 'Indian' }
+        ]
+      },
+      {
+        mealType: 'lunch',
+        title: 'Sprout & Low-Fat Paneer Power Bowl',
+        suggestedTime: '01:00 PM',
+        prepTips: 'Warm sauté of low-fat paneer with bell peppers, moong sprouts, 1 phulka, and cucumber-mint raita.',
+        items: [
+          { id: 'dp4-4', name: 'Low-Fat / Diet Paneer (Grilled)', servingSize: '120g', calories: 175, proteinGrams: 29.5, carbsGrams: 5.0, fatsGrams: 4.2, cuisine: 'Indian' },
+          { id: 'dp4-5', name: 'Sprouted Moong Bean Salad', servingSize: '120g', calories: 110, proteinGrams: 9.2, carbsGrams: 18.0, fatsGrams: 0.6, cuisine: 'Indian' },
+          { id: 'dp4-6', name: 'Whole Wheat Roti / Phulka (1 Roti)', servingSize: '1 roti (45g)', calories: 85, proteinGrams: 3.2, carbsGrams: 17.5, fatsGrams: 0.5, cuisine: 'Indian' }
+        ]
+      },
+      {
+        mealType: 'snack',
+        title: 'Mid-Afternoon Metabolism Boost',
+        suggestedTime: '04:30 PM',
+        prepTips: 'Light roasted makhana with green tea or coconut water.',
+        items: [
+          { id: 'dp4-7', name: 'Roasted Foxnuts / Makhana', servingSize: '30g', calories: 110, proteinGrams: 3.0, carbsGrams: 21.0, fatsGrams: 1.5, cuisine: 'Indian' },
+          { id: 'dp4-8', name: 'Raw California Almonds & Walnuts', servingSize: '15g', calories: 95, proteinGrams: 3.0, carbsGrams: 2.5, fatsGrams: 8.5, cuisine: 'Universal' }
+        ]
+      },
+      {
+        mealType: 'dinner',
+        title: 'Light Digestive Protein Dinner',
+        suggestedTime: '08:00 PM',
+        prepTips: 'Tofu/Chicken/Soya chunks lightly spiced with turmeric & cumin, alongside steamed broccoli.',
+        items: [
+          { id: 'dp4-9', name: 'Firm Tofu / Grilled Chicken Breast', servingSize: '140g', calories: 195, proteinGrams: 32.0, carbsGrams: 2.5, fatsGrams: 6.0, cuisine: 'Universal' },
+          { id: 'dp4-10', name: 'Steamed Broccoli & Green Veggies', servingSize: '150g', calories: 51, proteinGrams: 4.2, carbsGrams: 10.0, fatsGrams: 0.6, cuisine: 'Universal' },
+          { id: 'dp4-11', name: 'Moong Dal & Brown Rice Khichdi (Half Cup)', servingSize: '120g', calories: 125, proteinGrams: 5.5, carbsGrams: 22.0, fatsGrams: 2.0, cuisine: 'Indian' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'diet-athlete-peak-power',
+    title: 'Elite Athlete & Cross-Training High-Fuel Blueprint (एथलीट)',
+    tagline: 'High-glycogen 2,900 kcal performance diet designed for explosive power output, CNS recovery, and lean mass',
+    goal: 'muscle_gain',
+    targetGender: 'all',
+    targetLevel: 'athlete',
+    cuisine: 'Fusion',
+    dietType: 'high_protein',
+    dietTypeLabel: 'Elite Pro Athlete High-Carb Fuel (2,900 kcal)',
+    dailyCalories: 2900,
+    macros: {
+      proteinGrams: 190,
+      carbsGrams: 365,
+      fatsGrams: 75,
+    },
+    waterTargetMl: 4500,
+    recommendedSupplements: ['Creatine Monohydrate (5g daily)', 'Whey Isolate (2 scoops)', 'Beta-Alanine', 'Electrolytes during training'],
+    keyBenefits: [
+      'Replenishes intramuscular glycogen stores rapidly for consecutive high-intensity training days',
+      '30-40g high-leucine protein spaced every 3.5 hours for maximum mTOR stimulation',
+      'Natural anti-inflammatory turmeric, ginger, and Omega-3s to protect joints during heavy lifts'
+    ],
+    meals: [
+      {
+        mealType: 'breakfast',
+        title: 'Athlete Anabolic Oats & Whole Eggs Feast',
+        suggestedTime: '07:30 AM',
+        prepTips: '80g oats cooked with honey and cinnamon + 4 eggs (2 whole, 2 whites).',
+        items: [
+          { id: 'dp5-1', name: 'Rolled Whole Oats with Honey & Banana', servingSize: '80g oats + 1 banana', calories: 410, proteinGrams: 12.0, carbsGrams: 75.0, fatsGrams: 6.0, cuisine: 'International' },
+          { id: 'dp5-2', name: 'Whole Eggs & Egg Whites (2 Whole + 2 Whites)', servingSize: '160g', calories: 180, proteinGrams: 20.0, carbsGrams: 1.0, fatsGrams: 10.0, cuisine: 'Universal' },
+          { id: 'dp5-3', name: 'Natural Peanut Butter', servingSize: '2 tbsp (32g)', calories: 188, proteinGrams: 8.0, carbsGrams: 6.3, fatsGrams: 16.0, cuisine: 'Universal' }
+        ]
+      },
+      {
+        mealType: 'lunch',
+        title: 'High-Calorie Athlete Performance Thali',
+        suggestedTime: '01:00 PM',
+        prepTips: '200g grilled chicken/paneer tikka, 2 large bowls of dal, 3 whole wheat rotis and fresh cucumber.',
+        items: [
+          { id: 'dp5-4', name: 'Tandoori / Grilled Chicken Tikka Breast', servingSize: '200g', calories: 310, proteinGrams: 55.0, carbsGrams: 4.5, fatsGrams: 7.0, cuisine: 'Indian' },
+          { id: 'dp5-5', name: 'Dal Tadka / Yellow Lentils', servingSize: '250g', calories: 230, proteinGrams: 12.0, carbsGrams: 30.0, fatsGrams: 6.5, cuisine: 'Indian' },
+          { id: 'dp5-6', name: 'Whole Wheat Roti / Phulka (3 rotis)', servingSize: '135g', calories: 255, proteinGrams: 9.6, carbsGrams: 52.5, fatsGrams: 1.5, cuisine: 'Indian' }
+        ]
+      },
+      {
+        mealType: 'pre_workout',
+        title: 'Explosive Intracellular ATP Pump Fuel',
+        suggestedTime: '04:30 PM',
+        prepTips: 'Chilled Sattu with rock salt, lemon and 1 banana 40 minutes prior to lifting.',
+        items: [
+          { id: 'dp5-7', name: 'Desi Sattu Protein Drink', servingSize: '1 glass (50g powder)', calories: 205, proteinGrams: 13.0, carbsGrams: 32.5, fatsGrams: 2.6, cuisine: 'Indian' },
+          { id: 'dp5-8', name: 'Fresh Banana', servingSize: '1 large', calories: 120, proteinGrams: 1.5, carbsGrams: 31.0, fatsGrams: 0.4, cuisine: 'Universal' }
+        ]
+      },
+      {
+        mealType: 'post_workout',
+        title: 'Rapid Glycogen & Muscle Recovery Shake',
+        suggestedTime: '06:30 PM',
+        prepTips: '2 scoops whey protein isolate with 5g creatine and 4 Medjool dates for insulin spike.',
+        items: [
+          { id: 'dp5-9', name: '100% Whey Protein Isolate (2 scoops)', servingSize: '60g powder', calories: 240, proteinGrams: 50.0, carbsGrams: 3.0, fatsGrams: 1.6, cuisine: 'International' },
+          { id: 'dp5-10', name: 'Roasted Foxnuts / Makhana', servingSize: '35g', calories: 128, proteinGrams: 3.5, carbsGrams: 24.5, fatsGrams: 1.8, cuisine: 'Indian' }
+        ]
+      },
+      {
+        mealType: 'dinner',
+        title: 'Deep Recovery & Joint Restoration Dinner',
+        suggestedTime: '08:45 PM',
+        prepTips: 'Atlantic Salmon / Paneer Soya Curry with steamed Basmati rice and curd.',
+        items: [
+          { id: 'dp5-11', name: 'Atlantic Salmon Fillet / Soya Chunks Curry', servingSize: '180g', calories: 340, proteinGrams: 38.0, carbsGrams: 12.0, fatsGrams: 16.0, cuisine: 'Universal' },
+          { id: 'dp5-12', name: 'Basmati Rice (Steamed)', servingSize: '180g cooked', calories: 235, proteinGrams: 4.8, carbsGrams: 51.0, fatsGrams: 0.6, cuisine: 'Indian' },
+          { id: 'dp5-13', name: 'Fresh Curd / Dahi', servingSize: '150g', calories: 95, proteinGrams: 5.5, carbsGrams: 6.5, fatsGrams: 5.2, cuisine: 'Indian' }
         ]
       }
     ]

@@ -24,11 +24,12 @@ interface Message {
 }
 
 const QUICK_PROMPTS = [
+  '👩 Recommend best female glute & hourglass routine',
+  '🟢 Create a 3-day beginner full-body workout split',
+  '🟡 4-Day intermediate upper / lower muscle hypertrophy',
+  '🔴 Pro athlete explosive conditioning & power routine',
+  '🥗 High-protein Indian vegetarian diet with macros',
   'How to fix shoulder pain during bench press?',
-  'High protein vegetarian post-workout meal ideas',
-  'How to break through a plateau on barbell squats',
-  'Best warm-up routine before heavy lifting',
-  'What should I eat 1 hour before a workout?',
 ];
 
 export const AiCoachView: React.FC = () => {
@@ -53,7 +54,8 @@ export const AiCoachView: React.FC = () => {
   const [goal, setGoal] = useState<'muscle_hypertrophy' | 'fat_loss' | 'strength' | 'endurance'>(
     'muscle_hypertrophy'
   );
-  const [experience, setExperience] = useState<'beginner' | 'intermediate' | 'advanced'>('intermediate');
+  const [targetGender, setTargetGender] = useState<'all' | 'female' | 'male'>('all');
+  const [experience, setExperience] = useState<'beginner' | 'intermediate' | 'athlete'>('intermediate');
   const [daysPerWeek, setDaysPerWeek] = useState<number>(4);
   const [equipment, setEquipment] = useState<'full_gym' | 'dumbbells_only' | 'bodyweight'>('full_gym');
   const [dietaryPref, setDietaryPref] = useState('High protein standard');
@@ -141,7 +143,10 @@ export const AiCoachView: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           goal,
+          gender: targetGender,
+          targetGender,
           experienceLevel: experience,
+          fitnessLevel: experience,
           daysPerWeek,
           equipment,
           dietaryPreference: dietaryPref,
@@ -404,6 +409,64 @@ export const AiCoachView: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-100">
+              {/* Target Gender */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block">
+                  Gender Focus
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { id: 'all', label: '🌟 Unisex / All' },
+                    { id: 'female', label: '👩 Female (Glute/Sculpt)' },
+                    { id: 'male', label: '👨 Male / General' },
+                  ].map((g) => (
+                    <button
+                      key={g.id}
+                      type="button"
+                      onClick={() => setTargetGender(g.id as any)}
+                      className={`p-3 rounded-2xl border text-center text-xs font-bold transition-all ${
+                        targetGender === g.id
+                          ? g.id === 'female'
+                            ? 'bg-pink-50 border-pink-300 text-pink-800 shadow-xs'
+                            : 'bg-emerald-50 border-emerald-300 text-emerald-800 shadow-xs'
+                          : 'bg-slate-50 border-slate-200/80 text-slate-600 hover:bg-slate-100'
+                      }`}
+                    >
+                      {g.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Experience Level */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block">
+                  Experience Level
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { id: 'beginner', label: '🟢 Beginner' },
+                    { id: 'intermediate', label: '🟡 Intermediate' },
+                    { id: 'athlete', label: '🔴 Pro Athlete' },
+                  ].map((lvl) => (
+                    <button
+                      key={lvl.id}
+                      type="button"
+                      onClick={() => setExperience(lvl.id as any)}
+                      className={`p-3 rounded-2xl border text-center text-xs font-bold transition-all ${
+                        experience === lvl.id
+                          ? lvl.id === 'athlete'
+                            ? 'bg-rose-50 border-rose-300 text-rose-800 shadow-xs'
+                            : 'bg-emerald-50 border-emerald-300 text-emerald-800 shadow-xs'
+                          : 'bg-slate-50 border-slate-200/80 text-slate-600 hover:bg-slate-100'
+                      }`}
+                    >
+                      {lvl.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* Primary Goal */}
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block">Primary Goal</label>
@@ -448,29 +511,6 @@ export const AiCoachView: React.FC = () => {
                       }`}
                     >
                       {days} Days / wk
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Experience Level */}
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block">
-                  Experience Level
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {(['beginner', 'intermediate', 'advanced'] as const).map((lvl) => (
-                    <button
-                      key={lvl}
-                      type="button"
-                      onClick={() => setExperience(lvl)}
-                      className={`p-3 rounded-2xl border text-center capitalize text-xs font-bold transition-all ${
-                        experience === lvl
-                          ? 'bg-emerald-50 border-emerald-300 text-emerald-800 shadow-xs'
-                          : 'bg-slate-50 border-slate-200/80 text-slate-600 hover:bg-slate-100'
-                      }`}
-                    >
-                      {lvl}
                     </button>
                   ))}
                 </div>

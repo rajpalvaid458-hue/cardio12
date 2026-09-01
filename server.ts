@@ -26,12 +26,140 @@ app.get("/api/health", (_req, res) => {
 });
 
 // Fallback plan generator in case API key is absent or network fails
-function generateFallbackPlan(goal: string, daysPerWeek: number, dietPref: string, currentWeight: number) {
+function generateFallbackPlan(goal: string, daysPerWeek: number, dietPref: string, currentWeight: number, gender: string = 'all', experienceLevel: string = 'intermediate') {
   const isGain = goal.includes("muscle") || goal.includes("hypertrophy") || goal.includes("strength");
   const calories = isGain ? Math.round(currentWeight * 34) : Math.round(currentWeight * 26);
   const protein = Math.round(currentWeight * 2.0);
   const fats = Math.round(currentWeight * 0.9);
   const carbs = Math.round((calories - (protein * 4 + fats * 9)) / 4);
+
+  if (gender === 'female') {
+    return {
+      workoutPlans: [
+        {
+          title: "Female Glute Hypertrophy & Waist Sculpt",
+          splitType: "Glutes & Lower Body",
+          durationMinutes: 50,
+          description: "Hypertrophy for upper glute shelf, hip stability, and a tight sculpted waist.",
+          tags: ["Female Focus", "Glute Growth", "Sculpt"],
+          exercises: [
+            { name: "Barbell Hip Thrust", category: "Compound", targetMuscle: "Gluteus Maximus", equipment: "Barbell", formTip: "Hold 2-second squeeze at apex, chin tucked.", restSec: 90, sets: 4, reps: 10 },
+            { name: "Bulgarian Split Squat", category: "Compound", targetMuscle: "Glutes & Quads", equipment: "Dumbbells", formTip: "Lean torso 20-degrees forward to bias glutes.", restSec: 75, sets: 3, reps: 10 },
+            { name: "Romanian Deadlift (RDL)", category: "Compound", targetMuscle: "Hamstrings & Glute Tie-in", equipment: "Barbell / DB", formTip: "Hinge hips back, feel intense hamstring stretch.", restSec: 75, sets: 3, reps: 10 },
+            { name: "Cable Glute Kickbacks", category: "Isolation", targetMuscle: "Glute Medius & Shelf", equipment: "Cable", formTip: "Kick diagonally back at 45 degrees.", restSec: 45, sets: 3, reps: 15 },
+            { name: "Plank with Pelvic Tilt", category: "Core", targetMuscle: "Transverse Abdominis", equipment: "Bodyweight", formTip: "Pull navel into spine to tighten waistline.", restSec: 45, sets: 3, reps: 45 },
+          ],
+        },
+        {
+          title: "Female Upper Body Posture & Tone",
+          splitType: "Upper Body & Posture",
+          durationMinutes: 45,
+          description: "Back contouring, sculpted shoulders, and posture alignment.",
+          tags: ["Female Focus", "Upper Tone", "Posture"],
+          exercises: [
+            { name: "Lat Pulldown (Wide Grip)", category: "Compound", targetMuscle: "Lats & Back Contour", equipment: "Cable", formTip: "Pull shoulder blades down and back.", restSec: 60, sets: 3, reps: 12 },
+            { name: "Incline Dumbbell Press", category: "Compound", targetMuscle: "Upper Chest & Shoulders", equipment: "Dumbbells", formTip: "Controlled smooth pressing motion.", restSec: 60, sets: 3, reps: 10 },
+            { name: "Dumbbell Lateral Raises", category: "Isolation", targetMuscle: "Lateral Delts", equipment: "Dumbbells", formTip: "Light weight, feel cap of shoulder burn.", restSec: 45, sets: 3, reps: 15 },
+            { name: "Tricep Rope Pushdowns", category: "Isolation", targetMuscle: "Triceps Arm Tightening", equipment: "Cable", formTip: "Flare rope at lockout.", restSec: 45, sets: 3, reps: 12 },
+          ],
+        },
+      ],
+      dietPlan: {
+        dailyCalories: calories,
+        proteinGrams: protein,
+        carbsGrams: carbs,
+        fatsGrams: fats,
+        waterMlGoal: 3000,
+      },
+      dailyRoutine: [
+        { time: "07:00 AM", title: "Morning Lemon Water & Glute Activation", description: "500ml water + 5 min glute bridge activations.", category: "morning", durationMins: 15 },
+        { time: "08:00 AM", title: "High Protein Sculpt Breakfast", description: "Egg whites/paneer scramble + avocado toast.", category: "morning", durationMins: 20 },
+        { time: "05:00 PM", title: "Female Strength & Glute Session", description: "Execute progressive overload lifting with focus on mind-muscle connection.", category: "workout", durationMins: 50 },
+        { time: "06:30 PM", title: "Post-Workout Protein & Collagen", description: "Whey / Plant protein shake + handful of berries.", category: "postworkout", durationMins: 15 },
+        { time: "10:30 PM", title: "Deep Rest & Recovery", description: "8 hours sleep for optimal muscle remodeling and hormones.", category: "habit", durationMins: 480 },
+      ],
+    };
+  }
+
+  if (experienceLevel === 'beginner') {
+    return {
+      workoutPlans: [
+        {
+          title: "Beginner 3-Day Full Body Foundation (शुरुआती)",
+          splitType: "Full Body Foundation",
+          durationMinutes: 40,
+          description: "Low-injury, machine and dumbbell-based foundational routine for building neural coordination and joint integrity.",
+          tags: ["Beginner", "Full Body", "Foundation", "Habit Building"],
+          exercises: [
+            { name: "Goblet Squat (Dumbbell)", category: "Compound", targetMuscle: "Quadriceps & Core", equipment: "Dumbbell", formTip: "Hold DB at chest, sit back onto imaginary chair.", restSec: 60, sets: 3, reps: 10 },
+            { name: "Dumbbell Flat Bench Press", category: "Compound", targetMuscle: "Chest & Shoulders", equipment: "Dumbbells", formTip: "Plant feet firmly, lower dumbbells with control.", restSec: 60, sets: 3, reps: 10 },
+            { name: "Lat Pulldown (Machine)", category: "Compound", targetMuscle: "Lats & Upper Back", equipment: "Cable / Machine", formTip: "Pull bar to chin height, squeeze shoulder blades.", restSec: 60, sets: 3, reps: 10 },
+            { name: "Seated Cable Row", category: "Compound", targetMuscle: "Mid Back & Posture", equipment: "Cable", formTip: "Keep spine tall, pull towards belly button.", restSec: 60, sets: 3, reps: 10 },
+            { name: "Dumbbell Bicep Curl", category: "Isolation", targetMuscle: "Biceps", equipment: "Dumbbells", formTip: "Stand tall without swinging hips.", restSec: 45, sets: 2, reps: 12 },
+            { name: "Plank Hold", category: "Core", targetMuscle: "Core & Abs", equipment: "Bodyweight", formTip: "Hold straight line from head to heels.", restSec: 45, sets: 3, reps: 30 },
+          ],
+        },
+      ],
+      dietPlan: {
+        dailyCalories: Math.round(currentWeight * 28),
+        proteinGrams: Math.round(currentWeight * 1.6),
+        carbsGrams: Math.round((Math.round(currentWeight * 28) - (Math.round(currentWeight * 1.6) * 4 + Math.round(currentWeight * 0.8) * 9)) / 4),
+        fatsGrams: Math.round(currentWeight * 0.8),
+        waterMlGoal: 3000,
+      },
+      dailyRoutine: [
+        { time: "07:30 AM", title: "Gentle Morning Sunlight & Hydration", description: "Drink 2 glasses of warm water + 10 mins morning sun.", category: "morning", durationMins: 15 },
+        { time: "08:30 AM", title: "Easy Balanced Breakfast", description: "Oats / Besan Chilla with curd or eggs.", category: "morning", durationMins: 20 },
+        { time: "05:30 PM", title: "Beginner Workout Session", description: "Focus purely on clean form, 2-3 sets per movement.", category: "workout", durationMins: 40 },
+        { time: "10:00 PM", title: "Restful Night Sleep", description: "Consistent sleep schedule to build steady fitness habits.", category: "habit", durationMins: 480 },
+      ],
+    };
+  }
+
+  if (experienceLevel === 'athlete') {
+    return {
+      workoutPlans: [
+        {
+          title: "Pro Athlete 1RM Strength & Powerlifting Peak",
+          splitType: "Powerlifting & Heavy Compound",
+          durationMinutes: 65,
+          description: "High-intensity CNS loading on heavy squats, paused bench, and conventional deadlifts at RPE 8.5-9.5.",
+          tags: ["Athlete", "Strength Peak", "Powerlifting", "1RM"],
+          exercises: [
+            { name: "Heavy Barbell Squats (1RM Peak)", category: "Compound", targetMuscle: "Max Lower Body Force", equipment: "Barbell", formTip: "Full brace, explode out of hole.", restSec: 180, sets: 5, reps: 3 },
+            { name: "Paused Flat Barbell Bench Press", category: "Compound", targetMuscle: "Max Upper Pressing Force", equipment: "Barbell", formTip: "1s dead stop on sternum, violent leg drive.", restSec: 150, sets: 4, reps: 3 },
+            { name: "Conventional Barbell Deadlift", category: "Compound", targetMuscle: "Posterior Chain Power", equipment: "Barbell", formTip: "Pack lats, push floor away.", restSec: 180, sets: 4, reps: 2 },
+          ],
+        },
+        {
+          title: "CrossFit WOD & High-Threshold Conditioning",
+          splitType: "CrossFit & Functional Power",
+          durationMinutes: 45,
+          description: "Explosive thrusters, box jumps, pull-ups, and rowing sprint intervals.",
+          tags: ["Athlete", "CrossFit", "VO2 Max", "Explosive"],
+          exercises: [
+            { name: "Dumbbell Thrusters", category: "CrossFit", targetMuscle: "Full Body Explosiveness", equipment: "Dumbbells", formTip: "Deep squat fluidly into overhead lock.", restSec: 45, sets: 4, reps: 15 },
+            { name: "Plyometric Box Jumps", category: "CrossFit", targetMuscle: "Fast-Twitch Leg Spring", equipment: "Plyo Box", formTip: "Soft landing, aggressive triple extension.", restSec: 45, sets: 3, reps: 10 },
+            { name: "Rowing Machine 500m Sprint", category: "Cardio", targetMuscle: "VO2 Max & Lactic Capacity", equipment: "Rower", formTip: "Hold sub 1:38/500m split pace.", restSec: 60, sets: 3, reps: 500 },
+          ],
+        },
+      ],
+      dietPlan: {
+        dailyCalories: Math.round(currentWeight * 38),
+        proteinGrams: Math.round(currentWeight * 2.2),
+        carbsGrams: Math.round((Math.round(currentWeight * 38) - (Math.round(currentWeight * 2.2) * 4 + Math.round(currentWeight * 1.0) * 9)) / 4),
+        fatsGrams: Math.round(currentWeight * 1.0),
+        waterMlGoal: 4500,
+      },
+      dailyRoutine: [
+        { time: "06:00 AM", title: "Athlete Hydration & Joint Flossing", description: "1 Liter water + pink Himalayan salt + dynamic flossing.", category: "morning", durationMins: 20 },
+        { time: "07:30 AM", title: "Performance Fuel Breakfast", description: "Oats with berries, honey, whey + 4 whole eggs.", category: "morning", durationMins: 30 },
+        { time: "04:30 PM", title: "Elite Strength & Conditioning Session", description: "Heavy compound lifting followed by high-threshold anaerobic intervals.", category: "workout", durationMins: 65 },
+        { time: "06:00 PM", title: "Rapid Glycogen & Protein Replenishment", description: "Fast digesting carbs (dextrose/rice cakes) + 40g Whey Isolate.", category: "postworkout", durationMins: 15 },
+        { time: "10:00 PM", title: "Athletic Recovery Sleep", description: "9 hours sleep with cold room temp (<19°C) for growth hormone release.", category: "habit", durationMins: 540 },
+      ],
+    };
+  }
 
   return {
     workoutPlans: [
@@ -104,6 +232,8 @@ app.post("/api/ai/generate-plan", async (req, res) => {
       goal,
       experienceLevel,
       fitnessLevel,
+      gender,
+      targetGender,
       daysPerWeek,
       equipment,
       dietaryPreference,
@@ -113,16 +243,19 @@ app.post("/api/ai/generate-plan", async (req, res) => {
     const chosenGoal = goal || "muscle_hypertrophy";
     const chosenDays = daysPerWeek || 4;
     const chosenWeight = currentWeightKg || 75;
+    const chosenGender = gender || targetGender || "all";
+    const chosenLevel = experienceLevel || fitnessLevel || "intermediate";
 
     const ai = getAiClient();
     if (!ai) {
-      const fallback = generateFallbackPlan(chosenGoal, chosenDays, dietaryPreference || "High Protein", chosenWeight);
+      const fallback = generateFallbackPlan(chosenGoal, chosenDays, dietaryPreference || "High Protein", chosenWeight, chosenGender, chosenLevel);
       return res.json({ success: true, plan: fallback });
     }
 
-    const prompt = `Generate a high-performance, structured fitness training split, diet macros, and daily routine:
+    const prompt = `Generate a high-performance, structured fitness training split, diet macros, and daily routine tailored specifically:
 - Goal: ${chosenGoal}
-- Experience: ${experienceLevel || fitnessLevel || "Intermediate"}
+- Experience Level: ${chosenLevel} (beginner = foundation safe movements; intermediate = hypertrophy volume; athlete = heavy compound 1RM peak & explosive conditioning)
+- Gender Focus: ${chosenGender} ${chosenGender === 'female' ? '(emphasize glute hypertrophy, waist tightening, posture alignment and hip stability)' : ''}
 - Days per week: ${chosenDays}
 - Equipment: ${equipment || "Full Gym"}
 - Dietary Preference: ${dietaryPreference || "High Protein Balanced"}

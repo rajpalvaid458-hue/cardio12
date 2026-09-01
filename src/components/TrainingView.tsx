@@ -70,13 +70,31 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
   const { plans, exercises, workoutLogs, activeWorkout, startWorkout, deleteWorkoutPlan } = useFitness();
   const [selectedDiscipline, setSelectedDiscipline] = useState<TrainingDiscipline>('All');
   const [selectedMuscle, setSelectedMuscle] = useState<MuscleGroup | 'All'>('All');
+  const [selectedGender, setSelectedGender] = useState<'all' | 'female' | 'male'>('all');
+  const [selectedLevel, setSelectedLevel] = useState<'all' | 'beginner' | 'intermediate' | 'athlete'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedPlanId, setExpandedPlanId] = useState<string | null>(null);
 
   const filteredPlans = plans.filter((plan) => {
+    // Gender filter
+    if (selectedGender === 'female') {
+      const isFemale = plan.targetGender === 'female' || plan.tags.some((t) => t.toLowerCase().includes('female') || t.toLowerCase().includes('glute') || t.toLowerCase().includes('hourglass'));
+      if (!isFemale) return false;
+    } else if (selectedGender === 'male') {
+      if (plan.targetGender === 'female') return false;
+    }
+
+    // Level filter
+    if (selectedLevel !== 'all') {
+      if (selectedLevel === 'beginner' && plan.level !== 'beginner') return false;
+      if (selectedLevel === 'intermediate' && plan.level !== 'intermediate') return false;
+      if (selectedLevel === 'athlete' && plan.level !== 'athlete' && plan.level !== 'advanced') return false;
+    }
+
+    // Discipline filter
     if (selectedDiscipline === 'All') return true;
     if (selectedDiscipline === 'Weights & Strength') {
-      return plan.splitType.includes('Push') || plan.splitType.includes('Weights') || plan.tags.includes('Weights');
+      return plan.splitType.includes('Push') || plan.splitType.includes('Weights') || plan.tags.includes('Weights') || plan.splitType.includes('Legs') || plan.splitType.includes('Pull');
     }
     if (selectedDiscipline === 'Cardio & HIIT') {
       return plan.splitType.includes('Cardio') || plan.tags.includes('Cardio') || plan.tags.includes('HIIT');
@@ -305,14 +323,99 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
 
       {/* Section: Workout Plans & Splits */}
       <section className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h2 className="text-xl font-bold text-slate-900">Workout Splits & Routines</h2>
-            <p className="text-xs text-slate-500">Select a training plan to start your live session</p>
+            <p className="text-xs text-slate-500">Filter by Gender focus (Female / Male) and Experience level</p>
           </div>
-          <span className="text-xs text-slate-500 font-mono bg-white px-2.5 py-1 rounded-lg border border-slate-200 shadow-xs">
-            {filteredPlans.length} available
+          <span className="text-xs text-slate-500 font-mono bg-white px-2.5 py-1 rounded-lg border border-slate-200 shadow-xs self-start sm:self-auto">
+            {filteredPlans.length} plans available
           </span>
+        </div>
+
+        {/* Dual Sub-Filters: Gender & Level Switchers */}
+        <div className="flex flex-wrap items-center gap-3 p-3 bg-slate-50/80 rounded-2xl border border-slate-200">
+          {/* Gender Filter */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mr-1">Gender:</span>
+            <button
+              onClick={() => setSelectedGender('all')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs ${
+                selectedGender === 'all'
+                  ? 'bg-slate-900 text-white'
+                  : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200'
+              }`}
+            >
+              🌟 All
+            </button>
+            <button
+              onClick={() => setSelectedGender('female')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs ${
+                selectedGender === 'female'
+                  ? 'bg-pink-600 text-white shadow-sm'
+                  : 'bg-white text-pink-700 hover:bg-pink-50 border border-pink-200'
+              }`}
+            >
+              👩 Female Focus (Glute & Toning)
+            </button>
+            <button
+              onClick={() => setSelectedGender('male')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs ${
+                selectedGender === 'male'
+                  ? 'bg-indigo-600 text-white shadow-sm'
+                  : 'bg-white text-indigo-700 hover:bg-indigo-50 border border-indigo-200'
+              }`}
+            >
+              👨 Male / General
+            </button>
+          </div>
+
+          <div className="hidden md:block w-px h-6 bg-slate-200 mx-1" />
+
+          {/* Level Filter */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mr-1">Level:</span>
+            <button
+              onClick={() => setSelectedLevel('all')}
+              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs ${
+                selectedLevel === 'all'
+                  ? 'bg-slate-900 text-white'
+                  : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200'
+              }`}
+            >
+              ⚡ All
+            </button>
+            <button
+              onClick={() => setSelectedLevel('beginner')}
+              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs ${
+                selectedLevel === 'beginner'
+                  ? 'bg-emerald-600 text-white shadow-sm'
+                  : 'bg-white text-emerald-700 hover:bg-emerald-50 border border-emerald-200'
+              }`}
+            >
+              🟢 Beginner
+            </button>
+            <button
+              onClick={() => setSelectedLevel('intermediate')}
+              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs ${
+                selectedLevel === 'intermediate'
+                  ? 'bg-amber-600 text-white shadow-sm'
+                  : 'bg-white text-amber-700 hover:bg-amber-50 border border-amber-200'
+              }`}
+            >
+              🟡 Intermediate
+            </button>
+            <button
+              onClick={() => setSelectedLevel('athlete')}
+              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs ${
+                selectedLevel === 'athlete'
+                  ? 'bg-rose-600 text-white shadow-sm'
+                  : 'bg-white text-rose-700 hover:bg-rose-50 border border-rose-200'
+              }`}
+            >
+              🔴 Pro Athlete
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -320,6 +423,9 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
             const isExpanded = expandedPlanId === plan.id;
             const badge = getDisciplineBadge(plan.splitType || plan.tags[0] || '');
             const BadgeIcon = badge.icon;
+            const isFemale = plan.targetGender === 'female' || plan.tags.some((t) => t.toLowerCase().includes('female'));
+            const isAthlete = plan.level === 'athlete' || plan.level === 'advanced';
+            const isBeginner = plan.level === 'beginner';
 
             return (
               <div
@@ -327,11 +433,33 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
                 className="group relative rounded-2xl bg-white border border-slate-200/90 hover:border-slate-300 p-5 flex flex-col justify-between transition-all duration-200 shadow-sm hover:shadow-md"
               >
                 <div>
-                  <div className="flex items-start justify-between gap-2">
-                    <span className={`inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg border ${badge.bg}`}>
-                      <BadgeIcon className="w-3 h-3" />
-                      {plan.splitType}
-                    </span>
+                  <div className="flex items-start justify-between gap-2 flex-wrap">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className={`inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg border ${badge.bg}`}>
+                        <BadgeIcon className="w-3 h-3" />
+                        {plan.splitType}
+                      </span>
+                      {isFemale && (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-pink-100 text-pink-700 border border-pink-200">
+                          🌸 Female Focus
+                        </span>
+                      )}
+                      {isBeginner && (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 border border-emerald-200">
+                          🟢 Beginner
+                        </span>
+                      )}
+                      {isAthlete && (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-rose-100 text-rose-800 border border-rose-200">
+                          🔴 Athlete
+                        </span>
+                      )}
+                      {!isBeginner && !isAthlete && (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 border border-amber-200">
+                          🟡 Intermediate
+                        </span>
+                      )}
+                    </div>
                     <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
                       <Clock className="w-3.5 h-3.5 text-slate-400" />
                       <span>{plan.durationMinutes} min</span>
