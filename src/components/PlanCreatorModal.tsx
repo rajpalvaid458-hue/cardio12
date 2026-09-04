@@ -226,19 +226,24 @@ export const PlanCreatorModal: React.FC<PlanCreatorModalProps> = ({ isOpen, onCl
               {selectedExercises.map((item, idx) => (
                 <div
                   key={idx}
-                  className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs"
+                  className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs gap-3"
                 >
-                  <div>
-                    <div className="font-bold text-slate-900">{item.exercise.name}</div>
-                    <div className="text-[10px] text-slate-500">
-                      {item.sets} sets × {item.reps} reps • Rest: {item.restSec}s
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-8 h-8 rounded-lg bg-slate-900 text-emerald-400 shrink-0 border border-slate-200 flex items-center justify-center font-bold">
+                      <Dumbbell className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="font-bold text-slate-900 truncate">{item.exercise.name}</div>
+                      <div className="text-[10px] text-slate-500">
+                        {item.sets} sets × {item.reps} reps • Rest: {item.restSec}s
+                      </div>
                     </div>
                   </div>
 
                   <button
                     type="button"
                     onClick={() => handleRemoveExercise(idx)}
-                    className="p-1 text-slate-400 hover:text-red-500 transition-colors"
+                    className="p-1.5 text-slate-400 hover:text-red-500 transition-colors shrink-0"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>

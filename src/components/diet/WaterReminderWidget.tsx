@@ -213,7 +213,7 @@ export const WaterReminderWidget: React.FC = () => {
         <div className="text-xs font-bold text-slate-300 uppercase tracking-wider">Quick Drink Log</div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
           <button
-            onClick={() => addWater(250)}
+            onClick={() => addWater(250, 'Standard Glass', 'glass')}
             className="flex items-center justify-center gap-2 p-3 rounded-2xl bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-blue-200 font-semibold text-xs transition-all active:scale-95"
           >
             <Plus className="w-4 h-4 text-blue-400" />
@@ -221,7 +221,7 @@ export const WaterReminderWidget: React.FC = () => {
           </button>
 
           <button
-            onClick={() => addWater(500)}
+            onClick={() => addWater(500, 'Gym Shaker', 'shaker')}
             className="flex items-center justify-center gap-2 p-3 rounded-2xl bg-blue-500/30 hover:bg-blue-500/40 border border-blue-400/40 text-blue-100 font-semibold text-xs transition-all active:scale-95 shadow-xs"
           >
             <Plus className="w-4 h-4 text-cyan-400" />
@@ -229,7 +229,7 @@ export const WaterReminderWidget: React.FC = () => {
           </button>
 
           <button
-            onClick={() => addWater(750)}
+            onClick={() => addWater(750, 'Sports Bottle', 'bottle')}
             className="flex items-center justify-center gap-2 p-3 rounded-2xl bg-blue-600/40 hover:bg-blue-600/50 border border-blue-400/50 text-white font-semibold text-xs transition-all active:scale-95 shadow-xs"
           >
             <Plus className="w-4 h-4 text-blue-300" />
@@ -237,7 +237,7 @@ export const WaterReminderWidget: React.FC = () => {
           </button>
 
           <button
-            onClick={() => addWater(1000)}
+            onClick={() => addWater(1000, 'Hydro Flask', 'jug')}
             className="flex items-center justify-center gap-2 p-3 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition-all active:scale-95 shadow-md shadow-blue-900/30"
           >
             <Plus className="w-4 h-4" />

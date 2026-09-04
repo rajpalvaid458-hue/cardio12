@@ -42,11 +42,13 @@ export const PersonalDietMaker: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [dietGenderFilter, setDietGenderFilter] = useState<'all' | 'female' | 'male'>('all');
   const [dietLevelFilter, setDietLevelFilter] = useState<'all' | 'beginner' | 'intermediate' | 'athlete'>('all');
+  const [dietTypeFilter, setDietTypeFilter] = useState<'all' | 'veg' | 'vegan' | 'non_veg'>('all');
+  const [wheyFilter, setWheyFilter] = useState<'all' | 'with_whey' | 'without_whey'>('all');
 
   // AI Generator Form States
   const [goal, setGoal] = useState('Muscle Building & Lean Mass');
   const [cuisinePreference, setCuisinePreference] = useState('Indian & International Fusion');
-  const [dietType, setDietType] = useState('High Protein (Desi + Clean International)');
+  const [dietType, setDietType] = useState('Pure Vegetarian (With Whey Protein Shake)');
   const [aiTargetGender, setAiTargetGender] = useState<'all' | 'female' | 'male'>('all');
   const [aiTargetLevel, setAiTargetLevel] = useState<'beginner' | 'intermediate' | 'athlete'>('intermediate');
   const [targetCalories, setTargetCalories] = useState(
@@ -60,6 +62,27 @@ export const PersonalDietMaker: React.FC = () => {
   );
 
   const filteredDietPlans = savedDietPlans.filter((p) => {
+    // Diet Type filter
+    if (dietTypeFilter === 'veg') {
+      const isPureVeg = p.isVeg || p.dietType === 'pure_veg' || p.dietType === 'jain';
+      if (!isPureVeg) return false;
+    } else if (dietTypeFilter === 'vegan') {
+      const isVegan = p.isVegan || p.dietType === 'vegan';
+      if (!isVegan) return false;
+    } else if (dietTypeFilter === 'non_veg') {
+      const isVegOrVegan = p.isVeg || p.isVegan || p.dietType === 'pure_veg' || p.dietType === 'vegan' || p.dietType === 'jain';
+      if (isVegOrVegan) return false;
+    }
+
+    // Whey filter
+    if (wheyFilter === 'with_whey') {
+      const hasWhey = p.wheyOption === 'with_whey' || p.wheyOption === 'with_plant_protein' || p.title.toLowerCase().includes('whey') || p.recommendedSupplements?.some((s) => s.toLowerCase().includes('whey') || s.toLowerCase().includes('plant protein'));
+      if (!hasWhey) return false;
+    } else if (wheyFilter === 'without_whey') {
+      const withoutWhey = p.wheyOption === 'without_whey' || p.wheyOption === 'zero_powders' || p.title.toLowerCase().includes('without whey') || p.title.toLowerCase().includes('zero-powder') || p.title.toLowerCase().includes('no protein powder') || p.title.toLowerCase().includes('natural');
+      if (!withoutWhey) return false;
+    }
+
     if (dietGenderFilter === 'female') {
       if (p.targetGender && p.targetGender !== 'female' && p.targetGender !== 'all') return false;
       const isFemale = p.targetGender === 'female' || p.title.toLowerCase().includes('women') || p.title.toLowerCase().includes('female') || p.tagline.toLowerCase().includes('hormone');
@@ -182,83 +205,177 @@ export const PersonalDietMaker: React.FC = () => {
         </div>
 
         {/* Filters for Diets */}
-        <div className="flex flex-wrap items-center gap-2 p-2.5 bg-slate-50 rounded-2xl border border-slate-200 text-xs">
-          {/* Gender */}
-          <div className="flex items-center gap-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mr-1">Gender:</span>
-            <button
-              type="button"
-              onClick={() => setDietGenderFilter('all')}
-              className={`px-2.5 py-1 rounded-xl font-bold transition-all ${
-                dietGenderFilter === 'all'
-                  ? 'bg-slate-900 text-white'
-                  : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200'
-              }`}
-            >
-              🌟 All
-            </button>
-            <button
-              type="button"
-              onClick={() => setDietGenderFilter('female')}
-              className={`px-2.5 py-1 rounded-xl font-bold transition-all ${
-                dietGenderFilter === 'female'
-                  ? 'bg-pink-600 text-white'
-                  : 'bg-white text-pink-700 hover:bg-pink-50 border border-pink-200'
-              }`}
-            >
-              👩 Female (महिला)
-            </button>
-            <button
-              type="button"
-              onClick={() => setDietGenderFilter('male')}
-              className={`px-2.5 py-1 rounded-xl font-bold transition-all ${
-                dietGenderFilter === 'male'
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-white text-indigo-700 hover:bg-indigo-50 border border-indigo-200'
-              }`}
-            >
-              👨 Male / General
-            </button>
+        <div className="space-y-2 p-3 bg-slate-50 rounded-2xl border border-slate-200 text-xs">
+          {/* Row 1: Diet Type (Veg / Vegan / Non-Veg) & Whey / Powder Option */}
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1 flex-wrap">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mr-1">Diet:</span>
+              <button
+                type="button"
+                onClick={() => setDietTypeFilter('all')}
+                className={`px-2.5 py-1 rounded-xl font-bold transition-all ${
+                  dietTypeFilter === 'all'
+                    ? 'bg-slate-900 text-white shadow-xs'
+                    : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200'
+                }`}
+              >
+                🌟 All
+              </button>
+              <button
+                type="button"
+                onClick={() => setDietTypeFilter('veg')}
+                className={`px-2.5 py-1 rounded-xl font-bold transition-all flex items-center gap-1 ${
+                  dietTypeFilter === 'veg'
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'bg-white text-emerald-700 hover:bg-emerald-50 border border-emerald-200'
+                }`}
+              >
+                🥦 Pure Veg (शाकाहारी)
+              </button>
+              <button
+                type="button"
+                onClick={() => setDietTypeFilter('vegan')}
+                className={`px-2.5 py-1 rounded-xl font-bold transition-all flex items-center gap-1 ${
+                  dietTypeFilter === 'vegan'
+                    ? 'bg-teal-600 text-white shadow-xs'
+                    : 'bg-white text-teal-700 hover:bg-teal-50 border border-teal-200'
+                }`}
+              >
+                🌱 100% Vegan (वीगन)
+              </button>
+              <button
+                type="button"
+                onClick={() => setDietTypeFilter('non_veg')}
+                className={`px-2.5 py-1 rounded-xl font-bold transition-all ${
+                  dietTypeFilter === 'non_veg'
+                    ? 'bg-amber-700 text-white shadow-xs'
+                    : 'bg-white text-amber-800 hover:bg-amber-50 border border-amber-200'
+                }`}
+              >
+                🍗 Non-Veg / Hybrid
+              </button>
+            </div>
+
+            <div className="hidden md:block w-px h-5 bg-slate-200 mx-1" />
+
+            {/* Whey / Powder Option */}
+            <div className="flex items-center gap-1 flex-wrap">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mr-1">Whey / Powder:</span>
+              <button
+                type="button"
+                onClick={() => setWheyFilter('all')}
+                className={`px-2.5 py-1 rounded-xl font-bold transition-all ${
+                  wheyFilter === 'all'
+                    ? 'bg-slate-900 text-white shadow-xs'
+                    : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200'
+                }`}
+              >
+                ⚡ All
+              </button>
+              <button
+                type="button"
+                onClick={() => setWheyFilter('with_whey')}
+                className={`px-2.5 py-1 rounded-xl font-bold transition-all flex items-center gap-1 ${
+                  wheyFilter === 'with_whey'
+                    ? 'bg-sky-600 text-white shadow-xs'
+                    : 'bg-white text-sky-700 hover:bg-sky-50 border border-sky-200'
+                }`}
+              >
+                🥛 With Whey / Powder
+              </button>
+              <button
+                type="button"
+                onClick={() => setWheyFilter('without_whey')}
+                className={`px-2.5 py-1 rounded-xl font-bold transition-all flex items-center gap-1 ${
+                  wheyFilter === 'without_whey'
+                    ? 'bg-amber-600 text-white shadow-xs'
+                    : 'bg-white text-amber-700 hover:bg-amber-50 border border-amber-200'
+                }`}
+              >
+                🌿 Zero Whey (बिना व्हे / Natural)
+              </button>
+            </div>
           </div>
 
-          <div className="hidden sm:block w-px h-5 bg-slate-200 mx-1" />
+          {/* Row 2: Gender & Level */}
+          <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-slate-200/60">
+            {/* Gender */}
+            <div className="flex items-center gap-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mr-1">Gender:</span>
+              <button
+                type="button"
+                onClick={() => setDietGenderFilter('all')}
+                className={`px-2 py-0.5 rounded-lg font-bold transition-all ${
+                  dietGenderFilter === 'all'
+                    ? 'bg-slate-800 text-white'
+                    : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200'
+                }`}
+              >
+                All
+              </button>
+              <button
+                type="button"
+                onClick={() => setDietGenderFilter('female')}
+                className={`px-2 py-0.5 rounded-lg font-bold transition-all ${
+                  dietGenderFilter === 'female'
+                    ? 'bg-pink-600 text-white'
+                    : 'bg-white text-pink-700 hover:bg-pink-50 border border-pink-200'
+                }`}
+              >
+                👩 Female (महिला)
+              </button>
+              <button
+                type="button"
+                onClick={() => setDietGenderFilter('male')}
+                className={`px-2 py-0.5 rounded-lg font-bold transition-all ${
+                  dietGenderFilter === 'male'
+                    ? 'bg-indigo-600 text-white'
+                    : 'bg-white text-indigo-700 hover:bg-indigo-50 border border-indigo-200'
+                }`}
+              >
+                👨 Male / General
+              </button>
+            </div>
 
-          {/* Level */}
-          <div className="flex items-center gap-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mr-1">Level:</span>
-            <button
-              type="button"
-              onClick={() => setDietLevelFilter('all')}
-              className={`px-2.5 py-1 rounded-xl font-bold transition-all ${
-                dietLevelFilter === 'all'
-                  ? 'bg-slate-900 text-white'
-                  : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200'
-              }`}
-            >
-              ⚡ All
-            </button>
-            <button
-              type="button"
-              onClick={() => setDietLevelFilter('beginner')}
-              className={`px-2.5 py-1 rounded-xl font-bold transition-all ${
-                dietLevelFilter === 'beginner'
-                  ? 'bg-emerald-600 text-white'
-                  : 'bg-white text-emerald-700 hover:bg-emerald-50 border border-emerald-200'
-              }`}
-            >
-              🟢 Beginner
-            </button>
-            <button
-              type="button"
-              onClick={() => setDietLevelFilter('athlete')}
-              className={`px-2.5 py-1 rounded-xl font-bold transition-all ${
-                dietLevelFilter === 'athlete'
-                  ? 'bg-rose-600 text-white'
-                  : 'bg-white text-rose-700 hover:bg-rose-50 border border-rose-200'
-              }`}
-            >
-              🔴 Pro Athlete
-            </button>
+            <div className="hidden sm:block w-px h-4 bg-slate-200 mx-1" />
+
+            {/* Level */}
+            <div className="flex items-center gap-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mr-1">Level:</span>
+              <button
+                type="button"
+                onClick={() => setDietLevelFilter('all')}
+                className={`px-2 py-0.5 rounded-lg font-bold transition-all ${
+                  dietLevelFilter === 'all'
+                    ? 'bg-slate-800 text-white'
+                    : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200'
+                }`}
+              >
+                All
+              </button>
+              <button
+                type="button"
+                onClick={() => setDietLevelFilter('beginner')}
+                className={`px-2 py-0.5 rounded-lg font-bold transition-all ${
+                  dietLevelFilter === 'beginner'
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-white text-emerald-700 hover:bg-emerald-50 border border-emerald-200'
+                }`}
+              >
+                🟢 Beginner
+              </button>
+              <button
+                type="button"
+                onClick={() => setDietLevelFilter('athlete')}
+                className={`px-2 py-0.5 rounded-lg font-bold transition-all ${
+                  dietLevelFilter === 'athlete'
+                    ? 'bg-rose-600 text-white'
+                    : 'bg-white text-rose-700 hover:bg-rose-50 border border-rose-200'
+                }`}
+              >
+                🔴 Pro Athlete
+              </button>
+            </div>
           </div>
         </div>
 
@@ -268,6 +385,11 @@ export const PersonalDietMaker: React.FC = () => {
             const isActive = activeDietPlan?.id === plan.id;
             const isFemale = plan.targetGender === 'female' || plan.title.toLowerCase().includes('women') || plan.title.toLowerCase().includes('female');
             const isAthlete = plan.targetLevel === 'athlete';
+            const isVegan = plan.isVegan || plan.dietType === 'vegan';
+            const isPureVeg = !isVegan && (plan.isVeg || plan.dietType === 'pure_veg' || plan.dietType === 'jain');
+            const hasWhey = plan.wheyOption === 'with_whey' || plan.title.toLowerCase().includes('with whey');
+            const hasPlantProtein = plan.wheyOption === 'with_plant_protein';
+            const isZeroPowder = plan.wheyOption === 'without_whey' || plan.wheyOption === 'zero_powders' || plan.title.toLowerCase().includes('without whey') || plan.title.toLowerCase().includes('zero-powder') || plan.title.toLowerCase().includes('no protein powder');
 
             return (
               <button
@@ -285,6 +407,32 @@ export const PersonalDietMaker: React.FC = () => {
                       <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 px-2 py-0.5 rounded-md bg-emerald-100/60">
                         {plan.cuisine}
                       </span>
+                      {isVegan ? (
+                        <span className="text-[10px] font-bold text-teal-800 px-1.5 py-0.5 rounded-md bg-teal-100/90 border border-teal-300">
+                          🌱 Vegan
+                        </span>
+                      ) : isPureVeg ? (
+                        <span className="text-[10px] font-bold text-emerald-800 px-1.5 py-0.5 rounded-md bg-emerald-100/90 border border-emerald-300">
+                          🥦 Pure Veg
+                        </span>
+                      ) : null}
+
+                      {hasWhey && (
+                        <span className="text-[10px] font-bold text-sky-800 px-1.5 py-0.5 rounded-md bg-sky-100/90 border border-sky-300">
+                          🥛 With Whey
+                        </span>
+                      )}
+                      {hasPlantProtein && (
+                        <span className="text-[10px] font-bold text-purple-800 px-1.5 py-0.5 rounded-md bg-purple-100/90 border border-purple-300">
+                          🌾 Plant Protein
+                        </span>
+                      )}
+                      {isZeroPowder && (
+                        <span className="text-[10px] font-bold text-amber-800 px-1.5 py-0.5 rounded-md bg-amber-100/90 border border-amber-300">
+                          🌿 Zero Whey
+                        </span>
+                      )}
+
                       {isFemale && (
                         <span className="text-[10px] font-bold text-pink-700 px-1.5 py-0.5 rounded-md bg-pink-100/80 border border-pink-200">
                           🌸 Female Focus
@@ -606,17 +754,19 @@ export const PersonalDietMaker: React.FC = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="text-xs text-slate-700 font-semibold">Diet Type</label>
+                    <label className="text-xs text-slate-700 font-semibold">Diet Type (डाइट का प्रकार)</label>
                     <select
                       value={dietType}
                       onChange={(e) => setDietType(e.target.value)}
                       className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-medium focus:outline-none focus:border-emerald-600"
                     >
-                      <option value="Non-Vegetarian High Protein (Chicken, Eggs, Fish, Paneer)">Non-Vegetarian High Protein</option>
-                      <option value="Pure Vegetarian (Paneer, Soya, Dals, Sattu, Besan, Dairy)">Pure Vegetarian (Shakahari)</option>
-                      <option value="Eggetarian (Eggs + Vegetarian Meals)">Eggetarian</option>
-                      <option value="Vegan (100% Plant Based High Protein)">100% Plant Based Vegan</option>
-                      <option value="Jain Friendly (No Onion/Garlic)">Jain High Protein</option>
+                      <option value="Pure Vegetarian (With Whey Protein Shake)">🥦 Pure Vegetarian (With Whey Protein Shake)</option>
+                      <option value="Pure Vegetarian (WITHOUT Whey - 100% Kitchen Staples)">🌿 Pure Vegetarian (बिना व्हे / 100% Kitchen Staples - No Powders)</option>
+                      <option value="Vegan (With Plant Protein Powder)">🌾 100% Vegan (With Plant Protein Powder)</option>
+                      <option value="Vegan (WITHOUT Protein Powder - 100% Whole Plants)">🌱 100% Vegan (बिना पाउडर / 100% Whole Foods - Zero Powders)</option>
+                      <option value="Non-Vegetarian High Protein (Chicken, Eggs, Fish, Paneer)">🍗 Non-Vegetarian High Protein (Chicken, Eggs, Fish, Paneer)</option>
+                      <option value="Eggetarian (Eggs + Vegetarian Meals)">🍳 Eggetarian (Eggs + Vegetarian Meals)</option>
+                      <option value="Jain Friendly (No Onion/Garlic)">🙏 Jain Friendly (No Onion/Garlic)</option>
                     </select>
                   </div>
 

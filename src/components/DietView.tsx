@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { useFitness } from '../context/FitnessContext';
+import { useLanguage } from '../context/LanguageContext';
 import { MealType, FoodItem } from '../types';
 import { POPULAR_FOODS_DATABASE } from '../data/fitnessPresets';
 import { WaterReminderWidget } from './diet/WaterReminderWidget';
+import { HydrationTracker } from './diet/HydrationTracker';
 import { SupplementTracker } from './diet/SupplementTracker';
 import { PersonalDietMaker } from './diet/PersonalDietMaker';
 import { CaloriesChecker } from './diet/CaloriesChecker';
+import { ReminderBannerWidget } from './reminders/ReminderBannerWidget';
 import {
   UtensilsCrossed,
   Droplets,
@@ -27,7 +30,11 @@ import { motion, AnimatePresence } from 'motion/react';
 
 type DietTab = 'log' | 'diet_maker' | 'calories_checker' | 'water_reminder' | 'supplements';
 
-export const DietView: React.FC = () => {
+interface DietViewProps {
+  onOpenRemindersModal?: () => void;
+}
+
+export const DietView: React.FC<DietViewProps> = ({ onOpenRemindersModal }) => {
   const {
     dailyDiet,
     logFoodItem,
@@ -37,6 +44,7 @@ export const DietView: React.FC = () => {
     waterReminder,
     activeDietPlan,
   } = useFitness();
+  const { t, isHindi } = useLanguage();
 
   const [activeTab, setActiveTab] = useState<DietTab>('log');
 
@@ -99,12 +107,12 @@ export const DietView: React.FC = () => {
   };
 
   const mealSections: { type: MealType; label: string; icon: string }[] = [
-    { type: 'breakfast', label: 'Breakfast', icon: '🍳' },
-    { type: 'lunch', label: 'Lunch', icon: '🥗' },
-    { type: 'dinner', label: 'Dinner', icon: '🥩' },
-    { type: 'pre_workout', label: 'Pre-Workout Fuel', icon: '⚡' },
-    { type: 'post_workout', label: 'Post-Workout Shake & Meal', icon: '🥤' },
-    { type: 'snack', label: 'Snacks & Fruit', icon: '🍎' },
+    { type: 'breakfast', label: isHindi ? 'नाश्ता (Breakfast)' : 'Breakfast', icon: '🍳' },
+    { type: 'lunch', label: isHindi ? 'दोपहर का भोजन (Lunch)' : 'Lunch', icon: '🥗' },
+    { type: 'dinner', label: isHindi ? 'रात का खाना (Dinner)' : 'Dinner', icon: '🥩' },
+    { type: 'pre_workout', label: isHindi ? 'प्री-वर्कआउट ऊर्जा' : 'Pre-Workout Fuel', icon: '⚡' },
+    { type: 'post_workout', label: isHindi ? 'पोस्ट-वर्कआउट शेक व भोजन' : 'Post-Workout Shake & Meal', icon: '🥤' },
+    { type: 'snack', label: isHindi ? 'स्नैक्स और फल' : 'Snacks & Fruit', icon: '🍎' },
   ];
 
   const filteredPopularFoods = POPULAR_FOODS_DATABASE.filter((f) =>
@@ -113,11 +121,16 @@ export const DietView: React.FC = () => {
   );
 
   const tabs: { id: DietTab; label: string; icon: React.ReactNode; badge?: string }[] = [
-    { id: 'log', label: 'Daily Meals Log', icon: <UtensilsCrossed className="w-4 h-4" /> },
-    { id: 'diet_maker', label: 'Personal Diet Maker', icon: <ChefHat className="w-4 h-4" />, badge: 'AI & Desi' },
-    { id: 'calories_checker', label: 'Calories Checker', icon: <Calculator className="w-4 h-4" /> },
-    { id: 'water_reminder', label: 'Water Reminder', icon: <Droplets className="w-4 h-4" />, badge: waterReminder.enabled ? 'ON' : undefined },
-    { id: 'supplements', label: 'Supplements Stack', icon: <Pill className="w-4 h-4" />, badge: `${supplements.filter((s) => s.taken).length}/${supplements.length}` },
+    { id: 'log', label: isHindi ? 'दैनिक भोजन लॉग' : 'Daily Meals Log', icon: <UtensilsCrossed className="w-4 h-4" /> },
+    { id: 'diet_maker', label: isHindi ? 'कस्टम डाइट प्लान' : 'Personal Diet Maker', icon: <ChefHat className="w-4 h-4" />, badge: isHindi ? 'एआई व देसी' : 'AI & Desi' },
+    { id: 'calories_checker', label: isHindi ? 'कैलोरी चेकर' : 'Calories Checker', icon: <Calculator className="w-4 h-4" /> },
+    {
+      id: 'water_reminder',
+      label: isHindi ? 'पानी और हाइड्रेशन' : 'Hydration Tracker',
+      icon: <Droplets className="w-4 h-4" />,
+      badge: `${Math.min(100, Math.round((dailyDiet.waterMl / (dailyDiet.waterGoalMl || 3000)) * 100))}%`,
+    },
+    { id: 'supplements', label: isHindi ? 'सप्लीमेंट्स स्टैक' : 'Supplements Stack', icon: <Pill className="w-4 h-4" />, badge: `${supplements.filter((s) => s.taken).length}/${supplements.length}` },
   ];
 
   return (
@@ -127,17 +140,23 @@ export const DietView: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold uppercase tracking-wider mb-2">
-              <Flame className="w-3.5 h-3.5" /> Nutrition & Fitness Fuel Hub
+              <Flame className="w-3.5 h-3.5" /> {isHindi ? 'पोषण और फिटनेस आहार केंद्र' : 'Nutrition & Fitness Fuel Hub'}
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900">Nutrition & Diet Hub</h1>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+              {isHindi ? 'पोषण और आहार हब' : 'Nutrition & Diet Hub'}
+            </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1">
-              Track calories, personalize diets with Indian & International foods, manage hydration, and supplement stacks.
+              {isHindi 
+                ? 'कैलोरी ट्रैक करें, भारतीय व अंतरराष्ट्रीय खाद्य पदार्थों से आहार बनाएं, हाइड्रेशन और सप्लीमेंट्स संभालें।' 
+                : 'Track calories, personalize diets with Indian & International foods, manage hydration, and supplement stacks.'}
             </p>
           </div>
 
           <div className="flex items-center gap-3">
             <div className="bg-slate-50 px-4 py-2.5 rounded-2xl border border-slate-200 text-right">
-              <span className="text-[11px] text-slate-500 font-semibold block">Remaining Calories</span>
+              <span className="text-[11px] text-slate-500 font-semibold block">
+                {isHindi ? 'शेष कैलोरी' : 'Remaining Calories'}
+              </span>
               <span className="text-lg font-black text-emerald-600 font-mono">{remainingCalories} kcal</span>
             </div>
           </div>
@@ -149,7 +168,7 @@ export const DietView: React.FC = () => {
           <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-2">
             <div className="flex items-center justify-between text-xs">
               <span className="font-bold text-slate-800 flex items-center gap-1.5">
-                <Flame className="w-3.5 h-3.5 text-amber-500" /> Calories
+                <Flame className="w-3.5 h-3.5 text-amber-500" /> {t('calories')}
               </span>
               <span className="font-mono text-slate-500 font-medium">
                 {totalCalories} / {dailyDiet.calorieGoal}
@@ -161,14 +180,16 @@ export const DietView: React.FC = () => {
                 style={{ width: `${caloriePercent}%` }}
               />
             </div>
-            <div className="text-[10px] text-slate-500 font-mono text-right">{caloriePercent}% of target</div>
+            <div className="text-[10px] text-slate-500 font-mono text-right">
+              {caloriePercent}% {isHindi ? 'लक्ष्य का' : 'of target'}
+            </div>
           </div>
 
           {/* Protein */}
           <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-2">
             <div className="flex items-center justify-between text-xs">
               <span className="font-bold text-slate-800 flex items-center gap-1.5">
-                <Zap className="w-3.5 h-3.5 text-emerald-600" /> Protein
+                <Zap className="w-3.5 h-3.5 text-emerald-600" /> {t('protein')}
               </span>
               <span className="font-mono text-slate-500 font-medium">
                 {totalProtein}g / {dailyDiet.proteinGoalGrams}g
@@ -183,7 +204,7 @@ export const DietView: React.FC = () => {
               />
             </div>
             <div className="text-[10px] text-slate-500 font-mono text-right">
-              {Math.round((totalProtein / (dailyDiet.proteinGoalGrams || 1)) * 100)}% of target
+              {Math.round((totalProtein / (dailyDiet.proteinGoalGrams || 1)) * 100)}% {isHindi ? 'लक्ष्य का' : 'of target'}
             </div>
           </div>
 
@@ -191,7 +212,7 @@ export const DietView: React.FC = () => {
           <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-2">
             <div className="flex items-center justify-between text-xs">
               <span className="font-bold text-slate-800 flex items-center gap-1.5">
-                <Apple className="w-3.5 h-3.5 text-blue-600" /> Carbs
+                <Apple className="w-3.5 h-3.5 text-blue-600" /> {t('carbs')}
               </span>
               <span className="font-mono text-slate-500 font-medium">
                 {totalCarbs}g / {dailyDiet.carbsGoalGrams}g
@@ -206,7 +227,7 @@ export const DietView: React.FC = () => {
               />
             </div>
             <div className="text-[10px] text-slate-500 font-mono text-right">
-              {Math.round((totalCarbs / (dailyDiet.carbsGoalGrams || 1)) * 100)}% of target
+              {Math.round((totalCarbs / (dailyDiet.carbsGoalGrams || 1)) * 100)}% {isHindi ? 'लक्ष्य का' : 'of target'}
             </div>
           </div>
 
@@ -214,7 +235,7 @@ export const DietView: React.FC = () => {
           <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-2">
             <div className="flex items-center justify-between text-xs">
               <span className="font-bold text-slate-800 flex items-center gap-1.5">
-                <Flame className="w-3.5 h-3.5 text-rose-500" /> Healthy Fats
+                <Flame className="w-3.5 h-3.5 text-rose-500" /> {t('fats')}
               </span>
               <span className="font-mono text-slate-500 font-medium">
                 {totalFats}g / {dailyDiet.fatsGoalGrams}g
@@ -229,11 +250,19 @@ export const DietView: React.FC = () => {
               />
             </div>
             <div className="text-[10px] text-slate-500 font-mono text-right">
-              {Math.round((totalFats / (dailyDiet.fatsGoalGrams || 1)) * 100)}% of target
+              {Math.round((totalFats / (dailyDiet.fatsGoalGrams || 1)) * 100)}% {isHindi ? 'लक्ष्य का' : 'of target'}
             </div>
           </div>
         </div>
       </div>
+
+      {/* Reminder Banner Widget */}
+      {onOpenRemindersModal && (
+        <ReminderBannerWidget
+          onOpenRemindersModal={onOpenRemindersModal}
+          variant="diet"
+        />
+      )}
 
       {/* Modern Tab Bar */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 border-b border-slate-200">
@@ -276,9 +305,11 @@ export const DietView: React.FC = () => {
           {/* Daily Meals Breakdown */}
           <section className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-slate-900">Today's Meals</h2>
+              <h2 className="text-xl font-bold text-slate-900">
+                {isHindi ? "आज का भोजन (Today's Meals)" : "Today's Meals"}
+              </h2>
               <span className="text-xs text-slate-500 bg-white px-3 py-1 rounded-xl border border-slate-200 shadow-xs">
-                {dailyDiet.meals.reduce((acc, m) => acc + m.items.length, 0)} logged food items
+                {dailyDiet.meals.reduce((acc, m) => acc + m.items.length, 0)} {isHindi ? 'खाद्य पदार्थ लॉग किए गए' : 'logged food items'}
               </span>
             </div>
 
@@ -354,7 +385,7 @@ export const DietView: React.FC = () => {
                       className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors border border-slate-200/80"
                     >
                       <Plus className="w-3.5 h-3.5" />
-                      <span>Add Food to {sec.label}</span>
+                      <span>{isHindi ? `+ ${sec.label} में खाना जोड़ें` : `Add Food to ${sec.label}`}</span>
                     </button>
                   </div>
                 );
@@ -378,10 +409,10 @@ export const DietView: React.FC = () => {
         </motion.div>
       )}
 
-      {/* Tab 4: Water Reminder */}
+      {/* Tab 4: Hydration Tracker & Water Intake */}
       {activeTab === 'water_reminder' && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-          <WaterReminderWidget />
+          <HydrationTracker />
         </motion.div>
       )}
 

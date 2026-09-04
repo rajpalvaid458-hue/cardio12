@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useFitness } from '../context/FitnessContext';
+import { useLanguage } from '../context/LanguageContext';
 import { WorkoutPlan, MuscleGroup, Exercise, TrainingDiscipline } from '../types';
 import {
   Play,
@@ -21,6 +22,8 @@ import {
   Zap,
 } from 'lucide-react';
 import { motion } from 'motion/react';
+import { ExerciseImage } from './ExerciseImage';
+import { isChestExercise } from '../utils/exerciseImages';
 
 interface TrainingViewProps {
   onOpenPlanCreator: () => void;
@@ -36,7 +39,7 @@ const DISCIPLINE_TABS: { id: TrainingDiscipline; label: string; icon: React.Comp
   { id: 'Zumba & Dance', label: 'Zumba & Dance', icon: Music },
   { id: 'Swimming', label: 'Swimming & Water', icon: Waves },
   { id: 'Calisthenics', label: 'Calisthenics', icon: Zap },
-  { id: 'Yoga & Mobility', label: 'Yoga & Mobility', icon: Heart },
+  { id: 'Yoga & Mobility', label: 'Yoga & Stretching', icon: Heart },
   { id: 'Pilates', label: 'Pilates & Core', icon: Activity },
   { id: 'Boxing & Combat', label: 'Boxing & Combat', icon: Shield },
 ];
@@ -68,10 +71,12 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
   onOpenActiveWorkout,
 }) => {
   const { plans, exercises, workoutLogs, activeWorkout, startWorkout, deleteWorkoutPlan } = useFitness();
+  const { t, isHindi } = useLanguage();
   const [selectedDiscipline, setSelectedDiscipline] = useState<TrainingDiscipline>('All');
   const [selectedMuscle, setSelectedMuscle] = useState<MuscleGroup | 'All'>('All');
   const [selectedGender, setSelectedGender] = useState<'all' | 'female' | 'male'>('all');
   const [selectedLevel, setSelectedLevel] = useState<'all' | 'beginner' | 'intermediate' | 'athlete'>('all');
+  const [yogaSubFilter, setYogaSubFilter] = useState<'all' | 'yoga' | 'stretching' | 'posture'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedPlanId, setExpandedPlanId] = useState<string | null>(null);
 
@@ -106,7 +111,33 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
       return plan.splitType.includes('Swim') || plan.tags.includes('Swimming');
     }
     if (selectedDiscipline === 'Yoga & Mobility') {
-      return plan.splitType.includes('Yoga') || plan.tags.includes('Yoga') || plan.tags.includes('Mobility');
+      const isYogaOrStretch =
+        plan.splitType.includes('Yoga') ||
+        plan.tags.includes('Yoga') ||
+        plan.tags.includes('Mobility') ||
+        plan.tags.includes('Stretching') ||
+        plan.tags.includes('Flexibility') ||
+        plan.tags.includes('Posture');
+      if (!isYogaOrStretch) return false;
+
+      if (yogaSubFilter === 'yoga') {
+        return plan.title.toLowerCase().includes('yoga') || plan.tags.some((t) => t.toLowerCase().includes('yoga') || t.toLowerCase().includes('vinyasa'));
+      }
+      if (yogaSubFilter === 'stretching') {
+        return (
+          plan.title.toLowerCase().includes('stretch') ||
+          plan.title.toLowerCase().includes('mobility') ||
+          plan.tags.some((t) => t.toLowerCase().includes('stretch') || t.toLowerCase().includes('mobility'))
+        );
+      }
+      if (yogaSubFilter === 'posture') {
+        return (
+          plan.title.toLowerCase().includes('posture') ||
+          plan.title.toLowerCase().includes('desk') ||
+          plan.tags.some((t) => t.toLowerCase().includes('posture') || t.toLowerCase().includes('desk'))
+        );
+      }
+      return true;
     }
     if (selectedDiscipline === 'Pilates') {
       return plan.splitType.includes('Pilates') || plan.tags.includes('Pilates');
@@ -136,6 +167,16 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
         matchesDiscipline = ex.category === 'Calisthenics & Bodyweight' || ex.discipline === 'Calisthenics';
       } else if (selectedDiscipline === 'Yoga & Mobility') {
         matchesDiscipline = ex.category === 'Yoga & Mobility' || ex.discipline === 'Yoga & Mobility';
+        if (matchesDiscipline && yogaSubFilter !== 'all') {
+          const text = (ex.name + ' ' + ex.targetMuscle + ' ' + ex.equipment).toLowerCase();
+          if (yogaSubFilter === 'yoga') {
+            matchesDiscipline = text.includes('yoga') || text.includes('vinyasa') || text.includes('dog') || text.includes('warrior') || text.includes('triangle') || text.includes('asan');
+          } else if (yogaSubFilter === 'stretching') {
+            matchesDiscipline = text.includes('stretch') || text.includes('pigeon') || text.includes('lunge') || text.includes('butterfly') || text.includes('fold') || text.includes('switch') || text.includes('mobility');
+          } else if (yogaSubFilter === 'posture') {
+            matchesDiscipline = text.includes('neck') || text.includes('trap') || text.includes('chest') || text.includes('shoulder') || text.includes('cat-cow') || text.includes('desk') || text.includes('spine');
+          }
+        }
       } else if (selectedDiscipline === 'Pilates') {
         matchesDiscipline = ex.category === 'Pilates & Core' || ex.discipline === 'Pilates';
       } else if (selectedDiscipline === 'Boxing & Combat') {
@@ -170,8 +211,8 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
     if (category.includes('Boxing') || category.includes('Martial')) {
       return { bg: 'bg-amber-50 text-amber-700 border-amber-200', icon: Shield, label: 'Boxing & Combat' };
     }
-    if (category.includes('Yoga') || category.includes('Mobility')) {
-      return { bg: 'bg-purple-50 text-purple-700 border-purple-200', icon: Heart, label: 'Yoga & Flow' };
+    if (category.includes('Yoga') || category.includes('Mobility') || category.includes('Stretch')) {
+      return { bg: 'bg-purple-50 text-purple-700 border-purple-200', icon: Heart, label: 'Yoga & Stretching' };
     }
     if (category.includes('Pilates')) {
       return { bg: 'bg-teal-50 text-teal-700 border-teal-200', icon: Activity, label: 'Pilates' };
@@ -194,13 +235,15 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold uppercase tracking-wider">
-              <Flame className="w-3.5 h-3.5" /> All-in-One Fitness Training
+              <Flame className="w-3.5 h-3.5" /> {isHindi ? 'ऑल-इन-वन फिटनेस ट्रेनिंग' : 'All-in-One Fitness Training'}
             </div>
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight">
-              Weight Training, Cardio, Zumba, Swimming & More
+              {isHindi ? 'वेट ट्रेनिंग, कार्डियो, योग और समग्र फिटनेस' : 'Weight Training, Cardio, Stretching, Yoga & More'}
             </h1>
             <p className="text-slate-300 text-sm max-w-xl">
-              Track gym lifting, HIIT cardio, Zumba dance sessions, swimming laps, calisthenics, yoga, and boxing workouts with live timers, rest tracking, and form cues.
+              {isHindi 
+                ? 'जिम लिफ्टिंग, एचआईआईटी कार्डियो, योग, डीप स्ट्रेचिंग, ज़ुम्बा, तैराकी और बॉक्सिंग को सटीक रेस्ट टाइमर और फॉर्म गाइडेंस के साथ ट्रैक करें।' 
+                : 'Track gym lifting, HIIT cardio, yoga flows, deep full-body stretching, mobility routines, Zumba, swimming, and boxing with live guidance, rest timers, and form cues.'}
             </p>
           </div>
 
@@ -210,14 +253,14 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm shadow-md shadow-emerald-500/20 transition-all hover:scale-102"
             >
               <Sparkles className="w-4 h-4 fill-current" />
-              <span>AI Plan Generator</span>
+              <span>{t('ai_smart_plan')}</span>
             </button>
             <button
               onClick={onOpenPlanCreator}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-semibold text-sm transition-colors shadow-sm"
             >
               <Plus className="w-4 h-4" />
-              <span>New Custom Plan</span>
+              <span>{t('create_custom_plan')}</span>
             </button>
           </div>
         </div>
@@ -280,7 +323,7 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
             onClick={onOpenActiveWorkout}
             className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm shadow-md transition-all"
           >
-            <span>Open Live Workout</span>
+            <span>{t('resume_workout')}</span>
             <ChevronRight className="w-4 h-4" />
           </button>
         </motion.div>
@@ -325,13 +368,66 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
       <section className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h2 className="text-xl font-bold text-slate-900">Workout Splits & Routines</h2>
-            <p className="text-xs text-slate-500">Filter by Gender focus (Female / Male) and Experience level</p>
+            <h2 className="text-xl font-bold text-slate-900">
+              {isHindi ? 'वर्कआउट रूटीन और स्प्लिट्स' : 'Workout Splits & Routines'}
+            </h2>
+            <p className="text-xs text-slate-500">
+              {isHindi ? 'महिला / पुरुष और अनुभव स्तर के अनुसार चुनें' : 'Filter by Gender focus (Female / Male) and Experience level'}
+            </p>
           </div>
           <span className="text-xs text-slate-500 font-mono bg-white px-2.5 py-1 rounded-lg border border-slate-200 shadow-xs self-start sm:self-auto">
-            {filteredPlans.length} plans available
+            {filteredPlans.length} {isHindi ? 'प्लान उपलब्ध' : 'plans available'}
           </span>
         </div>
+
+        {/* Dedicated Yoga & Stretching Focus Filter */}
+        {selectedDiscipline === 'Yoga & Mobility' && (
+          <div className="flex flex-wrap items-center gap-2 p-3 bg-purple-50/90 rounded-2xl border border-purple-200">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-purple-800 mr-1 flex items-center gap-1.5">
+              <Heart className="w-3.5 h-3.5 text-purple-600" /> Focus:
+            </span>
+            <button
+              onClick={() => setYogaSubFilter('all')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs ${
+                yogaSubFilter === 'all'
+                  ? 'bg-purple-950 text-white shadow-sm'
+                  : 'bg-white text-purple-700 hover:bg-purple-100 border border-purple-200'
+              }`}
+            >
+              🧘 All (Yoga & Stretches)
+            </button>
+            <button
+              onClick={() => setYogaSubFilter('yoga')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs ${
+                yogaSubFilter === 'yoga'
+                  ? 'bg-purple-700 text-white shadow-sm'
+                  : 'bg-white text-purple-700 hover:bg-purple-100 border border-purple-200'
+              }`}
+            >
+              🕉️ Yoga Flows (Vinyasa & Yin)
+            </button>
+            <button
+              onClick={() => setYogaSubFilter('stretching')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs ${
+                yogaSubFilter === 'stretching'
+                  ? 'bg-purple-700 text-white shadow-sm'
+                  : 'bg-white text-purple-700 hover:bg-purple-100 border border-purple-200'
+              }`}
+            >
+              🤸 Deep Stretching & Mobility
+            </button>
+            <button
+              onClick={() => setYogaSubFilter('posture')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs ${
+                yogaSubFilter === 'posture'
+                  ? 'bg-purple-700 text-white shadow-sm'
+                  : 'bg-white text-purple-700 hover:bg-purple-100 border border-purple-200'
+              }`}
+            >
+              🪑 Desk & Posture Reset
+            </button>
+          </div>
+        )}
 
         {/* Dual Sub-Filters: Gender & Level Switchers */}
         <div className="flex flex-wrap items-center gap-3 p-3 bg-slate-50/80 rounded-2xl border border-slate-200">
@@ -494,20 +590,47 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
 
                     {isExpanded ? (
                       <div className="space-y-2 pt-1">
-                        {plan.exercises.map((ex, idx) => (
-                          <div
-                            key={ex.id || idx}
-                            className="text-xs flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-200/70"
-                          >
-                            <div>
-                              <span className="font-semibold text-slate-800">{ex.name}</span>
-                              <div className="text-[10px] text-slate-500">{ex.targetMuscle}</div>
+                        {plan.exercises.map((ex, idx) => {
+                          const fullEx = exercises.find((e) => e.name.toLowerCase() === ex.name.toLowerCase()) || {
+                            id: ex.id || `plan-ex-${idx}`,
+                            name: ex.name,
+                            category: 'Strength',
+                            targetMuscle: ex.targetMuscle || 'Target Muscle',
+                            equipment: 'Standard Equipment',
+                            defaultSets: ex.sets.length,
+                            defaultReps: '10-12',
+                            defaultRestSeconds: 60,
+                            instructions: ['Perform movement with strict biomechanical control and core stability.'],
+                            formTips: ['Maintain joint alignment and rhythmic cadence.'],
+                          };
+
+                          return (
+                            <div
+                              key={ex.id || idx}
+                              onClick={() => onSelectExerciseDetails(fullEx)}
+                              className="text-xs flex items-center justify-between p-2 rounded-xl bg-slate-50 hover:bg-emerald-50/60 border border-slate-200/70 hover:border-emerald-300 cursor-pointer transition-all group gap-3"
+                            >
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                {isChestExercise(fullEx) ? (
+                                  <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0 border border-slate-200 bg-slate-900 shadow-2xs">
+                                    <ExerciseImage exercise={fullEx} className="w-full h-full object-cover" />
+                                  </div>
+                                ) : (
+                                  <div className="w-9 h-9 rounded-lg shrink-0 border border-slate-200 bg-emerald-50 flex items-center justify-center text-emerald-600">
+                                    <Dumbbell className="w-4 h-4" />
+                                  </div>
+                                )}
+                                <div className="min-w-0">
+                                  <span className="font-semibold text-slate-800 group-hover:text-emerald-700 block truncate transition-colors">{ex.name}</span>
+                                  <div className="text-[10px] text-slate-500">{ex.targetMuscle} • Click for Form Guide</div>
+                                </div>
+                              </div>
+                              <span className="text-[11px] font-mono text-emerald-600 font-bold shrink-0">
+                                {ex.sets.length} sets
+                              </span>
                             </div>
-                            <span className="text-[11px] font-mono text-emerald-600 font-bold">
-                              {ex.sets.length} sets
-                            </span>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     ) : (
                       <div className="text-xs text-slate-500 truncate">
@@ -523,14 +646,14 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
                     className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition-all shadow-sm"
                   >
                     <Play className="w-3.5 h-3.5 fill-current" />
-                    <span>Start Session</span>
+                    <span>{t('start_plan_now')}</span>
                   </button>
 
                   {plan.id.startsWith('custom-') && (
                     <button
                       onClick={() => deleteWorkoutPlan(plan.id)}
                       className="p-2.5 rounded-xl bg-slate-100 hover:bg-red-50 text-slate-500 hover:text-red-600 transition-colors border border-slate-200"
-                      title="Delete Plan"
+                      title={t('delete')}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -546,15 +669,19 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
       <section className="space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div>
-            <h2 className="text-xl font-bold text-slate-900">Exercise & Activity Database</h2>
-            <p className="text-xs text-slate-500">Step-by-step instructions, technique cues & target muscles</p>
+            <h2 className="text-xl font-bold text-slate-900">
+              {isHindi ? 'व्यायाम और एक्टिविटी डेटाबेस' : 'Exercise & Activity Database'}
+            </h2>
+            <p className="text-xs text-slate-500">
+              {isHindi ? 'सटीक तकनीक, लक्षित मांसपेशियां और निर्देश' : 'Step-by-step instructions, technique cues & target muscles'}
+            </p>
           </div>
 
           <div className="relative w-full md:w-80">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
-              placeholder="Search by name, muscle, equipment..."
+              placeholder={isHindi ? 'व्यायाम, मांसपेशी, उपकरण खोजें...' : 'Search by name, muscle, equipment...'}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition-colors shadow-xs"
@@ -579,8 +706,8 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
           ))}
         </div>
 
-        {/* Exercises Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+        {/* Exercises Grid with Clean Minimalist Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredExercises.map((ex) => {
             const badge = getDisciplineBadge(ex.category);
             const BadgeIcon = badge.icon;
@@ -589,41 +716,70 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
               <div
                 key={ex.id}
                 onClick={() => onSelectExerciseDetails(ex)}
-                className="group cursor-pointer rounded-2xl bg-white border border-slate-200 hover:border-emerald-500/60 p-4 transition-all hover:shadow-md flex flex-col justify-between shadow-sm"
+                className="group cursor-pointer rounded-2xl bg-white border border-slate-200/90 hover:border-emerald-500/60 overflow-hidden transition-all hover:shadow-md flex flex-col justify-between shadow-xs"
               >
-                <div>
-                  <div className="flex items-center justify-between gap-2">
-                    <span className={`inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${badge.bg}`}>
-                      <BadgeIcon className="w-3 h-3" />
-                      {ex.category}
-                    </span>
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold border border-slate-200">
-                      {ex.equipment}
+                {isChestExercise(ex) && (
+                  <div className="h-40 w-full overflow-hidden bg-slate-950 relative">
+                    <ExerciseImage
+                      exercise={ex}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent pointer-events-none" />
+                    <span className="absolute bottom-2.5 left-3 text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-black/60 text-emerald-300 border border-emerald-500/30 backdrop-blur-xs flex items-center gap-1">
+                      <Dumbbell className="w-3 h-3 text-emerald-400" />
+                      Chest Exercise
                     </span>
                   </div>
-
-                  <h4 className="text-sm font-bold text-slate-900 mt-2.5 group-hover:text-emerald-600 transition-colors">
-                    {ex.name}
-                  </h4>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    <span className="text-slate-400">Target:</span> {ex.targetMuscle}
-                  </p>
-
-                  <div className="mt-3 bg-slate-50 rounded-xl p-2.5 border border-slate-200/70 text-[11px] text-slate-700 space-y-1">
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1">
-                      <Info className="w-3 h-3 text-emerald-600" /> Key Technique Cue
+                )}
+                <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                  <div className="space-y-3">
+                    {/* Header: Discipline Badge & Equipment */}
+                    <div className="flex items-center justify-between gap-2">
+                      <span className={`inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg border ${badge.bg}`}>
+                        <BadgeIcon className="w-3 h-3" />
+                        {badge.label}
+                      </span>
+                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200">
+                        {ex.equipment}
+                      </span>
                     </div>
-                    <p className="line-clamp-2 text-slate-600">{ex.formTips[0] || ex.instructions[0]}</p>
-                  </div>
-                </div>
 
-                <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                  <span className="font-mono font-medium">
-                    {ex.defaultSets} sets × {ex.defaultReps}
-                  </span>
-                  <span className="text-emerald-600 font-semibold flex items-center gap-1 text-[11px]">
-                    View Guide <ChevronRight className="w-3.5 h-3.5" />
-                  </span>
+                    {/* Exercise Title & Target Muscle */}
+                    <div>
+                      <h4 className="text-base font-bold text-slate-900 group-hover:text-emerald-600 transition-colors line-clamp-1">
+                        {ex.name}
+                      </h4>
+                      <div className="flex items-center justify-between text-xs mt-1">
+                        <span className="text-slate-500 font-medium">
+                          Target: <strong className="text-slate-800 font-semibold">{ex.targetMuscle}</strong>
+                        </span>
+                        {ex.caloriesBurnedPerMin && (
+                          <span className="text-[11px] text-amber-600 font-semibold flex items-center gap-0.5">
+                            <Flame className="w-3 h-3" /> ~{ex.caloriesBurnedPerMin} cal/min
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Anatomical Form Cue */}
+                    <div className="bg-slate-50 rounded-xl p-3 border border-slate-200/80 text-[11px] text-slate-700 space-y-1">
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1">
+                        <Info className="w-3 h-3 text-emerald-600" /> {isHindi ? 'मुख्य तकनीक संकेत' : 'Key Form Cue'}
+                      </div>
+                      <p className="line-clamp-2 text-slate-600 leading-relaxed">
+                        {ex.formTips[0] || ex.instructions[0]}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                    <span className="font-mono font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg">
+                      {ex.defaultSets} {t('sets')} × {ex.defaultReps}
+                    </span>
+                    <span className="text-emerald-600 font-bold flex items-center gap-1 text-xs group-hover:translate-x-0.5 transition-transform">
+                      {t('view_form_guide')} <ChevronRight className="w-3.5 h-3.5" />
+                    </span>
+                  </div>
                 </div>
               </div>
             );

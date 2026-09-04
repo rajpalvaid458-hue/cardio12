@@ -3,6 +3,8 @@ import { useFitness } from '../context/FitnessContext';
 import { Exercise } from '../types';
 import { X, Search, Plus, Dumbbell, Flame, Music, Waves, Activity, Zap, Heart, Shield } from 'lucide-react';
 import { motion } from 'motion/react';
+import { ExerciseImage } from './ExerciseImage';
+import { isChestExercise } from '../utils/exerciseImages';
 
 interface ExercisePickerModalProps {
   isOpen: boolean;
@@ -104,23 +106,34 @@ export const ExercisePickerModal: React.FC<ExercisePickerModalProps> = ({ isOpen
             <div
               key={ex.id}
               onClick={() => handleSelect(ex)}
-              className="group cursor-pointer p-3 rounded-2xl bg-slate-50 hover:bg-emerald-50/50 border border-slate-200 hover:border-emerald-300 flex items-center justify-between transition-all"
+              className="group cursor-pointer p-3 rounded-2xl bg-slate-50 hover:bg-emerald-50/50 border border-slate-200 hover:border-emerald-300 flex items-center justify-between transition-all gap-3"
             >
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-slate-900 text-xs group-hover:text-emerald-700 transition-colors">
-                    {ex.name}
-                  </span>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-white text-slate-500 border border-slate-200">
-                    {ex.category}
-                  </span>
-                </div>
-                <div className="text-[10px] text-slate-500 font-mono mt-0.5">
-                  {ex.targetMuscle} • {ex.equipment}
+              <div className="flex items-center gap-3 min-w-0">
+                {isChestExercise(ex) ? (
+                  <div className="w-11 h-11 rounded-xl overflow-hidden shrink-0 border border-slate-200 bg-slate-900 shadow-xs">
+                    <ExerciseImage exercise={ex} className="w-full h-full object-cover" />
+                  </div>
+                ) : (
+                  <div className="w-10 h-10 rounded-xl bg-white group-hover:bg-emerald-100 border border-slate-200 group-hover:border-emerald-300 text-slate-700 group-hover:text-emerald-700 flex items-center justify-center shrink-0 transition-colors shadow-xs">
+                    <Dumbbell className="w-5 h-5" />
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-bold text-slate-900 text-xs group-hover:text-emerald-700 transition-colors truncate">
+                      {ex.name}
+                    </span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-white text-slate-500 border border-slate-200">
+                      {ex.category}
+                    </span>
+                  </div>
+                  <div className="text-[10px] text-slate-500 font-mono mt-0.5">
+                    {ex.targetMuscle} • {ex.equipment}
+                  </div>
                 </div>
               </div>
 
-              <button className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-50 group-hover:bg-emerald-600 text-emerald-700 group-hover:text-white font-bold text-xs border border-emerald-200 group-hover:border-emerald-600 transition-all shadow-xs">
+              <button className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-50 group-hover:bg-emerald-600 text-emerald-700 group-hover:text-white font-bold text-xs border border-emerald-200 group-hover:border-emerald-600 transition-all shadow-xs shrink-0">
                 <Plus className="w-3.5 h-3.5" />
                 <span>Add</span>
               </button>

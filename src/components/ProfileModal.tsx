@@ -23,8 +23,10 @@ import {
   Cloud,
   Check,
   Loader2,
-  Stethoscope
+  Stethoscope,
+  Languages,
 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface ProfileModalProps {
@@ -47,6 +49,7 @@ interface Milestone {
 export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
   const { userProfile, updateUserProfile, dailyDiet, setMacroGoals, workoutLogs, isCloudSyncing, syncToCloud } = useFitness();
   const { currentUser, logout, openAuthModal } = useAuth();
+  const { language, setLanguage, t, isHindi } = useLanguage();
 
   const [activeTab, setActiveTab] = useState<'profile' | 'milestones'>('profile');
   const [milestoneFilter, setMilestoneFilter] = useState<'all' | 'streak' | 'volume' | 'workouts'>('all');
@@ -351,7 +354,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
             }`}
           >
             <User className="w-3.5 h-3.5" />
-            <span>Profile & Targets</span>
+            <span>{t('profile_tab_info')}</span>
           </button>
 
           <button
@@ -364,7 +367,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
             }`}
           >
             <Trophy className="w-3.5 h-3.5 text-amber-600" />
-            <span>Milestones & Badges</span>
+            <span>{t('profile_tab_milestones')}</span>
             <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 ml-1">
               {unlockedCount}/{milestonesList.length}
             </span>
@@ -374,8 +377,51 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
         {/* Tab 1: Profile & Targets */}
         {activeTab === 'profile' && (
           <form onSubmit={handleSave} className="space-y-4">
+            {/* Language Switcher Preference Card */}
+            <div className="p-3 sm:p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center text-white shrink-0 shadow-xs">
+                  <Languages className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-slate-900">
+                    {t('language_preference')}
+                  </div>
+                  <div className="text-[11px] text-slate-600">
+                    {isHindi ? 'हिंदी और अंग्रेज़ी में कभी भी स्विच करें' : 'Switch between English & Hindi anytime'}
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center bg-white p-1 rounded-xl border border-slate-200 shadow-xs shrink-0 self-start sm:self-auto">
+                <button
+                  type="button"
+                  onClick={() => setLanguage('en')}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                    language === 'en'
+                      ? 'bg-emerald-600 text-white shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  {t('language_select_en')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLanguage('hi')}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                    language === 'hi'
+                      ? 'bg-emerald-600 text-white shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  {t('language_select_hi')}
+                </button>
+              </div>
+            </div>
+
             <div className="space-y-1">
-              <label className="text-xs text-slate-600 font-semibold">Your Name</label>
+              <label className="text-xs text-slate-600 font-semibold">
+                {isHindi ? 'आपका नाम (Name)' : 'Your Name'}
+              </label>
               <input
                 type="text"
                 value={name}
@@ -500,13 +546,13 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
                 onClick={onClose}
                 className="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors"
               >
-                Cancel
+                {t('cancel')}
               </button>
               <button
                 type="submit"
                 className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-colors"
               >
-                Save Changes
+                {t('save_changes')}
               </button>
             </div>
           </form>

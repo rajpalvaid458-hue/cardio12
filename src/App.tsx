@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { AuthProvider } from './context/AuthContext';
 import { FitnessProvider } from './context/FitnessContext';
+import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { Header, TabType } from './components/Header';
 import { TrainingView } from './components/TrainingView';
 import { TimersView } from './components/TimersView';
@@ -14,12 +15,14 @@ import { ExercisePickerModal } from './components/ExercisePickerModal';
 import { ExerciseDetailModal } from './components/ExerciseDetailModal';
 import { ProfileModal } from './components/ProfileModal';
 import { MedicalComplianceModal } from './components/MedicalComplianceModal';
+import { RemindersModal } from './components/reminders/RemindersModal';
 import { RestTimerBanner } from './components/RestTimerBanner';
 import { AuthModal } from './components/AuthModal';
 import { Exercise } from './types';
 import { ShieldAlert, Stethoscope, Award, Lock, FileText, CheckCircle2 } from 'lucide-react';
 
 function FitnessAppContent() {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<TabType>('training');
 
   // Modals state
@@ -28,6 +31,7 @@ function FitnessAppContent() {
   const [isExercisePickerOpen, setIsExercisePickerOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isComplianceModalOpen, setIsComplianceModalOpen] = useState(false);
+  const [isRemindersModalOpen, setIsRemindersModalOpen] = useState(false);
   const [complianceSection, setComplianceSection] = useState<'medical' | 'trainer' | 'privacy' | 'terms'>('medical');
   const [selectedExerciseForDetail, setSelectedExerciseForDetail] = useState<Exercise | null>(null);
 
@@ -49,6 +53,7 @@ function FitnessAppContent() {
         onOpenProfile={() => setIsProfileModalOpen(true)}
         onOpenActiveWorkoutModal={() => setIsActiveWorkoutOpen(true)}
         onOpenComplianceModal={() => openCompliance('medical')}
+        onOpenRemindersModal={() => setIsRemindersModalOpen(true)}
       />
 
       {/* Main Viewport Container */}
@@ -64,9 +69,13 @@ function FitnessAppContent() {
 
         {activeTab === 'timers' && <TimersView />}
 
-        {activeTab === 'diet' && <DietView />}
+        {activeTab === 'diet' && (
+          <DietView onOpenRemindersModal={() => setIsRemindersModalOpen(true)} />
+        )}
 
-        {activeTab === 'routine' && <DailyRoutineView />}
+        {activeTab === 'routine' && (
+          <DailyRoutineView onOpenRemindersModal={() => setIsRemindersModalOpen(true)} />
+        )}
 
         {activeTab === 'coach' && <AiCoachView />}
 
@@ -83,7 +92,7 @@ function FitnessAppContent() {
             <span className="text-slate-300">|</span>
             <div className="flex items-center gap-1 text-[11px] text-slate-600 font-medium">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Evidence-Based Training & Nutrition Engine</span>
+              <span>{t('evidence_based_engine')}</span>
             </div>
           </div>
 
@@ -93,7 +102,7 @@ function FitnessAppContent() {
               className="text-slate-600 hover:text-emerald-600 transition flex items-center gap-1"
             >
               <Stethoscope className="w-3.5 h-3.5 text-rose-500" />
-              <span>Medical Disclaimer</span>
+              <span>{t('medical_disclaimer')}</span>
             </button>
             <span className="text-slate-300">•</span>
             <button
@@ -101,7 +110,7 @@ function FitnessAppContent() {
               className="text-slate-600 hover:text-emerald-600 transition flex items-center gap-1"
             >
               <Award className="w-3.5 h-3.5 text-amber-500" />
-              <span>Trainer Standards</span>
+              <span>{t('trainer_standards')}</span>
             </button>
             <span className="text-slate-300">•</span>
             <button
@@ -109,7 +118,7 @@ function FitnessAppContent() {
               className="text-slate-600 hover:text-emerald-600 transition flex items-center gap-1"
             >
               <Lock className="w-3.5 h-3.5 text-slate-500" />
-              <span>Privacy Policy</span>
+              <span>{t('privacy_policy')}</span>
             </button>
             <span className="text-slate-300">•</span>
             <button
@@ -117,7 +126,7 @@ function FitnessAppContent() {
               className="text-slate-600 hover:text-emerald-600 transition flex items-center gap-1"
             >
               <FileText className="w-3.5 h-3.5 text-slate-500" />
-              <span>Terms of Use</span>
+              <span>{t('terms_of_use')}</span>
             </button>
           </div>
         </div>
@@ -139,6 +148,7 @@ function FitnessAppContent() {
         isOpen={isActiveWorkoutOpen}
         onClose={() => setIsActiveWorkoutOpen(false)}
         onOpenExercisePicker={() => setIsExercisePickerOpen(true)}
+        onSelectExerciseDetails={(ex) => setSelectedExerciseForDetail(ex)}
       />
 
       <PlanCreatorModal
@@ -160,6 +170,12 @@ function FitnessAppContent() {
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
       />
+
+      <RemindersModal
+        isOpen={isRemindersModalOpen}
+        onClose={() => setIsRemindersModalOpen(false)}
+        onNavigateTab={(tab) => setActiveTab(tab)}
+      />
     </div>
   );
 }
@@ -167,9 +183,11 @@ function FitnessAppContent() {
 export default function App() {
   return (
     <AuthProvider>
-      <FitnessProvider>
-        <FitnessAppContent />
-      </FitnessProvider>
+      <LanguageProvider>
+        <FitnessProvider>
+          <FitnessAppContent />
+        </FitnessProvider>
+      </LanguageProvider>
     </AuthProvider>
   );
 }

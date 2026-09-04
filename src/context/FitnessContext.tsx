@@ -12,7 +12,11 @@ import {
   Exercise,
   SupplementItem,
   WaterReminderSettings,
+  WaterLogEntry,
   PersonalDietPlan,
+  WorkoutReminderSettings,
+  MealReminderItem,
+  InAppReminderAlert,
 } from '../types';
 import {
   PRESET_WORKOUT_PLANS,
@@ -31,7 +35,15 @@ import {
   playClickFeedback,
   playWaterDropTone,
   playSupplementTone,
+  playWorkoutReminderTone,
+  playMealReminderTone,
+  playNotificationChime,
 } from '../utils/audio';
+import {
+  sendBrowserNotification,
+  getTimeWithMinutesOffset,
+  formatTo12Hour,
+} from '../utils/notifications';
 import confetti from 'canvas-confetti';
 import { useAuth } from './AuthContext';
 import { db, doc, getDoc, setDoc } from '../lib/firebase';
@@ -55,6 +67,9 @@ interface FitnessContextType {
   habits: DailyHabit[];
   supplements: SupplementItem[];
   waterReminder: WaterReminderSettings;
+  workoutReminder: WorkoutReminderSettings;
+  mealReminders: MealReminderItem[];
+  activeInAppAlerts: InAppReminderAlert[];
   savedDietPlans: PersonalDietPlan[];
   activeDietPlan: PersonalDietPlan | null;
   userProfile: UserProfile;
@@ -84,13 +99,25 @@ interface FitnessContextType {
   // Actions - Diet & Calories
   logFoodItem: (mealType: MealType, food: FoodItem) => void;
   removeFoodItem: (mealType: MealType, foodId: string) => void;
-  addWater: (amountMl: number) => void;
+  addWater: (amountMl: number, containerLabel?: string, containerType?: string) => void;
+  removeWaterLog: (logId: string) => void;
+  resetDailyWater: () => void;
   setWaterGoal: (amountMl: number) => void;
   setMacroGoals: (calories: number, protein: number, carbs: number, fats: number) => void;
 
   // Actions - Water Reminder
   updateWaterReminderSettings: (settings: Partial<WaterReminderSettings>) => void;
   triggerWaterReminderAlert: () => void;
+
+  // Actions - Scheduled Reminders (Workout & Nutrition)
+  updateWorkoutReminder: (settings: Partial<WorkoutReminderSettings>) => void;
+  updateMealReminder: (id: string, updates: Partial<MealReminderItem>) => void;
+  toggleMealReminder: (id: string) => void;
+  addMealReminder: (reminder: Omit<MealReminderItem, 'id'>) => void;
+  deleteMealReminder: (id: string) => void;
+  dismissAlert: (alertId: string) => void;
+  clearAllAlerts: () => void;
+  triggerTestReminder: (type: 'workout' | 'meal', customMealType?: MealType) => void;
 
   // Actions - Supplements
   toggleSupplementTaken: (id: string) => void;
@@ -130,11 +157,103 @@ const STORAGE_KEYS = {
   HABITS: 'pulsefit_habits_v1',
   SUPPLEMENTS: 'pulsefit_supplements_v1',
   WATER_REMINDER: 'pulsefit_water_reminder_v1',
+  WORKOUT_REMINDER: 'pulsefit_workout_reminder_v1',
+  MEAL_REMINDERS: 'pulsefit_meal_reminders_v1',
+  IN_APP_ALERTS: 'pulsefit_in_app_alerts_v1',
   DIET_PLANS: 'pulsefit_diet_plans_v1',
   ACTIVE_DIET_PLAN: 'pulsefit_active_diet_plan_v1',
   PROFILE: 'pulsefit_profile_v1',
   ACTIVE_WORKOUT: 'pulsefit_active_workout_v1',
 };
+
+const DEFAULT_WORKOUT_REMINDER: WorkoutReminderSettings = {
+  enabled: true,
+  scheduledTime: '06:00 PM',
+  workoutDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+  preWorkoutFuelReminderMins: 45,
+  preWorkoutFuelEnabled: true,
+  warmupReminderMins: 15,
+  warmupEnabled: true,
+  soundAlert: true,
+  browserNotification: true,
+  targetPlanTitle: 'Push Power Hypertrophy',
+  notes: 'Bring gym towel, resistance band & water bottle',
+};
+
+const DEFAULT_MEAL_REMINDERS: MealReminderItem[] = [
+  {
+    id: 'meal-breakfast',
+    mealType: 'breakfast',
+    label: 'Morning Breakfast',
+    time: '08:30 AM',
+    enabled: true,
+    soundAlert: true,
+    browserNotification: true,
+    suggestedCalories: 650,
+    suggestedProteinGrams: 35,
+    reminderTip: 'Fuel up with quality protein and complex carbs to jumpstart your metabolic rate.',
+  },
+  {
+    id: 'meal-snack-morning',
+    mealType: 'snack',
+    label: 'Mid-Morning Fuel',
+    time: '11:00 AM',
+    enabled: false,
+    soundAlert: true,
+    browserNotification: true,
+    suggestedCalories: 250,
+    suggestedProteinGrams: 15,
+    reminderTip: 'Grab an apple, almonds, or Greek yogurt & drink 300ml water.',
+  },
+  {
+    id: 'meal-lunch',
+    mealType: 'lunch',
+    label: 'High-Protein Lunch',
+    time: '01:30 PM',
+    enabled: true,
+    soundAlert: true,
+    browserNotification: true,
+    suggestedCalories: 750,
+    suggestedProteinGrams: 45,
+    reminderTip: 'Time to log lunch: lean protein, wholesome carbs & fresh vegetables.',
+  },
+  {
+    id: 'meal-snack-preworkout',
+    mealType: 'snack',
+    label: 'Pre-Workout Snack',
+    time: '04:30 PM',
+    enabled: true,
+    soundAlert: true,
+    browserNotification: true,
+    suggestedCalories: 300,
+    suggestedProteinGrams: 20,
+    reminderTip: 'Quick energy boost: banana, rice cakes or whey shake for muscle glycogen.',
+  },
+  {
+    id: 'meal-dinner',
+    mealType: 'dinner',
+    label: 'Recovery Dinner',
+    time: '08:00 PM',
+    enabled: true,
+    soundAlert: true,
+    browserNotification: true,
+    suggestedCalories: 700,
+    suggestedProteinGrams: 45,
+    reminderTip: 'Log your evening dinner macros to optimize overnight muscle protein synthesis.',
+  },
+  {
+    id: 'meal-snack-wrapup',
+    mealType: 'snack',
+    label: 'Daily Nutrition Wrap-Up',
+    time: '09:30 PM',
+    enabled: true,
+    soundAlert: true,
+    browserNotification: true,
+    suggestedCalories: 150,
+    suggestedProteinGrams: 10,
+    reminderTip: 'Final check-in: review your total calories & macros against today\'s targets.',
+  },
+];
 
 const DEFAULT_WATER_REMINDER: WaterReminderSettings = {
   enabled: true,
@@ -214,6 +333,48 @@ const getInitialDiet = (profile: UserProfile): DailyDietLog => ({
   ],
   waterMl: 2250,
   waterGoalMl: profile.dailyWaterTargetMl || 3000,
+  waterLogs: [
+    {
+      id: 'wlog-init-1',
+      timestamp: Date.now() - 8 * 3600 * 1000,
+      timeString: '07:30 AM',
+      amountMl: 500,
+      containerType: 'bottle',
+      containerLabel: 'Morning Hydration Bottle',
+    },
+    {
+      id: 'wlog-init-2',
+      timestamp: Date.now() - 5.5 * 3600 * 1000,
+      timeString: '10:00 AM',
+      amountMl: 250,
+      containerType: 'glass',
+      containerLabel: 'Standard Glass',
+    },
+    {
+      id: 'wlog-init-3',
+      timestamp: Date.now() - 3.5 * 3600 * 1000,
+      timeString: '12:30 PM',
+      amountMl: 500,
+      containerType: 'shaker',
+      containerLabel: 'Gym Shaker Bottle',
+    },
+    {
+      id: 'wlog-init-4',
+      timestamp: Date.now() - 2 * 3600 * 1000,
+      timeString: '02:45 PM',
+      amountMl: 250,
+      containerType: 'glass',
+      containerLabel: 'Standard Glass',
+    },
+    {
+      id: 'wlog-init-5',
+      timestamp: Date.now() - 0.75 * 3600 * 1000,
+      timeString: '04:15 PM',
+      amountMl: 750,
+      containerType: 'bottle',
+      containerLabel: 'Sports Bottle',
+    },
+  ],
   calorieGoal: profile.dailyCalorieTarget || 2650,
   proteinGoalGrams: profile.dailyProteinTarget || 165,
   carbsGoalGrams: profile.dailyCarbsTarget || 290,
@@ -258,36 +419,40 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [workoutLogs, setWorkoutLogs] = useState<CompletedWorkoutLog[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.LOGS);
-      if (saved) return JSON.parse(saved);
-      const yesterday = new Date(Date.now() - 86400000).toISOString();
-      const threeDaysAgo = new Date(Date.now() - 86400000 * 3).toISOString();
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+      const now = Date.now();
+      const dayMs = 86400000;
       return [
         {
           id: 'log-yesterday',
           title: 'Push Power & Hypertrophy',
-          date: yesterday,
+          date: new Date(now - dayMs).toISOString(),
           durationSeconds: 3120,
-          totalVolumeKg: 6420,
+          totalVolumeKg: 6540,
           completedSetsCount: 16,
-          caloriesBurned: 410,
+          caloriesBurned: 420,
+          rpeAverage: 8.5,
           exercises: [
             {
               name: 'Barbell Flat Bench Press',
               targetMuscle: 'Chest',
               completedSets: [
                 { weightKg: 60, reps: 8, isWarmup: true },
-                { weightKg: 75, reps: 6 },
-                { weightKg: 75, reps: 6 },
-                { weightKg: 75, reps: 6 },
+                { weightKg: 80, reps: 6 },
+                { weightKg: 80, reps: 6 },
+                { weightKg: 80, reps: 5 },
               ],
             },
             {
               name: 'Incline Dumbbell Press',
               targetMuscle: 'Upper Chest',
               completedSets: [
-                { weightKg: 26, reps: 10 },
-                { weightKg: 26, reps: 10 },
-                { weightKg: 26, reps: 8 },
+                { weightKg: 28, reps: 10 },
+                { weightKg: 28, reps: 10 },
+                { weightKg: 28, reps: 8 },
               ],
             },
           ],
@@ -295,21 +460,125 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
         {
           id: 'log-3days',
           title: 'Pull Hypertrophy & V-Taper',
-          date: threeDaysAgo,
-          durationSeconds: 2880,
-          totalVolumeKg: 5800,
+          date: new Date(now - dayMs * 3).toISOString(),
+          durationSeconds: 2940,
+          totalVolumeKg: 6080,
           completedSetsCount: 15,
-          caloriesBurned: 380,
+          caloriesBurned: 390,
+          rpeAverage: 8.0,
           exercises: [
             {
               name: 'Pull-Ups',
               targetMuscle: 'Lats',
-              completedSets: [{ weightKg: 0, reps: 8 }, { weightKg: 0, reps: 8 }, { weightKg: 0, reps: 6 }],
+              completedSets: [{ weightKg: 0, reps: 10 }, { weightKg: 0, reps: 8 }, { weightKg: 0, reps: 8 }],
             },
             {
               name: 'Barbell Bent-Over Row',
               targetMuscle: 'Mid-Back',
-              completedSets: [{ weightKg: 60, reps: 10 }, { weightKg: 60, reps: 10 }, { weightKg: 60, reps: 8 }],
+              completedSets: [{ weightKg: 65, reps: 10 }, { weightKg: 65, reps: 8 }, { weightKg: 65, reps: 8 }],
+            },
+          ],
+        },
+        {
+          id: 'log-6days',
+          title: 'Leg Day & Quad Hypertrophy',
+          date: new Date(now - dayMs * 6).toISOString(),
+          durationSeconds: 3400,
+          totalVolumeKg: 7420,
+          completedSetsCount: 17,
+          caloriesBurned: 480,
+          rpeAverage: 9.0,
+          exercises: [
+            {
+              name: 'Barbell Back Squat',
+              targetMuscle: 'Quads',
+              completedSets: [
+                { weightKg: 70, reps: 8, isWarmup: true },
+                { weightKg: 100, reps: 8 },
+                { weightKg: 105, reps: 6 },
+                { weightKg: 105, reps: 6 },
+              ],
+            },
+            {
+              name: 'Romanian Deadlift',
+              targetMuscle: 'Hamstrings',
+              completedSets: [
+                { weightKg: 80, reps: 10 },
+                { weightKg: 85, reps: 8 },
+                { weightKg: 85, reps: 8 },
+              ],
+            },
+          ],
+        },
+        {
+          id: 'log-9days',
+          title: 'Upper Body Strength Overload',
+          date: new Date(now - dayMs * 9).toISOString(),
+          durationSeconds: 3000,
+          totalVolumeKg: 6180,
+          completedSetsCount: 15,
+          caloriesBurned: 405,
+          rpeAverage: 8.5,
+          exercises: [
+            {
+              name: 'Overhead Press',
+              targetMuscle: 'Shoulders',
+              completedSets: [
+                { weightKg: 45, reps: 8 },
+                { weightKg: 50, reps: 6 },
+                { weightKg: 50, reps: 6 },
+              ],
+            },
+            {
+              name: 'Close-Grip Bench Press',
+              targetMuscle: 'Triceps',
+              completedSets: [
+                { weightKg: 60, reps: 10 },
+                { weightKg: 65, reps: 8 },
+                { weightKg: 65, reps: 8 },
+              ],
+            },
+          ],
+        },
+        {
+          id: 'log-12days',
+          title: 'Lower Body & Posterior Chain',
+          date: new Date(now - dayMs * 12).toISOString(),
+          durationSeconds: 3180,
+          totalVolumeKg: 6900,
+          completedSetsCount: 16,
+          caloriesBurned: 460,
+          rpeAverage: 8.5,
+          exercises: [
+            {
+              name: 'Conventional Deadlift',
+              targetMuscle: 'Lower Back & Glutes',
+              completedSets: [
+                { weightKg: 100, reps: 6 },
+                { weightKg: 120, reps: 5 },
+                { weightKg: 120, reps: 5 },
+              ],
+            },
+          ],
+        },
+        {
+          id: 'log-16days',
+          title: 'Push Hypertrophy Baseline',
+          date: new Date(now - dayMs * 16).toISOString(),
+          durationSeconds: 2880,
+          totalVolumeKg: 5420,
+          completedSetsCount: 14,
+          caloriesBurned: 370,
+          rpeAverage: 7.5,
+          exercises: [
+            {
+              name: 'Barbell Flat Bench Press',
+              targetMuscle: 'Chest',
+              completedSets: [
+                { weightKg: 70, reps: 8 },
+                { weightKg: 72.5, reps: 6 },
+                { weightKg: 72.5, reps: 6 },
+              ],
             },
           ],
         },
@@ -375,11 +644,52 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
   });
 
+  // 9b. Workout Reminder Settings
+  const [workoutReminder, setWorkoutReminder] = useState<WorkoutReminderSettings>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.WORKOUT_REMINDER);
+      return saved ? JSON.parse(saved) : DEFAULT_WORKOUT_REMINDER;
+    } catch {
+      return DEFAULT_WORKOUT_REMINDER;
+    }
+  });
+
+  // 9c. Daily Nutrition & Meal Reminders
+  const [mealReminders, setMealReminders] = useState<MealReminderItem[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.MEAL_REMINDERS);
+      return saved ? JSON.parse(saved) : DEFAULT_MEAL_REMINDERS;
+    } catch {
+      return DEFAULT_MEAL_REMINDERS;
+    }
+  });
+
+  // 9d. In-App Notification Alerts & History
+  const [activeInAppAlerts, setActiveInAppAlerts] = useState<InAppReminderAlert[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.IN_APP_ALERTS);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
   // 10. Saved Personal Diet Plans & Active Plan
   const [savedDietPlans, setSavedDietPlans] = useState<PersonalDietPlan[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.DIET_PLANS);
-      return saved ? JSON.parse(saved) : PRESET_DIET_PLANS;
+      if (saved) {
+        const parsed: PersonalDietPlan[] = JSON.parse(saved);
+        const existingIds = new Set(parsed.map((p) => p.id));
+        const missingPresets = PRESET_DIET_PLANS.filter((p) => !existingIds.has(p.id));
+        // Also ensure preset plans get the latest definitions
+        const updatedParsed = parsed.map((p) => {
+          const fresh = PRESET_DIET_PLANS.find((preset) => preset.id === p.id);
+          return fresh || p;
+        });
+        return [...updatedParsed, ...missingPresets];
+      }
+      return PRESET_DIET_PLANS;
     } catch {
       return PRESET_DIET_PLANS;
     }
@@ -416,6 +726,8 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
           if (data.habits) setHabits(data.habits);
           if (data.supplements) setSupplements(data.supplements);
           if (data.waterReminder) setWaterReminder(data.waterReminder);
+          if (data.workoutReminder) setWorkoutReminder(data.workoutReminder);
+          if (data.mealReminders) setMealReminders(data.mealReminders);
           if (data.savedDietPlans) setSavedDietPlans(data.savedDietPlans);
           if (data.activeDietPlan) setActiveDietPlanState(data.activeDietPlan);
         } else {
@@ -434,6 +746,8 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
             habits,
             supplements,
             waterReminder,
+            workoutReminder,
+            mealReminders,
             savedDietPlans,
             activeDietPlan,
             updatedAt: new Date().toISOString(),
@@ -486,6 +800,18 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
   }, [waterReminder]);
 
   useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.WORKOUT_REMINDER, JSON.stringify(workoutReminder));
+  }, [workoutReminder]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.MEAL_REMINDERS, JSON.stringify(mealReminders));
+  }, [mealReminders]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.IN_APP_ALERTS, JSON.stringify(activeInAppAlerts));
+  }, [activeInAppAlerts]);
+
+  useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.DIET_PLANS, JSON.stringify(savedDietPlans));
   }, [savedDietPlans]);
 
@@ -514,6 +840,166 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
     return () => clearInterval(checkInterval);
   }, [waterReminder.enabled, waterReminder.intervalMinutes, waterReminder.nextReminderTimestamp, waterReminder.soundAlert]);
 
+  // Scheduled Reminder Checking Loop (Workout & Nutrition)
+  const dispatchedRemindersRef = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    const checkSchedule = () => {
+      const now = new Date();
+      const todayDateStr = now.toISOString().split('T')[0];
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const currentDay = dayNames[now.getDay()];
+      const currentHours = now.getHours();
+      const currentMins = now.getMinutes();
+      const current12Hour = formatTo12Hour(currentHours, currentMins);
+
+      // 1. Check Workout Reminder
+      if (workoutReminder.enabled && workoutReminder.workoutDays.includes(currentDay)) {
+        // Main workout reminder
+        const workoutKey = `${todayDateStr}_workout_${workoutReminder.scheduledTime}`;
+        if (current12Hour === workoutReminder.scheduledTime && !dispatchedRemindersRef.current.has(workoutKey)) {
+          dispatchedRemindersRef.current.add(workoutKey);
+
+          if (workoutReminder.soundAlert) {
+            playWorkoutReminderTone();
+          }
+
+          if (workoutReminder.browserNotification) {
+            sendBrowserNotification('⚡ Time for Your Workout!', {
+              body: `Scheduled session: ${workoutReminder.targetPlanTitle || 'PulseFit Workout'}. Let's crush today's goals!`,
+              tag: 'workout-reminder',
+            });
+          }
+
+          const newAlert: InAppReminderAlert = {
+            id: `workout-${Date.now()}`,
+            type: 'workout',
+            title: 'Time for Your Workout! 🏋️',
+            message: `Scheduled: ${workoutReminder.targetPlanTitle || 'Daily Workout Session'}. Time to train!`,
+            timestamp: Date.now(),
+            unread: true,
+            actionType: 'start_workout',
+          };
+
+          setActiveInAppAlerts((prev) => [newAlert, ...prev.slice(0, 19)]);
+        }
+
+        // Pre-workout fuel reminder (e.g. 45 mins before)
+        if (workoutReminder.preWorkoutFuelEnabled && workoutReminder.preWorkoutFuelReminderMins > 0) {
+          const preFuelTime = getTimeWithMinutesOffset(workoutReminder.scheduledTime, workoutReminder.preWorkoutFuelReminderMins);
+          const preFuelKey = `${todayDateStr}_prefuel_${preFuelTime}`;
+
+          if (current12Hour === preFuelTime && !dispatchedRemindersRef.current.has(preFuelKey)) {
+            dispatchedRemindersRef.current.add(preFuelKey);
+
+            if (workoutReminder.soundAlert) {
+              playMealReminderTone();
+            }
+
+            if (workoutReminder.browserNotification) {
+              sendBrowserNotification('🥗 Pre-Workout Fuel Reminder', {
+                body: `Workout starts in ${workoutReminder.preWorkoutFuelReminderMins} mins! Have your pre-workout carbs and hydrate.`,
+                tag: 'prefuel-reminder',
+              });
+            }
+
+            const newAlert: InAppReminderAlert = {
+              id: `prefuel-${Date.now()}`,
+              type: 'meal',
+              title: 'Pre-Workout Fuel Window 🍌',
+              message: `Workout starts in ${workoutReminder.preWorkoutFuelReminderMins} mins. Grab a light carb snack & 400ml water!`,
+              timestamp: Date.now(),
+              unread: true,
+              mealType: 'snack',
+              actionType: 'log_meal',
+            };
+
+            setActiveInAppAlerts((prev) => [newAlert, ...prev.slice(0, 19)]);
+          }
+        }
+
+        // Warmup reminder (e.g. 15 mins before)
+        if (workoutReminder.warmupEnabled && workoutReminder.warmupReminderMins > 0) {
+          const warmupTime = getTimeWithMinutesOffset(workoutReminder.scheduledTime, workoutReminder.warmupReminderMins);
+          const warmupKey = `${todayDateStr}_warmup_${warmupTime}`;
+
+          if (current12Hour === warmupTime && !dispatchedRemindersRef.current.has(warmupKey)) {
+            dispatchedRemindersRef.current.add(warmupKey);
+
+            if (workoutReminder.soundAlert) {
+              playWorkoutReminderTone();
+            }
+
+            if (workoutReminder.browserNotification) {
+              sendBrowserNotification('🔥 Dynamic Warm-Up Starting', {
+                body: `Workout starts in ${workoutReminder.warmupReminderMins} mins! Begin mobility & joint prep.`,
+                tag: 'warmup-reminder',
+              });
+            }
+
+            const newAlert: InAppReminderAlert = {
+              id: `warmup-${Date.now()}`,
+              type: 'workout',
+              title: 'Dynamic Warm-Up Window 🔥',
+              message: `Workout starts in ${workoutReminder.warmupReminderMins} mins. Prime your shoulders, hips & core!`,
+              timestamp: Date.now(),
+              unread: true,
+              actionType: 'start_workout',
+            };
+
+            setActiveInAppAlerts((prev) => [newAlert, ...prev.slice(0, 19)]);
+          }
+        }
+      }
+
+      // 2. Check Daily Nutrition / Meal Reminders
+      mealReminders.forEach((meal) => {
+        if (!meal.enabled) return;
+        const mealKey = `${todayDateStr}_meal_${meal.id}_${meal.time}`;
+
+        if (current12Hour === meal.time && !dispatchedRemindersRef.current.has(mealKey)) {
+          dispatchedRemindersRef.current.add(mealKey);
+
+          // Check if already logged today
+          const loggedMeal = dailyDiet.meals.find((m) => m.type === meal.mealType);
+          const hasLoggedItems = loggedMeal && loggedMeal.items.length > 0;
+
+          if (meal.soundAlert !== false) {
+            playMealReminderTone();
+          }
+
+          if (meal.browserNotification !== false) {
+            sendBrowserNotification(`🍽️ ${meal.label} Reminder`, {
+              body: hasLoggedItems
+                ? `You've logged ${meal.label}! Tap to review your daily macros & targets.`
+                : (meal.reminderTip || `Time to log your ${meal.label} and hit your protein target!`),
+              tag: `meal-${meal.id}`,
+            });
+          }
+
+          const newAlert: InAppReminderAlert = {
+            id: `meal-${meal.id}-${Date.now()}`,
+            type: 'meal',
+            title: `${meal.label} Check-In 🥑`,
+            message: hasLoggedItems
+              ? `You've logged ${meal.label} (${loggedMeal.totalCalories} kcal, ${loggedMeal.totalProtein}g protein). Check remaining goals!`
+              : (meal.reminderTip || `Time to log your ${meal.label} and record today's calories & macros.`),
+            timestamp: Date.now(),
+            unread: true,
+            mealType: meal.mealType,
+            actionType: 'log_meal',
+          };
+
+          setActiveInAppAlerts((prev) => [newAlert, ...prev.slice(0, 19)]);
+        }
+      });
+    };
+
+    const interval = setInterval(checkSchedule, 15000); // 15s poll
+    checkSchedule(); // initial check
+    return () => clearInterval(interval);
+  }, [workoutReminder, mealReminders, dailyDiet.meals]);
+
   // Auto-sync debounced to Cloud Firestore if logged in
   const syncToCloud = useCallback(async () => {
     if (!currentUser) return;
@@ -532,6 +1018,8 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
           habits,
           supplements,
           waterReminder,
+          workoutReminder,
+          mealReminders,
           savedDietPlans,
           activeDietPlan,
           updatedAt: new Date().toISOString(),
@@ -543,7 +1031,7 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
     } finally {
       setIsCloudSyncing(false);
     }
-  }, [currentUser, userProfile, plans, workoutLogs, dailyDiet, routineItems, habits, supplements, waterReminder, savedDietPlans, activeDietPlan]);
+  }, [currentUser, userProfile, plans, workoutLogs, dailyDiet, routineItems, habits, supplements, waterReminder, workoutReminder, mealReminders, savedDietPlans, activeDietPlan]);
 
   // Active workout elapsed timer
   useEffect(() => {
@@ -935,8 +1423,12 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
     });
   }, []);
 
-  const addWater = useCallback((amountMl: number) => {
-    playClickFeedback();
+  const addWater = useCallback((amountMl: number, containerLabel?: string, containerType?: string) => {
+    if (amountMl > 0) {
+      playWaterDropTone();
+    } else {
+      playClickFeedback();
+    }
     setDailyDiet((prev) => {
       const newWater = Math.max(0, prev.waterMl + amountMl);
       if (newWater >= prev.waterGoalMl && prev.waterMl < prev.waterGoalMl) {
@@ -948,7 +1440,63 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
           h.id === 'h3' ? { ...h, currentCount: newWater, completed: newWater >= prev.waterGoalMl } : h
         )
       );
-      return { ...prev, waterMl: newWater };
+
+      const existingLogs = prev.waterLogs || [];
+      let updatedLogs = [...existingLogs];
+      if (amountMl > 0) {
+        const newEntry: WaterLogEntry = {
+          id: `wlog-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+          timestamp: Date.now(),
+          timeString: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          amountMl,
+          containerType: (containerType as any) || 'custom',
+          containerLabel: containerLabel || `${amountMl}ml Container`,
+        };
+        updatedLogs = [newEntry, ...updatedLogs];
+      } else if (amountMl < 0 && updatedLogs.length > 0) {
+        updatedLogs = updatedLogs.slice(1);
+      }
+
+      return { ...prev, waterMl: newWater, waterLogs: updatedLogs };
+    });
+  }, []);
+
+  const removeWaterLog = useCallback((logId: string) => {
+    playClickFeedback();
+    setDailyDiet((prev) => {
+      const existingLogs = prev.waterLogs || [];
+      const target = existingLogs.find((l) => l.id === logId);
+      if (!target) return prev;
+      const newWater = Math.max(0, prev.waterMl - target.amountMl);
+      const updatedLogs = existingLogs.filter((l) => l.id !== logId);
+
+      setHabits((hPrev) =>
+        hPrev.map((h) =>
+          h.id === 'h3' ? { ...h, currentCount: newWater, completed: newWater >= prev.waterGoalMl } : h
+        )
+      );
+
+      return {
+        ...prev,
+        waterMl: newWater,
+        waterLogs: updatedLogs,
+      };
+    });
+  }, []);
+
+  const resetDailyWater = useCallback(() => {
+    playClickFeedback();
+    setDailyDiet((prev) => {
+      setHabits((hPrev) =>
+        hPrev.map((h) =>
+          h.id === 'h3' ? { ...h, currentCount: 0, completed: false } : h
+        )
+      );
+      return {
+        ...prev,
+        waterMl: 0,
+        waterLogs: [],
+      };
     });
   }, []);
 
@@ -989,6 +1537,85 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
     playWaterDropTone();
     confetti({ particleCount: 30, spread: 50, colors: ['#38bdf8', '#0284c7', '#bae6fd'] });
   }, []);
+
+  // Workout & Nutrition Scheduled Reminder Controls
+  const updateWorkoutReminder = useCallback((settings: Partial<WorkoutReminderSettings>) => {
+    playClickFeedback();
+    setWorkoutReminder((prev) => ({ ...prev, ...settings }));
+  }, []);
+
+  const updateMealReminder = useCallback((id: string, updates: Partial<MealReminderItem>) => {
+    playClickFeedback();
+    setMealReminders((prev) => prev.map((m) => (m.id === id ? { ...m, ...updates } : m)));
+  }, []);
+
+  const toggleMealReminder = useCallback((id: string) => {
+    playClickFeedback();
+    setMealReminders((prev) => prev.map((m) => (m.id === id ? { ...m, enabled: !m.enabled } : m)));
+  }, []);
+
+  const addMealReminder = useCallback((reminder: Omit<MealReminderItem, 'id'>) => {
+    playClickFeedback();
+    const newItem: MealReminderItem = {
+      ...reminder,
+      id: `meal-${Date.now()}`,
+    };
+    setMealReminders((prev) => [...prev, newItem]);
+  }, []);
+
+  const deleteMealReminder = useCallback((id: string) => {
+    playClickFeedback();
+    setMealReminders((prev) => prev.filter((m) => m.id !== id));
+  }, []);
+
+  const dismissAlert = useCallback((alertId: string) => {
+    playClickFeedback();
+    setActiveInAppAlerts((prev) => prev.filter((a) => a.id !== alertId));
+  }, []);
+
+  const clearAllAlerts = useCallback(() => {
+    playClickFeedback();
+    setActiveInAppAlerts([]);
+  }, []);
+
+  const triggerTestReminder = useCallback((type: 'workout' | 'meal', customMealType?: MealType) => {
+    if (type === 'workout') {
+      playWorkoutReminderTone();
+      sendBrowserNotification('⚡ Workout Reminder (Test Alert)', {
+        body: `Scheduled session: ${workoutReminder.targetPlanTitle || 'Push Power Hypertrophy'}. Ready to train!`,
+        tag: 'test-workout',
+      });
+      const alert: InAppReminderAlert = {
+        id: `test-workout-${Date.now()}`,
+        type: 'workout',
+        title: 'Workout Reminder (Test) 🏋️',
+        message: `It's time for your ${workoutReminder.targetPlanTitle || 'PulseFit Workout'}! Notification and audio chime verified successfully.`,
+        timestamp: Date.now(),
+        unread: true,
+        actionType: 'start_workout',
+      };
+      setActiveInAppAlerts((prev) => [alert, ...prev.slice(0, 19)]);
+    } else {
+      playMealReminderTone();
+      const mType = customMealType || 'lunch';
+      const mLabel = mType.charAt(0).toUpperCase() + mType.slice(1);
+      sendBrowserNotification(`🍽️ Nutrition Log Reminder (${mLabel})`, {
+        body: `Time to log your ${mLabel} and hit today's calorie & protein targets!`,
+        tag: 'test-meal',
+      });
+      const alert: InAppReminderAlert = {
+        id: `test-meal-${Date.now()}`,
+        type: 'meal',
+        title: `Daily Nutrition: ${mLabel} (Test) 🥑`,
+        message: `Time to log your ${mLabel}! Nutrition notification chime and tracker verified successfully.`,
+        timestamp: Date.now(),
+        unread: true,
+        mealType: mType,
+        actionType: 'log_meal',
+      };
+      setActiveInAppAlerts((prev) => [alert, ...prev.slice(0, 19)]);
+    }
+  }, [workoutReminder]);
 
   // Supplement Controls
   const toggleSupplementTaken = useCallback((id: string) => {
@@ -1166,6 +1793,9 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
     setHabits(DEFAULT_HABITS);
     setSupplements(DEFAULT_SUPPLEMENTS);
     setWaterReminder(DEFAULT_WATER_REMINDER);
+    setWorkoutReminder(DEFAULT_WORKOUT_REMINDER);
+    setMealReminders(DEFAULT_MEAL_REMINDERS);
+    setActiveInAppAlerts([]);
     setSavedDietPlans(PRESET_DIET_PLANS);
     setActiveDietPlanState(PRESET_DIET_PLANS[0]);
     setUserProfileState(INITIAL_PROFILE);
@@ -1183,12 +1813,14 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
       habits,
       supplements,
       waterReminder,
+      workoutReminder,
+      mealReminders,
       savedDietPlans,
       activeDietPlan,
       exportedAt: new Date().toISOString(),
     };
     return JSON.stringify(data, null, 2);
-  }, [userProfile, plans, workoutLogs, dailyDiet, routineItems, habits, supplements, waterReminder, savedDietPlans, activeDietPlan]);
+  }, [userProfile, plans, workoutLogs, dailyDiet, routineItems, habits, supplements, waterReminder, workoutReminder, mealReminders, savedDietPlans, activeDietPlan]);
 
   const importUserData = useCallback((jsonData: string): boolean => {
     try {
@@ -1201,6 +1833,8 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
       if (parsed.habits) setHabits(parsed.habits);
       if (parsed.supplements) setSupplements(parsed.supplements);
       if (parsed.waterReminder) setWaterReminder(parsed.waterReminder);
+      if (parsed.workoutReminder) setWorkoutReminder(parsed.workoutReminder);
+      if (parsed.mealReminders) setMealReminders(parsed.mealReminders);
       if (parsed.savedDietPlans) setSavedDietPlans(parsed.savedDietPlans);
       if (parsed.activeDietPlan) setActiveDietPlanState(parsed.activeDietPlan);
       return true;
@@ -1222,6 +1856,9 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
         habits,
         supplements,
         waterReminder,
+        workoutReminder,
+        mealReminders,
+        activeInAppAlerts,
         savedDietPlans,
         activeDietPlan,
         userProfile,
@@ -1249,11 +1886,22 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
         logFoodItem,
         removeFoodItem,
         addWater,
+        removeWaterLog,
+        resetDailyWater,
         setWaterGoal,
         setMacroGoals,
 
         updateWaterReminderSettings,
         triggerWaterReminderAlert,
+
+        updateWorkoutReminder,
+        updateMealReminder,
+        toggleMealReminder,
+        addMealReminder,
+        deleteMealReminder,
+        dismissAlert,
+        clearAllAlerts,
+        triggerTestReminder,
 
         toggleSupplementTaken,
         addSupplement,

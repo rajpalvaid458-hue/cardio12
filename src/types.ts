@@ -72,6 +72,7 @@ export interface Exercise {
   defaultRestSeconds: number;
   caloriesBurnedPerMin?: number;
   videoPlaceholderUrl?: string;
+  imageUrl?: string;
 }
 
 export interface WorkoutSet {
@@ -100,6 +101,7 @@ export interface WorkoutExerciseItem {
   formTips?: string[];
   defaultSets?: number;
   defaultReps?: string | number;
+  imageUrl?: string;
 }
 
 export interface WorkoutPlan {
@@ -209,6 +211,15 @@ export interface SupplementItem {
   iconType?: string;
 }
 
+export interface WaterLogEntry {
+  id: string;
+  timestamp: number;
+  timeString: string;
+  amountMl: number;
+  containerType: 'small_glass' | 'glass' | 'mug' | 'shaker' | 'bottle' | 'jug' | 'gallon' | 'custom';
+  containerLabel: string;
+}
+
 export interface WaterReminderSettings {
   enabled: boolean;
   intervalMinutes: number; // e.g. 30, 45, 60, 90, 120
@@ -217,6 +228,65 @@ export interface WaterReminderSettings {
   nextReminderTimestamp: number;
   remindBetweenStart: string; // "07:00 AM"
   remindBetweenEnd: string; // "10:00 PM"
+}
+
+export interface WorkoutReminderSettings {
+  enabled: boolean;
+  scheduledTime: string; // e.g. "06:00 PM" or "07:00 AM"
+  workoutDays: string[]; // ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  preWorkoutFuelReminderMins: number; // e.g. 45 mins before
+  preWorkoutFuelEnabled: boolean;
+  warmupReminderMins: number; // e.g. 15 mins before
+  warmupEnabled: boolean;
+  soundAlert: boolean;
+  browserNotification?: boolean;
+  targetPlanTitle?: string;
+  notes?: string;
+}
+
+export interface MealReminderItem {
+  id: string;
+  mealType: MealType;
+  label: string;
+  time: string; // e.g. "08:30 AM"
+  enabled: boolean;
+  soundAlert?: boolean;
+  browserNotification?: boolean;
+  suggestedCalories?: number;
+  suggestedProteinGrams?: number;
+  reminderTip?: string;
+}
+
+export interface PostureStretchReminderSettings {
+  enabled: boolean;
+  intervalMinutes: number; // e.g. 45, 60, 90
+  soundAlert: boolean;
+  workHoursStart: string; // "09:00 AM"
+  workHoursEnd: string; // "07:00 PM"
+  lastAlertTimestamp: number;
+}
+
+export interface SleepReminderSettings {
+  enabled: boolean;
+  targetBedtime: string; // "10:30 PM"
+  windDownMinutesBefore: number; // 45 mins before
+  targetWakeTime: string; // "06:30 AM"
+  targetSleepHours: number; // 8.0
+  soundAlert: boolean;
+  magnesiumSuppReminder: boolean;
+  screenOffReminder: boolean;
+}
+
+export interface InAppReminderAlert {
+  id: string;
+  type: 'water' | 'supplement' | 'workout' | 'meal' | 'stretch' | 'sleep';
+  title: string;
+  message: string;
+  timestamp: number;
+  unread?: boolean;
+  mealType?: MealType;
+  actionType?: 'log_water' | 'mark_supplement' | 'start_workout' | 'log_meal' | 'do_stretch';
+  actionData?: any;
 }
 
 export interface PersonalDietPlan {
@@ -229,6 +299,9 @@ export interface PersonalDietPlan {
   cuisine: 'Indian' | 'International' | 'Fusion';
   dietType: 'pure_veg' | 'non_veg' | 'vegan' | 'eggetarian' | 'jain' | 'keto' | 'high_protein';
   dietTypeLabel: string;
+  wheyOption?: 'with_whey' | 'without_whey' | 'with_plant_protein' | 'zero_powders';
+  isVeg?: boolean;
+  isVegan?: boolean;
   dailyCalories: number;
   macros: {
     proteinGrams: number;
@@ -252,6 +325,7 @@ export interface DailyDietLog {
   meals: LoggedMeal[];
   waterMl: number;
   waterGoalMl: number;
+  waterLogs?: WaterLogEntry[];
   calorieGoal: number;
   proteinGoalGrams: number;
   carbsGoalGrams: number;
@@ -316,4 +390,43 @@ export interface ChatMessage {
   text: string;
   timestamp: string;
   quickActions?: string[];
+}
+
+export type FlexibilityTestType =
+  | 'sit_and_reach'
+  | 'shoulder_apley'
+  | 'hip_90_90'
+  | 'ankle_dorsiflexion'
+  | 'thoracic_rotation'
+  | 'overhead_squat';
+
+export interface FlexibilityAssessment {
+  id: string;
+  testType: FlexibilityTestType;
+  testName: string;
+  date: string; // YYYY-MM-DD
+  score: number;
+  unit: string;
+  side?: 'left' | 'right' | 'both';
+  status: 'Tight' | 'Normal' | 'Good' | 'Excellent' | 'Elite';
+  notes?: string;
+}
+
+export type BodyProgressPose = 'front' | 'side' | 'back' | 'flexed';
+
+export interface BodyProgressEntry {
+  id: string;
+  date: string; // YYYY-MM-DD
+  time?: string;
+  weightKg: number;
+  weightUnit?: 'kg' | 'lbs';
+  photoUrl: string;
+  pose: BodyProgressPose;
+  notes?: string;
+  bodyFatPercent?: number;
+  chestCm?: number;
+  waistCm?: number;
+  armsCm?: number;
+  thighsCm?: number;
+  createdAt: number;
 }

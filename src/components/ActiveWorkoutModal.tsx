@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useFitness } from '../context/FitnessContext';
+import { useLanguage } from '../context/LanguageContext';
 import { Exercise } from '../types';
 import {
   Play,
@@ -14,21 +15,27 @@ import {
   ChevronDown,
   ChevronUp,
   Info,
+  Activity,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { ExerciseImage } from './ExerciseImage';
+import { isChestExercise } from '../utils/exerciseImages';
 
 interface ActiveWorkoutModalProps {
   isOpen: boolean;
   onClose: () => void;
   onOpenExercisePicker: () => void;
+  onSelectExerciseDetails?: (exercise: Exercise) => void;
 }
 
 export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
   isOpen,
   onClose,
   onOpenExercisePicker,
+  onSelectExerciseDetails,
 }) => {
   const {
+    exercises,
     activeWorkout,
     updateActiveWorkout,
     toggleSetCompleted,
@@ -40,6 +47,7 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
     startRestTimer,
     userProfile,
   } = useFitness();
+  const { t, isHindi } = useLanguage();
 
   const [expandedExerciseIndex, setExpandedExerciseIndex] = useState<number | null>(null);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
@@ -84,7 +92,9 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-              <span className="text-xs font-bold uppercase tracking-widest text-emerald-700">Live Session</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-emerald-700">
+                {isHindi ? 'लाइव सत्र' : 'Live Session'}
+              </span>
             </div>
             <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 truncate max-w-xs sm:max-w-md">
               {activeWorkout.title}
@@ -100,7 +110,7 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
             <button
               onClick={togglePause}
               className="p-1.5 rounded-lg bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 transition-colors"
-              title={activeWorkout.isPaused ? 'Resume' : 'Pause'}
+              title={activeWorkout.isPaused ? (isHindi ? 'जारी रखें' : 'Resume') : (isHindi ? 'रोकें' : 'Pause')}
             >
               {activeWorkout.isPaused ? <Play className="w-3.5 h-3.5 fill-current" /> : <Pause className="w-3.5 h-3.5 fill-current" />}
             </button>
@@ -113,12 +123,12 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
               className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-sm transition-all hover:scale-102"
             >
               <Award className="w-4 h-4" />
-              <span>Finish</span>
+              <span>{isHindi ? 'समाप्त करें' : 'Finish'}</span>
             </button>
             <button
               onClick={onClose}
               className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 transition-colors"
-              title="Minimize"
+              title={isHindi ? 'छोटा करें' : 'Minimize'}
             >
               <X className="w-5 h-5" />
             </button>
@@ -131,19 +141,25 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
         {/* Workout Stats Strip */}
         <div className="grid grid-cols-3 gap-3">
           <div className="bg-white border border-slate-200 rounded-2xl p-3 text-center shadow-xs">
-            <div className="text-[11px] text-slate-500 font-medium">Volume Lifted</div>
+            <div className="text-[11px] text-slate-500 font-medium">
+              {isHindi ? 'उठाया गया वजन' : 'Volume Lifted'}
+            </div>
             <div className="text-lg sm:text-xl font-black text-slate-900 font-mono mt-0.5">
               {activeWorkout.totalVolumeKg.toLocaleString()} {userProfile.weightUnit}
             </div>
           </div>
           <div className="bg-white border border-slate-200 rounded-2xl p-3 text-center shadow-xs">
-            <div className="text-[11px] text-slate-500 font-medium">Completed Sets</div>
+            <div className="text-[11px] text-slate-500 font-medium">
+              {isHindi ? 'पूरे किए गए सेट्स' : 'Completed Sets'}
+            </div>
             <div className="text-lg sm:text-xl font-black text-emerald-600 font-mono mt-0.5">
               {activeWorkout.completedSetsCount} / {totalSetsCount}
             </div>
           </div>
           <div className="bg-white border border-slate-200 rounded-2xl p-3 text-center shadow-xs">
-            <div className="text-[11px] text-slate-500 font-medium">Est. Calories</div>
+            <div className="text-[11px] text-slate-500 font-medium">
+              {isHindi ? 'अनुमानित कैलोरी' : 'Est. Calories'}
+            </div>
             <div className="text-lg sm:text-xl font-black text-amber-600 font-mono mt-0.5">
               ~{Math.round((activeWorkout.elapsedSeconds / 60) * 7.5)} kcal
             </div>
@@ -160,23 +176,79 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
                 className="rounded-2xl bg-white border border-slate-200 overflow-hidden shadow-xs"
               >
                 {/* Exercise Header */}
-                <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between gap-3">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        {exercise.targetMuscle}
-                      </span>
-                      <button
-                        onClick={() => startRestTimer(exercise.restSec || 60, exercise.name)}
-                        className="text-[11px] text-slate-500 hover:text-emerald-700 flex items-center gap-1 font-mono"
-                      >
-                        <Timer className="w-3 h-3 text-slate-400" /> Rest: {exercise.restSec}s
-                      </button>
+                <div className="p-3.5 sm:p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div
+                      onClick={() => {
+                        const fullEx = exercises.find((e) => e.name.toLowerCase() === exercise.name.toLowerCase()) || {
+                          id: exercise.id || `ex-${exIndex}`,
+                          name: exercise.name,
+                          category: 'Strength',
+                          targetMuscle: exercise.targetMuscle || 'Target Muscle',
+                          equipment: 'Standard Equipment',
+                          defaultSets: exercise.sets.length,
+                          defaultReps: '10-12',
+                          defaultRestSeconds: 60,
+                          instructions: [exercise.formTip || 'Perform movement with strict biomechanical control and core stability.'],
+                          formTips: [exercise.formTip || 'Maintain joint alignment and rhythmic cadence.'],
+                        };
+                        onSelectExerciseDetails?.(fullEx);
+                      }}
+                      className={`${
+                        isChestExercise(exercise)
+                          ? 'w-12 h-12 rounded-xl overflow-hidden shrink-0 border border-slate-200 bg-slate-900 shadow-xs cursor-pointer group/img'
+                          : 'w-11 h-11 rounded-xl bg-slate-100 hover:bg-emerald-100 border border-slate-200 hover:border-emerald-300 text-slate-700 hover:text-emerald-700 flex items-center justify-center shrink-0 shadow-xs cursor-pointer transition-colors'
+                      }`}
+                      title="Click to view form guide"
+                    >
+                      {isChestExercise(exercise) ? (
+                        <ExerciseImage
+                          exercise={exercise}
+                          className="w-full h-full object-cover group-hover/img:scale-105 transition-transform"
+                        />
+                      ) : (
+                        <Dumbbell className="w-5 h-5" />
+                      )}
                     </div>
-                    <h3 className="text-base font-bold text-slate-900 mt-1">{exercise.name}</h3>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          {exercise.targetMuscle}
+                        </span>
+                        <button
+                          onClick={() => startRestTimer(exercise.restSec || 60, exercise.name)}
+                          className="text-[11px] text-slate-500 hover:text-emerald-700 flex items-center gap-1 font-mono"
+                        >
+                          <Timer className="w-3 h-3 text-slate-400" /> Rest: {exercise.restSec}s
+                        </button>
+                      </div>
+                      <h3 className="text-sm sm:text-base font-bold text-slate-900 mt-0.5 truncate">{exercise.name}</h3>
+                    </div>
                   </div>
 
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button
+                      onClick={() => {
+                        const fullEx = exercises.find((e) => e.name.toLowerCase() === exercise.name.toLowerCase()) || {
+                          id: exercise.id || `ex-${exIndex}`,
+                          name: exercise.name,
+                          category: 'Strength',
+                          targetMuscle: exercise.targetMuscle || 'Target Muscle',
+                          equipment: 'Standard Equipment',
+                          defaultSets: exercise.sets.length,
+                          defaultReps: '10-12',
+                          defaultRestSeconds: 60,
+                          instructions: [exercise.formTip || 'Perform movement with strict biomechanical control and core stability.'],
+                          formTips: [exercise.formTip || 'Maintain joint alignment and rhythmic cadence.'],
+                        };
+                        onSelectExerciseDetails?.(fullEx);
+                      }}
+                      className="px-2 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 text-xs font-semibold flex items-center gap-1 transition-colors"
+                      title="View Proper Form Animation & Demonstration"
+                    >
+                      <Activity className="w-3.5 h-3.5 text-emerald-600" />
+                      <span className="hidden sm:inline">Form Guide</span>
+                    </button>
                     {exercise.formTip && (
                       <button
                         onClick={() => setExpandedExerciseIndex(isTipExpanded ? null : exIndex)}
@@ -202,10 +274,10 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
                   <table className="w-full text-left text-xs">
                     <thead>
                       <tr className="text-slate-500 border-b border-slate-200 pb-2">
-                        <th className="pb-2 font-semibold w-12 text-center">SET</th>
-                        <th className="pb-2 font-semibold w-24">KG / LBS</th>
-                        <th className="pb-2 font-semibold w-24">REPS</th>
-                        <th className="pb-2 font-semibold text-center w-16">DONE</th>
+                        <th className="pb-2 font-semibold w-12 text-center">{isHindi ? 'सेट' : 'SET'}</th>
+                        <th className="pb-2 font-semibold w-24">{userProfile.weightUnit.toUpperCase()}</th>
+                        <th className="pb-2 font-semibold w-24">{isHindi ? 'रेप्स' : 'REPS'}</th>
+                        <th className="pb-2 font-semibold text-center w-16">{isHindi ? 'पूर्ण' : 'DONE'}</th>
                         <th className="pb-2 font-semibold w-8"></th>
                       </tr>
                     </thead>
@@ -314,11 +386,11 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors"
                     >
                       <Plus className="w-3.5 h-3.5" />
-                      <span>Add Set</span>
+                      <span>{isHindi ? '+ सेट जोड़ें' : 'Add Set'}</span>
                     </button>
 
                     <span className="text-[11px] text-slate-500 font-mono">
-                      Rest interval: {exercise.restSec}s
+                      {isHindi ? 'विश्राम' : 'Rest'}: {exercise.restSec}s
                     </span>
                   </div>
                 </div>
@@ -334,7 +406,7 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
             className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-white hover:bg-slate-50 border-2 border-dashed border-slate-300 hover:border-emerald-600 text-slate-700 hover:text-emerald-700 font-bold text-sm transition-all shadow-xs"
           >
             <Plus className="w-4 h-4" />
-            <span>Add Exercise to This Workout</span>
+            <span>{isHindi ? '+ इस वर्कआउट में व्यायाम जोड़ें' : 'Add Exercise to This Workout'}</span>
           </button>
         </div>
 
@@ -344,7 +416,7 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
             onClick={() => setShowCancelConfirm(true)}
             className="text-xs text-red-500 hover:text-red-600 hover:underline"
           >
-            Discard Workout Session
+            {isHindi ? 'सत्र रद्द करें' : 'Discard Workout Session'}
           </button>
 
           <button
@@ -352,7 +424,7 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
             className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-sm transition-all hover:scale-102"
           >
             <Check className="w-4 h-4 stroke-[3]" />
-            <span>Complete & Log Workout</span>
+            <span>{isHindi ? 'कसरत पूरी करें व लॉग करें' : 'Complete & Log Workout'}</span>
           </button>
         </div>
       </div>
@@ -367,23 +439,26 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
               exit={{ scale: 0.95, opacity: 0 }}
               className="bg-white border border-slate-200 rounded-3xl p-6 max-w-sm w-full space-y-4 shadow-2xl"
             >
-              <h3 className="text-lg font-bold text-slate-900">Discard workout?</h3>
+              <h3 className="text-lg font-bold text-slate-900">
+                {isHindi ? 'कसरत रद्द करें?' : 'Discard workout?'}
+              </h3>
               <p className="text-xs text-slate-500">
-                Are you sure you want to cancel this workout? Your logged sets for this session will not be saved to your
-                history.
+                {isHindi 
+                  ? 'क्या आप वाकई इस वर्कआउट को रद्द करना चाहते हैं? इस सत्र के सेट्स आपके इतिहास में सहेजे नहीं जाएंगे।' 
+                  : 'Are you sure you want to cancel this workout? Your logged sets for this session will not be saved to your history.'}
               </p>
               <div className="flex items-center gap-2 pt-2">
                 <button
                   onClick={() => setShowCancelConfirm(false)}
                   className="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors"
                 >
-                  Keep Training
+                  {isHindi ? 'अभ्यास जारी रखें' : 'Keep Training'}
                 </button>
                 <button
                   onClick={handleCancel}
                   className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-colors shadow-xs"
                 >
-                  Yes, Discard
+                  {isHindi ? 'हाँ, रद्द करें' : 'Yes, Discard'}
                 </button>
               </div>
             </motion.div>

@@ -195,3 +195,138 @@ export function playSupplementTone() {
   } catch (e) {}
 }
 
+/** Motivating energetic chord for workout reminders */
+export function playWorkoutReminderTone() {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  try {
+    const now = ctx.currentTime;
+    const chord = [440, 554.37, 659.25, 880]; // A Major arpeggio / power chord
+    chord.forEach((freq, idx) => {
+      const startTime = now + idx * 0.09;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, startTime);
+
+      gain.gain.setValueAtTime(0.22, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.35);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(startTime);
+      osc.stop(startTime + 0.35);
+    });
+  } catch (e) {}
+}
+
+/** Pleasant dining bell chime for meal reminders */
+export function playMealReminderTone() {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  try {
+    const now = ctx.currentTime;
+    const notes = [587.33, 739.99, 880]; // D5, F#5, A5
+    notes.forEach((freq, idx) => {
+      const startTime = now + idx * 0.1;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, startTime);
+
+      gain.gain.setValueAtTime(0.18, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.3);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(startTime);
+      osc.stop(startTime + 0.3);
+    });
+  } catch (e) {}
+}
+
+/** Calming mindfulness tone for posture & stretch reminders */
+export function playStretchTone() {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  try {
+    const now = ctx.currentTime;
+    const notes = [440, 523.25, 659.25]; // A4, C5, E5
+    notes.forEach((freq, idx) => {
+      const startTime = now + idx * 0.14;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, startTime);
+
+      gain.gain.setValueAtTime(0.15, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.45);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(startTime);
+      osc.stop(startTime + 0.45);
+    });
+  } catch (e) {}
+}
+
+/** Gentle descending lullaby tone for sleep & wind-down */
+export function playBedtimeTone() {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  try {
+    const now = ctx.currentTime;
+    const notes = [659.25, 587.33, 523.25, 440]; // E5, D5, C5, A4
+    notes.forEach((freq, idx) => {
+      const startTime = now + idx * 0.18;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, startTime);
+
+      gain.gain.setValueAtTime(0.16, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.5);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(startTime);
+      osc.stop(startTime + 0.5);
+    });
+  } catch (e) {}
+}
+
+/** Crisp attention notification chime */
+export function playNotificationChime() {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  try {
+    const now = ctx.currentTime;
+    const notes = [523.25, 783.99]; // C5, G5
+    notes.forEach((freq, idx) => {
+      const startTime = now + idx * 0.08;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, startTime);
+
+      gain.gain.setValueAtTime(0.18, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.2);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(startTime);
+      osc.stop(startTime + 0.22);
+    });
+  } catch (e) {}
+}
+

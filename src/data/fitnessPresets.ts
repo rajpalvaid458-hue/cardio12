@@ -765,6 +765,273 @@ export const EXERCISE_DATABASE: Exercise[] = [
     defaultRestSeconds: 20,
     caloriesBurnedPerMin: 3,
   },
+  {
+    id: 'downward-facing-dog',
+    name: 'Downward-Facing Dog (Adho Mukha Svanasana)',
+    category: 'Yoga & Mobility',
+    discipline: 'Yoga & Mobility',
+    equipment: 'Mat',
+    targetMuscle: 'Calves, Hamstrings, Shoulders & Spine Decompression',
+    secondaryMuscles: ['Lats', 'Wrists', 'Upper Back'],
+    instructions: [
+      'Start on hands and knees with wrists under shoulders and knees under hips.',
+      'Tuck toes, lift knees off mat, and send hips high toward ceiling into an inverted V.',
+      'Press firmly through palms, lengthen spine, and gently pedal heels toward the floor.'
+    ],
+    formTips: ['Keep neck relaxed between upper arms', 'Bend knees slightly if hamstrings are tight to keep back flat'],
+    defaultSets: 3,
+    defaultReps: '45-60 sec hold',
+    defaultRestSeconds: 20,
+    caloriesBurnedPerMin: 4,
+  },
+  {
+    id: 'cat-cow-spinal-flow',
+    name: 'Cat-Cow Spinal Mobility Wave (Marjaryasana-Bitilasana)',
+    category: 'Yoga & Mobility',
+    discipline: 'Yoga & Mobility',
+    equipment: 'Mat',
+    targetMuscle: 'Thoracic Spine, Erector Spinae & Abdominals',
+    secondaryMuscles: ['Neck', 'Pelvic Floor'],
+    instructions: [
+      'Begin on all fours in tabletop position with hands under shoulders and knees under hips.',
+      'Inhale into Cow: drop belly toward mat, lift chest, roll shoulders back, gaze slightly upward.',
+      'Exhale into Cat: press firmly into hands, dome upper back toward ceiling, tuck chin and tailbone.'
+    ],
+    formTips: ['Initiate movement from the tailbone, rippling up through each vertebra', 'Synchronize movement with breath'],
+    defaultSets: 3,
+    defaultReps: '10 breath cycles',
+    defaultRestSeconds: 15,
+    caloriesBurnedPerMin: 3.5,
+  },
+  {
+    id: 'warrior-two-pose',
+    name: 'Warrior II Flow (Virabhadrasana II)',
+    category: 'Yoga & Mobility',
+    discipline: 'Yoga & Mobility',
+    equipment: 'Mat',
+    targetMuscle: 'Hip Abductors, Groin, Quadriceps & Chest Expansion',
+    secondaryMuscles: ['Glutes', 'Ankles', 'Deltoids'],
+    instructions: [
+      'Step feet wide apart (~4 feet), turn front foot forward 90 degrees and back foot slightly inward.',
+      'Extend arms parallel to floor at shoulder height, palms down, reaching actively front and back.',
+      'Bend front knee to 90 degrees tracking over ankle while keeping torso centered. Gaze over front fingertips.'
+    ],
+    formTips: ['Stack front knee directly over ankle, never collapse inward', 'Keep shoulders relaxed away from ears'],
+    defaultSets: 2,
+    defaultReps: '45 sec / side',
+    defaultRestSeconds: 20,
+    caloriesBurnedPerMin: 5,
+  },
+  {
+    id: 'childs-pose-restorative',
+    name: "Child's Pose Restorative Stretch (Balasana)",
+    category: 'Yoga & Mobility',
+    discipline: 'Yoga & Mobility',
+    equipment: 'Mat',
+    targetMuscle: 'Lower Back Decompression, Lats & Hip Capsules',
+    secondaryMuscles: ['Glutes', 'Ankles', 'Shoulders'],
+    instructions: [
+      'Kneel on mat, bring big toes together, and spread knees mat-width apart.',
+      'Sit hips back toward heels, fold torso forward between thighs, and rest forehead gently on mat.',
+      'Extend arms long out front with palms flat, feeling deep lengthening along entire spine and side ribs.'
+    ],
+    formTips: ['Breathe deeply into back of ribcage to expand lower back', 'Relax jaw and shoulder blades'],
+    defaultSets: 2,
+    defaultReps: '60-90 sec hold',
+    defaultRestSeconds: 15,
+    caloriesBurnedPerMin: 2.5,
+  },
+  {
+    id: 'cobra-upward-dog-stretch',
+    name: 'Cobra / Upward-Facing Dog Stretch (Bhujangasana)',
+    category: 'Yoga & Mobility',
+    discipline: 'Yoga & Mobility',
+    equipment: 'Mat',
+    targetMuscle: 'Chest, Anterior Abdominal Wall & Lumbar Extension',
+    secondaryMuscles: ['Triceps', 'Shoulders', 'Neck'],
+    instructions: [
+      'Lie facedown on mat, hands flat under shoulders, elbows hugged tight into ribcage.',
+      'Press tops of feet firmly into mat, contract glutes gently to protect lower back.',
+      'Inhale and gently peel chest off floor using back muscles, pressing lightly into palms. Keep neck long.'
+    ],
+    formTips: ['Avoid crunching the lumbar spine; focus on lifting through upper chest and sternum', 'Keep elbows soft'],
+    defaultSets: 3,
+    defaultReps: '30-45 sec hold',
+    defaultRestSeconds: 20,
+    caloriesBurnedPerMin: 3.5,
+  },
+  {
+    id: 'worlds-greatest-stretch',
+    name: "World's Greatest Stretch (Spiderman Lunge & Thoracic Rotation)",
+    category: 'Yoga & Mobility',
+    discipline: 'Yoga & Mobility',
+    equipment: 'Mat',
+    targetMuscle: 'Hip Flexors, Hamstrings, Groin & Thoracic Spine Mobility',
+    secondaryMuscles: ['Glutes', 'Adductors', 'Shoulders'],
+    instructions: [
+      'Step right foot forward into a deep lunge with back leg straight, hands planted inside right foot.',
+      'Lower right elbow toward inside of right ankle, holding 2-3 seconds for deep groin and hip opener.',
+      'Rotate right arm toward ceiling, opening chest wide and following hand with eyes for thoracic mobility.',
+      'Plant hand back down, sit back slightly to straighten front leg into a hamstring stretch, then switch sides.'
+    ],
+    formTips: ['Keep rear leg actively engaged', 'Turn head with torso to guide rotational mobility from upper back'],
+    defaultSets: 3,
+    defaultReps: '6 reps / side',
+    defaultRestSeconds: 30,
+    caloriesBurnedPerMin: 6,
+  },
+  {
+    id: 'seated-forward-fold-stretch',
+    name: 'Seated Forward Fold Hamstring Stretch (Paschimottanasana)',
+    category: 'Yoga & Mobility',
+    discipline: 'Yoga & Mobility',
+    equipment: 'Mat',
+    targetMuscle: 'Hamstrings, Calves & Entire Posterior Chain',
+    secondaryMuscles: ['Lower Back', 'Glutes'],
+    instructions: [
+      'Sit tall on mat with legs extended straight in front, feet flexed and toes pointing toward ceiling.',
+      'Inhale and reach arms overhead to elongate spine from base to crown.',
+      'Exhale and hinge forward from hip creases, reaching toward shins, ankles, or feet while keeping chest open.'
+    ],
+    formTips: ['Lead with the heart rather than rounding forehead down', 'Bend knees slightly if hamstrings are tight'],
+    defaultSets: 3,
+    defaultReps: '60 sec hold',
+    defaultRestSeconds: 20,
+    caloriesBurnedPerMin: 3,
+  },
+  {
+    id: 'low-lunge-quad-hip-flexor',
+    name: 'Low Lunge & Psoas Hip Flexor Stretch (Anjaneyasana)',
+    category: 'Yoga & Mobility',
+    discipline: 'Yoga & Mobility',
+    equipment: 'Mat',
+    targetMuscle: 'Iliopsoas, Rectus Femoris & Anterior Hip Capsule',
+    secondaryMuscles: ['Glutes', 'Groin', 'Abdominals'],
+    instructions: [
+      'From tabletop or downward dog, step right foot between hands and lower left knee down to mat.',
+      'Keep front knee stacked over ankle, untuck rear toes, letting top of rear foot rest flat.',
+      'Sweep arms overhead or rest on front thigh, tuck pelvis slightly, and gently sink hips forward and downward.'
+    ],
+    formTips: ['Squeeze the rear glute to trigger reciprocal inhibition in the hip flexor', 'Do not arch lower back excessively'],
+    defaultSets: 2,
+    defaultReps: '45-60 sec / side',
+    defaultRestSeconds: 20,
+    caloriesBurnedPerMin: 3.5,
+  },
+  {
+    id: 'butterfly-adductor-stretch',
+    name: 'Seated Butterfly Groin & Adductor Stretch (Baddha Konasana)',
+    category: 'Yoga & Mobility',
+    discipline: 'Yoga & Mobility',
+    equipment: 'Mat',
+    targetMuscle: 'Adductors, Groin & Inner Thigh Flexibility',
+    secondaryMuscles: ['Pelvic Floor', 'Lower Back'],
+    instructions: [
+      'Sit upright with soles of feet pressed together and knees dropped wide toward sides.',
+      'Hold feet or ankles with hands, lengthen spine upward on inhale.',
+      'Exhale and gently lean forward from hips, using elbows to guide thighs softly toward the floor without forcing.'
+    ],
+    formTips: ['Never bounce knees aggressively; use calm steady breath to release inner groin tightness', 'Sit tall'],
+    defaultSets: 2,
+    defaultReps: '60 sec hold',
+    defaultRestSeconds: 20,
+    caloriesBurnedPerMin: 2.5,
+  },
+  {
+    id: 'ninety-ninety-hip-switch',
+    name: '90/90 Hip Mobility Flow & Capsule Switch',
+    category: 'Yoga & Mobility',
+    discipline: 'Yoga & Mobility',
+    equipment: 'Mat',
+    targetMuscle: 'Internal & External Hip Rotators & Gluteus Medius',
+    secondaryMuscles: ['Piriformis', 'IT Band', 'Core'],
+    instructions: [
+      'Sit on floor with lead leg in front bent at 90 degrees at hip and knee.',
+      'Trail leg sits to the side bent at 90 degrees at hip and knee.',
+      'Keep torso tall, hinge slightly over front shin for 30s glute stretch, then rotate hips and switch lead legs without using hands.'
+    ],
+    formTips: ['Keep both sit bones as grounded as mobility permits', 'Rotate through hips rather than twisting lower spine'],
+    defaultSets: 2,
+    defaultReps: '8 switches with 30s holds',
+    defaultRestSeconds: 25,
+    caloriesBurnedPerMin: 4,
+  },
+  {
+    id: 'doorway-chest-shoulder-stretch',
+    name: 'Doorway Pectoral & Anterior Shoulder Stretch',
+    category: 'Yoga & Mobility',
+    discipline: 'Yoga & Mobility',
+    equipment: 'Other',
+    targetMuscle: 'Pectoralis Major, Pectoralis Minor & Anterior Deltoid',
+    secondaryMuscles: ['Biceps', 'Neck'],
+    instructions: [
+      'Stand in an open doorway. Place forearms vertically against doorframe with elbows bent at 90 degrees at shoulder height.',
+      'Step one foot forward through the doorway until a comfortable stretch is felt across chest and front shoulders.',
+      'Keep core braced and spine neutral. Hold and breathe deeply into upper chest.'
+    ],
+    formTips: ['Avoid arching lower back or pushing head forward', 'Vary elbow height slightly to target different pectoral fibers'],
+    defaultSets: 3,
+    defaultReps: '45 sec hold',
+    defaultRestSeconds: 20,
+    caloriesBurnedPerMin: 2.5,
+  },
+  {
+    id: 'reclined-spinal-twist',
+    name: 'Reclined Supine Spinal Twist (Supta Matsyendrasana)',
+    category: 'Yoga & Mobility',
+    discipline: 'Yoga & Mobility',
+    equipment: 'Mat',
+    targetMuscle: 'Thoracolumbar Fascia, Glutes, Obliques & Chest',
+    secondaryMuscles: ['Lower Back', 'IT Band', 'Neck'],
+    instructions: [
+      'Lie flat on back, hug right knee into chest while left leg extends long on mat.',
+      'Open right arm out to side at shoulder height with palm facing up.',
+      'Guide right knee across body toward the floor on left side using left hand, turning head gently to gaze toward right hand.'
+    ],
+    formTips: ['Keep both shoulder blades pinned to the floor', 'Exhale completely to release rotational tension along spinal column'],
+    defaultSets: 2,
+    defaultReps: '60 sec / side',
+    defaultRestSeconds: 20,
+    caloriesBurnedPerMin: 2.5,
+  },
+  {
+    id: 'triangle-pose-flow',
+    name: 'Extended Triangle Pose (Utthita Trikonasana)',
+    category: 'Yoga & Mobility',
+    discipline: 'Yoga & Mobility',
+    equipment: 'Mat',
+    targetMuscle: 'Hamstrings, Groin, Obliques, Chest & Lateral Spine',
+    secondaryMuscles: ['Lats', 'Ankles', 'Upper Back'],
+    instructions: [
+      'Stand with feet wide (~4 feet). Turn right foot out 90 degrees and left foot in 15 degrees.',
+      'Extend arms wide at shoulder height. Inhale and reach right arm far forward over right leg, hinging at right hip.',
+      'Exhale and lower right hand to shin, ankle, or floor outside foot. Reach left arm straight up toward ceiling in a vertical line.'
+    ],
+    formTips: ['Imagine flattening entire body between two parallel walls', 'Keep thighs engaged to protect knee joints'],
+    defaultSets: 2,
+    defaultReps: '45 sec / side',
+    defaultRestSeconds: 20,
+    caloriesBurnedPerMin: 4.5,
+  },
+  {
+    id: 'desk-tech-neck-trap-stretch',
+    name: 'Desk Worker Cervical & Upper Trap Release',
+    category: 'Yoga & Mobility',
+    discipline: 'Yoga & Mobility',
+    equipment: 'Bodyweight',
+    targetMuscle: 'Upper Trapezius, Levator Scapulae & Scalenes',
+    secondaryMuscles: ['Suboccipitals', 'Neck Flexors', 'Shoulders'],
+    instructions: [
+      'Sit or stand tall with shoulders dropped away from ears. Place left hand behind back or hold under chair edge.',
+      'Gently tilt right ear toward right shoulder. Place right hand softly over top of head with zero pulling force.',
+      'Slowly angle chin down toward right collarbone to target levator scapulae. Hold 30-45s, breathing slowly into neck.'
+    ],
+    formTips: ['Never yank or wrench neck; use gentle passive weight of hand only', 'Maintain tall upright posture'],
+    defaultSets: 2,
+    defaultReps: '45 sec / side',
+    defaultRestSeconds: 15,
+    caloriesBurnedPerMin: 2,
+  },
 
   // PILATES & CORE
   {
@@ -1265,6 +1532,306 @@ export const PRESET_WORKOUT_PLANS: WorkoutPlan[] = [
         ]
       },
     ]
+  },
+  {
+    id: 'plan-full-body-deep-stretch',
+    title: 'Full-Body Restorative Mobility & Deep Stretch',
+    splitType: 'Yoga & Mobility',
+    level: 'beginner',
+    durationMinutes: 20,
+    daysPerWeek: 5,
+    description: 'Complete full-body static and dynamic stretching routine for muscle recovery, joint decompression, and posture relief.',
+    tags: ['Stretching', 'Mobility', 'Flexibility', 'Recovery', 'Posture'],
+    exercises: [
+      {
+        id: 'st1',
+        exerciseId: 'cat-cow-spinal-flow',
+        name: 'Cat-Cow Spinal Mobility Wave',
+        targetMuscle: 'Thoracic Spine & Abdominals',
+        restSec: 15,
+        formTip: 'Synchronize breath with spinal wave',
+        sets: [
+          { id: 'sts1', setNumber: 1, weightKg: 0, reps: 10, completed: false },
+          { id: 'sts2', setNumber: 2, weightKg: 0, reps: 10, completed: false },
+        ],
+      },
+      {
+        id: 'st2',
+        exerciseId: 'worlds-greatest-stretch',
+        name: "World's Greatest Stretch",
+        targetMuscle: 'Hips, Groin & Thoracic Spine',
+        restSec: 25,
+        formTip: 'Deep elbow reach to ankle then open skyward',
+        sets: [
+          { id: 'sts3', setNumber: 1, weightKg: 0, reps: 6, completed: false },
+          { id: 'sts4', setNumber: 2, weightKg: 0, reps: 6, completed: false },
+        ],
+      },
+      {
+        id: 'st3',
+        exerciseId: 'low-lunge-quad-hip-flexor',
+        name: 'Low Lunge & Psoas Hip Flexor Stretch',
+        targetMuscle: 'Hip Flexors & Quads',
+        restSec: 20,
+        formTip: 'Squeeze rear glute to release psoas',
+        sets: [
+          { id: 'sts5', setNumber: 1, weightKg: 0, reps: 60, completed: false },
+          { id: 'sts6', setNumber: 2, weightKg: 0, reps: 60, completed: false },
+        ],
+      },
+      {
+        id: 'st4',
+        exerciseId: 'pigeon-pose-mobility',
+        name: 'Pigeon Pose Deep Hip Opener',
+        targetMuscle: 'Glutes & Hip Rotators',
+        restSec: 20,
+        formTip: 'Square hips and breathe into outer glute',
+        sets: [
+          { id: 'sts7', setNumber: 1, weightKg: 0, reps: 60, completed: false },
+          { id: 'sts8', setNumber: 2, weightKg: 0, reps: 60, completed: false },
+        ],
+      },
+      {
+        id: 'st5',
+        exerciseId: 'seated-forward-fold-stretch',
+        name: 'Seated Forward Fold Hamstring Stretch',
+        targetMuscle: 'Hamstrings & Posterior Chain',
+        restSec: 20,
+        formTip: 'Hinge from hips with elongated spine',
+        sets: [
+          { id: 'sts9', setNumber: 1, weightKg: 0, reps: 60, completed: false },
+          { id: 'sts10', setNumber: 2, weightKg: 0, reps: 60, completed: false },
+        ],
+      },
+      {
+        id: 'st6',
+        exerciseId: 'childs-pose-restorative',
+        name: "Child's Pose Restorative Stretch",
+        targetMuscle: 'Spine & Lats',
+        restSec: 15,
+        formTip: 'Surrender hips into heels, expand ribcage',
+        sets: [
+          { id: 'sts11', setNumber: 1, weightKg: 0, reps: 90, completed: false },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'plan-morning-vinyasa-yoga',
+    title: 'Morning Energizing Vinyasa Yoga Flow',
+    splitType: 'Yoga & Mobility',
+    level: 'beginner',
+    durationMinutes: 25,
+    daysPerWeek: 4,
+    description: 'Awaken body and mind with invigorating breath synchronization, Sun Salutations, Warrior II strength, and spinal twists.',
+    tags: ['Yoga', 'Vinyasa', 'Flexibility', 'Core', 'Morning'],
+    exercises: [
+      {
+        id: 'my1',
+        exerciseId: 'vinyasa-flow-sun-salutation',
+        name: 'Vinyasa Sun Salutation Flow',
+        targetMuscle: 'Full Body Movement & Spine',
+        restSec: 25,
+        formTip: 'Match each breath with movement',
+        sets: [
+          { id: 'mys1', setNumber: 1, weightKg: 0, reps: 5, completed: false },
+          { id: 'mys2', setNumber: 2, weightKg: 0, reps: 5, completed: false },
+        ],
+      },
+      {
+        id: 'my2',
+        exerciseId: 'downward-facing-dog',
+        name: 'Downward-Facing Dog Hold',
+        targetMuscle: 'Hamstrings, Calves & Shoulders',
+        restSec: 20,
+        formTip: 'Tailbone high, lengthen through armpits',
+        sets: [
+          { id: 'mys3', setNumber: 1, weightKg: 0, reps: 60, completed: false },
+          { id: 'mys4', setNumber: 2, weightKg: 0, reps: 60, completed: false },
+        ],
+      },
+      {
+        id: 'my3',
+        exerciseId: 'warrior-two-pose',
+        name: 'Warrior II Strength Flow',
+        targetMuscle: 'Hips, Quads & Upper Back',
+        restSec: 20,
+        formTip: 'Deep 90-degree front knee, relaxed shoulders',
+        sets: [
+          { id: 'mys5', setNumber: 1, weightKg: 0, reps: 45, completed: false },
+          { id: 'mys6', setNumber: 2, weightKg: 0, reps: 45, completed: false },
+        ],
+      },
+      {
+        id: 'my4',
+        exerciseId: 'triangle-pose-flow',
+        name: 'Extended Triangle Pose',
+        targetMuscle: 'Lateral Spine, Hamstrings & Chest',
+        restSec: 20,
+        formTip: 'Open chest upward like flat glass pane',
+        sets: [
+          { id: 'mys7', setNumber: 1, weightKg: 0, reps: 45, completed: false },
+          { id: 'mys8', setNumber: 2, weightKg: 0, reps: 45, completed: false },
+        ],
+      },
+      {
+        id: 'my5',
+        exerciseId: 'cobra-upward-dog-stretch',
+        name: 'Cobra Chest & Spine Stretch',
+        targetMuscle: 'Chest & Lumbar Extension',
+        restSec: 20,
+        formTip: 'Keep elbows soft and neck elongated',
+        sets: [
+          { id: 'mys9', setNumber: 1, weightKg: 0, reps: 45, completed: false },
+        ],
+      },
+      {
+        id: 'my6',
+        exerciseId: 'reclined-spinal-twist',
+        name: 'Reclined Supine Spinal Twist',
+        targetMuscle: 'Spinal Decompression & Glutes',
+        restSec: 15,
+        formTip: 'Keep both shoulder blades grounded',
+        sets: [
+          { id: 'mys10', setNumber: 1, weightKg: 0, reps: 60, completed: false },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'plan-desk-posture-reset',
+    title: 'Desk Worker Tech-Neck & Hip Flexor Reset',
+    splitType: 'Yoga & Mobility',
+    level: 'beginner',
+    durationMinutes: 12,
+    daysPerWeek: 6,
+    description: 'Targeted office and desk stretching routine to counter sitting, eliminate forward-head posture, and open tight hip flexors.',
+    tags: ['Stretching', 'Desk Worker', 'Posture', 'Neck', 'Hips'],
+    exercises: [
+      {
+        id: 'dk1',
+        exerciseId: 'desk-tech-neck-trap-stretch',
+        name: 'Desk Cervical & Upper Trap Release',
+        targetMuscle: 'Upper Trapezius & Neck',
+        restSec: 15,
+        formTip: 'Gentle passive hand weight only, no pulling',
+        sets: [
+          { id: 'dks1', setNumber: 1, weightKg: 0, reps: 45, completed: false },
+        ],
+      },
+      {
+        id: 'dk2',
+        exerciseId: 'doorway-chest-shoulder-stretch',
+        name: 'Doorway Pectoral & Shoulder Opener',
+        targetMuscle: 'Chest & Anterior Deltoids',
+        restSec: 15,
+        formTip: 'Step forward, breathe wide into ribs',
+        sets: [
+          { id: 'dks2', setNumber: 1, weightKg: 0, reps: 45, completed: false },
+          { id: 'dks3', setNumber: 2, weightKg: 0, reps: 45, completed: false },
+        ],
+      },
+      {
+        id: 'dk3',
+        exerciseId: 'low-lunge-quad-hip-flexor',
+        name: 'Low Lunge Hip Flexor Opener',
+        targetMuscle: 'Hip Flexors & Psoas',
+        restSec: 20,
+        formTip: 'Tuck pelvis and gently glide forward',
+        sets: [
+          { id: 'dks4', setNumber: 1, weightKg: 0, reps: 45, completed: false },
+        ],
+      },
+      {
+        id: 'dk4',
+        exerciseId: 'ninety-ninety-hip-switch',
+        name: '90/90 Hip Mobility Flow',
+        targetMuscle: 'Internal & External Hip Rotators',
+        restSec: 20,
+        formTip: 'Sit tall through transitions',
+        sets: [
+          { id: 'dks5', setNumber: 1, weightKg: 0, reps: 8, completed: false },
+        ],
+      },
+      {
+        id: 'dk5',
+        exerciseId: 'childs-pose-restorative',
+        name: "Child's Pose Restorative Stretch",
+        targetMuscle: 'Spine & Lower Back',
+        restSec: 15,
+        formTip: 'Rest forehead, exhale deeply',
+        sets: [
+          { id: 'dks6', setNumber: 1, weightKg: 0, reps: 60, completed: false },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'plan-evening-yin-yoga',
+    title: 'Evening Yin Yoga & Deep Relaxation for Sleep',
+    splitType: 'Yoga & Mobility',
+    level: 'beginner',
+    durationMinutes: 18,
+    daysPerWeek: 7,
+    description: 'Gentle, passive restorative poses held for deep fascia release, activating parasympathetic recovery for restorative sleep.',
+    tags: ['Yoga', 'Yin Yoga', 'Stretching', 'Sleep', 'Restorative'],
+    exercises: [
+      {
+        id: 'yn1',
+        exerciseId: 'childs-pose-restorative',
+        name: "Child's Pose Restorative Stretch",
+        targetMuscle: 'Lower Back & Hips',
+        restSec: 15,
+        formTip: 'Sink into gravity with calm belly breathing',
+        sets: [
+          { id: 'yns1', setNumber: 1, weightKg: 0, reps: 90, completed: false },
+        ],
+      },
+      {
+        id: 'yn2',
+        exerciseId: 'butterfly-adductor-stretch',
+        name: 'Seated Butterfly Groin Stretch',
+        targetMuscle: 'Inner Thighs & Groin',
+        restSec: 15,
+        formTip: 'Do not force knees; surrender with breath',
+        sets: [
+          { id: 'yns2', setNumber: 1, weightKg: 0, reps: 90, completed: false },
+        ],
+      },
+      {
+        id: 'yn3',
+        exerciseId: 'pigeon-pose-mobility',
+        name: 'Pigeon Pose Deep Hip Opener',
+        targetMuscle: 'Deep Glutes & Piriformis',
+        restSec: 20,
+        formTip: 'Forearms on mat, slow 4-count exhale',
+        sets: [
+          { id: 'yns3', setNumber: 1, weightKg: 0, reps: 90, completed: false },
+        ],
+      },
+      {
+        id: 'yn4',
+        exerciseId: 'seated-forward-fold-stretch',
+        name: 'Seated Forward Fold Hamstring Stretch',
+        targetMuscle: 'Hamstrings & Spine',
+        restSec: 15,
+        formTip: 'Gentle passive fold, release tension',
+        sets: [
+          { id: 'yns4', setNumber: 1, weightKg: 0, reps: 90, completed: false },
+        ],
+      },
+      {
+        id: 'yn5',
+        exerciseId: 'reclined-spinal-twist',
+        name: 'Reclined Supine Spinal Twist',
+        targetMuscle: 'Spinal Mobility & Relaxation',
+        restSec: 15,
+        formTip: 'Grounded shoulders, calm nervous system',
+        sets: [
+          { id: 'yns5', setNumber: 1, weightKg: 0, reps: 90, completed: false },
+        ],
+      },
+    ],
   },
   {
     id: 'plan-pilates-core',
@@ -2601,6 +3168,118 @@ export const POPULAR_FOODS_DATABASE: FoodItem[] = [
     fiberGrams: 3.1,
     dietPreference: 'vegan',
     benefits: 'Ideal pre/post-workout fast carbohydrate with natural electrolytes'
+  },
+  {
+    id: 'int-plant-protein-powder',
+    name: 'Organic Pea & Rice Plant Protein (1 scoop)',
+    hindiName: 'ऑर्गेनिक प्लांट प्रोटीन पाउडर (मटर और चावल)',
+    cuisine: 'International',
+    category: 'Supplements & Shakes',
+    servingSize: '1 scoop (33g)',
+    servingUnitWeightGrams: 33,
+    calories: 125,
+    proteinGrams: 25.0,
+    carbsGrams: 2.5,
+    fatsGrams: 1.5,
+    fiberGrams: 1.8,
+    dietPreference: 'vegan',
+    benefits: '100% Dairy-free, hypoallergenic complete amino acid profile for vegan muscle repair'
+  },
+  {
+    id: 'int-tempeh',
+    name: 'Tempeh / Cultured Soybean Cake (Grilled/Stir-Fry)',
+    hindiName: 'टेम्पेह (किण्वित सोयाबीन)',
+    cuisine: 'International',
+    category: 'High Protein',
+    servingSize: '100g',
+    servingUnitWeightGrams: 100,
+    calories: 195,
+    proteinGrams: 19.0,
+    carbsGrams: 9.0,
+    fatsGrams: 11.0,
+    fiberGrams: 6.0,
+    dietPreference: 'vegan',
+    benefits: 'Fermented plant protein packed with gut-friendly probiotics, isoflavones and iron'
+  },
+  {
+    id: 'int-edamame-beans',
+    name: 'Steamed Edamame Beans (In Pods)',
+    hindiName: 'स्टीम्ड एडामामे (हरी सोयाबीन्स)',
+    cuisine: 'International',
+    category: 'High Protein',
+    servingSize: '1 cup (150g)',
+    servingUnitWeightGrams: 150,
+    calories: 180,
+    proteinGrams: 17.0,
+    carbsGrams: 14.0,
+    fatsGrams: 8.0,
+    fiberGrams: 8.0,
+    dietPreference: 'vegan',
+    benefits: 'Whole young soybeans with complete essential amino acids and anti-inflammatory nutrients'
+  },
+  {
+    id: 'int-soy-milk-unsweetened',
+    name: 'Unsweetened Soy Milk (High Protein)',
+    hindiName: 'सोया मिल्क (बिना चीनी)',
+    cuisine: 'Universal',
+    category: 'Dairy & Paneer',
+    servingSize: '1 glass (250ml)',
+    servingUnitWeightGrams: 250,
+    calories: 90,
+    proteinGrams: 8.0,
+    carbsGrams: 4.0,
+    fatsGrams: 4.0,
+    fiberGrams: 1.5,
+    dietPreference: 'vegan',
+    benefits: 'Plant-based calcium-fortified milk alternative with cow milk-equivalent protein'
+  },
+  {
+    id: 'ind-kala-chana-boiled',
+    name: 'Boiled Kala Chana Chaat (Black Chickpeas)',
+    hindiName: 'उबला काला चना चाट',
+    cuisine: 'Indian',
+    category: 'High Protein',
+    servingSize: '1 medium bowl (150g)',
+    servingUnitWeightGrams: 150,
+    calories: 190,
+    proteinGrams: 13.0,
+    carbsGrams: 30.0,
+    fatsGrams: 2.8,
+    fiberGrams: 9.5,
+    dietPreference: 'vegan',
+    benefits: 'Deep sustained energy, dense iron, high satiety without any dairy or powders'
+  },
+  {
+    id: 'int-seeds-pumpkin-sunflower',
+    name: 'Roasted Pumpkin & Sunflower Seeds Mix',
+    hindiName: 'कद्दू और सूरजमुखी के बीज',
+    cuisine: 'Universal',
+    category: 'Nuts & Healthy Fats',
+    servingSize: '2 tbsp (30g)',
+    servingUnitWeightGrams: 30,
+    calories: 165,
+    proteinGrams: 8.5,
+    carbsGrams: 5.0,
+    fatsGrams: 13.5,
+    fiberGrams: 2.5,
+    dietPreference: 'vegan',
+    benefits: 'High zinc for testosterone, magnesium for muscle relaxation and plant protein'
+  },
+  {
+    id: 'ind-besan-paneer-chilla',
+    name: 'Besan & Paneer Stuffed Chilla (1 large)',
+    hindiName: 'बेसन पनीर चीला (1 बड़ा)',
+    cuisine: 'Indian',
+    category: 'High Protein',
+    servingSize: '1 large chilla (150g)',
+    servingUnitWeightGrams: 150,
+    calories: 235,
+    proteinGrams: 16.5,
+    carbsGrams: 22.0,
+    fatsGrams: 9.0,
+    fiberGrams: 4.5,
+    dietPreference: 'veg',
+    benefits: 'Desi breakfast staple pairing gram flour protein with slow-burning casein paneer'
   }
 ];
 
@@ -3056,6 +3735,526 @@ export const PRESET_DIET_PLANS: PersonalDietPlan[] = [
         ]
       }
     ]
+  },
+  {
+    id: 'diet-veg-high-protein-with-whey',
+    title: 'Pure-Veg High-Protein Hypertrophy (With Whey Protein) / शाकाहारी हाई-प्रोटीन (व्हे के साथ)',
+    tagline: '155g High-Protein vegetarian muscle builder powered by Low-Fat Paneer, Moong Sprouts, Sattu, Besan Chilla, and Gold-Standard Post-Workout Whey.',
+    goal: 'muscle_gain',
+    targetGender: 'all',
+    targetLevel: 'intermediate',
+    cuisine: 'Indian',
+    dietType: 'pure_veg',
+    dietTypeLabel: '100% Pure Veg (With Whey Protein)',
+    wheyOption: 'with_whey',
+    isVeg: true,
+    isVegan: false,
+    dailyCalories: 2450,
+    macros: {
+      proteinGrams: 155,
+      carbsGrams: 260,
+      fatsGrams: 60,
+    },
+    waterTargetMl: 3800,
+    recommendedSupplements: [
+      'Whey Protein Isolate (1.5 scoops immediately post-workout)',
+      'Creatine Monohydrate (5g daily with warm water)',
+      'Daily Multivitamin & Zinc',
+      'Ashwagandha KSM-66 (500mg before bedtime)'
+    ],
+    keyBenefits: [
+      'Delivers 155g complete bio-available protein using high-grade whey isolate and low-fat dairy',
+      'Spikes muscle protein synthesis (MPS) swiftly post-training to accelerate hypertrophy',
+      'Rich in natural digestive spices (hing, cumin, ajwain) to prevent bloating from high protein'
+    ],
+    meals: [
+      {
+        mealType: 'breakfast',
+        title: 'High-Protein Besan Paneer Chilla & Nuts',
+        suggestedTime: '08:00 AM',
+        prepTips: 'Make 2 gram flour (besan) chillas stuffed with 60g low-fat grated paneer, paired with curd.',
+        items: [
+          { id: 'vww-1', name: 'Besan & Paneer Stuffed Chilla (2 chillas)', servingSize: '2 chillas (160g)', calories: 310, proteinGrams: 22.0, carbsGrams: 28.0, fatsGrams: 11.5, cuisine: 'Indian' },
+          { id: 'vww-2', name: 'Fresh Curd / Dahi', servingSize: '150g', calories: 95, proteinGrams: 5.5, carbsGrams: 6.5, fatsGrams: 5.2, cuisine: 'Indian' },
+          { id: 'vww-3', name: 'Raw California Almonds', servingSize: '15g (~10 nuts)', calories: 87, proteinGrams: 3.2, carbsGrams: 3.0, fatsGrams: 7.5, cuisine: 'Universal' }
+        ]
+      },
+      {
+        mealType: 'lunch',
+        title: 'Desi Paneer & Dal Muscle Thali',
+        suggestedTime: '01:15 PM',
+        prepTips: 'Grill or sauté 140g low-fat paneer with turmeric and cumin; serve with thick yellow dal and rotis.',
+        items: [
+          { id: 'vww-4', name: 'Low-Fat / Diet Paneer (Grilled Tikka)', servingSize: '140g', calories: 203, proteinGrams: 34.3, carbsGrams: 5.8, fatsGrams: 4.9, cuisine: 'Indian' },
+          { id: 'vww-5', name: 'Dal Tadka / Yellow Arhar-Moong Dal', servingSize: '200g', calories: 185, proteinGrams: 9.8, carbsGrams: 24.0, fatsGrams: 5.5, cuisine: 'Indian' },
+          { id: 'vww-6', name: 'Whole Wheat Roti / Phulka (2 rotis)', servingSize: '90g', calories: 170, proteinGrams: 6.4, carbsGrams: 35.0, fatsGrams: 1.0, cuisine: 'Indian' },
+          { id: 'vww-7', name: 'Sprouted Moong Bean Salad', servingSize: '100g', calories: 95, proteinGrams: 7.6, carbsGrams: 14.5, fatsGrams: 0.5, cuisine: 'Indian' }
+        ]
+      },
+      {
+        mealType: 'pre_workout',
+        title: 'Pre-Lift Desi Energy Fuel',
+        suggestedTime: '04:45 PM',
+        prepTips: 'Drink chilled sattu water with fresh lemon and pinch of rock salt 35 minutes before gym.',
+        items: [
+          { id: 'vww-8', name: 'Desi Sattu Protein Drink', servingSize: '1 glass (40g powder)', calories: 165, proteinGrams: 10.4, carbsGrams: 26.0, fatsGrams: 2.1, cuisine: 'Indian' },
+          { id: 'vww-9', name: 'Fresh Banana', servingSize: '1 medium', calories: 105, proteinGrams: 1.3, carbsGrams: 27.0, fatsGrams: 0.3, cuisine: 'Universal' }
+        ]
+      },
+      {
+        mealType: 'post_workout',
+        title: 'Rapid Anabolic Whey Isolate Shake',
+        suggestedTime: '06:30 PM',
+        prepTips: 'Mix 1.5 scoops whey isolate with cold water and 5g creatine; munch on roasted chana.',
+        items: [
+          { id: 'vww-10', name: '100% Whey Protein Isolate (1.5 scoops)', servingSize: '45g powder', calories: 180, proteinGrams: 37.5, carbsGrams: 2.2, fatsGrams: 1.2, cuisine: 'International' },
+          { id: 'vww-11', name: 'Roasted Black Chana (Bengal Gram)', servingSize: '35g', calories: 130, proteinGrams: 8.0, carbsGrams: 20.3, fatsGrams: 1.8, cuisine: 'Indian' }
+        ]
+      },
+      {
+        mealType: 'dinner',
+        title: 'Soya Chunks Curry & Light Khichdi',
+        suggestedTime: '08:45 PM',
+        prepTips: 'Soak soya chunks in hot water, squeeze dry and simmer with tomato-onion gravy; serve with light khichdi.',
+        items: [
+          { id: 'vww-12', name: 'Soya Chunks / Nutrela Curry (Cooked)', servingSize: '160g (from 40g dry)', calories: 175, proteinGrams: 20.8, carbsGrams: 15.0, fatsGrams: 2.5, cuisine: 'Indian' },
+          { id: 'vww-13', name: 'Moong Dal & Brown Rice Khichdi', servingSize: '180g', calories: 190, proteinGrams: 7.8, carbsGrams: 33.0, fatsGrams: 3.1, cuisine: 'Indian' },
+          { id: 'vww-14', name: 'Roasted Foxnuts / Makhana', servingSize: '25g', calories: 92, proteinGrams: 2.5, carbsGrams: 17.5, fatsGrams: 1.4, cuisine: 'Indian' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'diet-veg-high-protein-no-whey',
+    title: '100% Natural Pure-Veg High-Protein (Zero Whey / Kitchen Staples) / शाकाहारी बिना व्हे (100% प्राकृतिक)',
+    tagline: '142g High-Protein muscle builder using zero synthetic supplements or whey powder — powered 100% by Low-Fat Paneer, Soya Chunks, Sattu, Besan, and Curd.',
+    goal: 'muscle_gain',
+    targetGender: 'all',
+    targetLevel: 'intermediate',
+    cuisine: 'Indian',
+    dietType: 'pure_veg',
+    dietTypeLabel: '100% Pure Veg (Zero Whey / Whole Foods)',
+    wheyOption: 'without_whey',
+    isVeg: true,
+    isVegan: false,
+    dailyCalories: 2380,
+    macros: {
+      proteinGrams: 142,
+      carbsGrams: 275,
+      fatsGrams: 58,
+    },
+    waterTargetMl: 3600,
+    recommendedSupplements: [
+      'No Synthetic Protein Powders Required',
+      'Desi Roasted Sattu & Chana for natural post-workout amino acids',
+      'Ashwagandha KSM-66 (500mg) for natural recovery & sleep',
+      'Vitamin D3+K2 (Weekly)'
+    ],
+    keyBenefits: [
+      'Proves you do not need expensive whey powders to build lean muscle on an Indian vegetarian diet',
+      '142g clean protein sourced purely from low-fat paneer, soya chunks, roasted sattu, and legumes',
+      'Zero artificial sweeteners, chemical emulsifiers, or supplement bloat'
+    ],
+    meals: [
+      {
+        mealType: 'breakfast',
+        title: 'Sprouted Moong & Paneer Besan Power Breakfast',
+        suggestedTime: '08:00 AM',
+        prepTips: 'Toss boiled/sprouted moong with chaat masala, lemon, onions, alongside 1 heavy besan paneer chilla.',
+        items: [
+          { id: 'vnow-1', name: 'Sprouted Moong Bean Salad (with Lemon & Chaat)', servingSize: '150g', calories: 140, proteinGrams: 11.5, carbsGrams: 22.0, fatsGrams: 0.8, cuisine: 'Indian' },
+          { id: 'vnow-2', name: 'Besan & Paneer Stuffed Chilla (1 large)', servingSize: '150g', calories: 235, proteinGrams: 16.5, carbsGrams: 22.0, fatsGrams: 9.0, cuisine: 'Indian' },
+          { id: 'vnow-3', name: 'Raw California Almonds', servingSize: '20g (~15 nuts)', calories: 116, proteinGrams: 4.2, carbsGrams: 4.0, fatsGrams: 10.0, cuisine: 'Universal' }
+        ]
+      },
+      {
+        mealType: 'lunch',
+        title: 'High-Protein Low-Fat Paneer & Dal Thali',
+        suggestedTime: '01:15 PM',
+        prepTips: 'Grill 160g low-fat paneer with mild Indian spices; serve with 1 bowl moong dal and 2 phulkas.',
+        items: [
+          { id: 'vnow-4', name: 'Low-Fat / Diet Paneer (Dry Sauté)', servingSize: '160g', calories: 232, proteinGrams: 39.2, carbsGrams: 6.7, fatsGrams: 5.6, cuisine: 'Indian' },
+          { id: 'vnow-5', name: 'Dal Tadka / Yellow Arhar-Moong Dal', servingSize: '200g', calories: 185, proteinGrams: 9.8, carbsGrams: 24.0, fatsGrams: 5.5, cuisine: 'Indian' },
+          { id: 'vnow-6', name: 'Whole Wheat Roti / Phulka (2 rotis)', servingSize: '90g', calories: 170, proteinGrams: 6.4, carbsGrams: 35.0, fatsGrams: 1.0, cuisine: 'Indian' },
+          { id: 'vnow-7', name: 'Fresh Curd / Dahi', servingSize: '120g', calories: 76, proteinGrams: 4.4, carbsGrams: 5.2, fatsGrams: 4.2, cuisine: 'Indian' }
+        ]
+      },
+      {
+        mealType: 'pre_workout',
+        title: 'Natural Pre-Workout Energy',
+        suggestedTime: '04:30 PM',
+        prepTips: 'Eat roasted chana and 1 banana 40 minutes before hitting the weights.',
+        items: [
+          { id: 'vnow-8', name: 'Roasted Black Chana (Bengal Gram)', servingSize: '50g', calories: 185, proteinGrams: 11.5, carbsGrams: 29.0, fatsGrams: 2.5, cuisine: 'Indian' },
+          { id: 'vnow-9', name: 'Fresh Banana', servingSize: '1 medium', calories: 105, proteinGrams: 1.3, carbsGrams: 27.0, fatsGrams: 0.3, cuisine: 'Universal' }
+        ]
+      },
+      {
+        mealType: 'post_workout',
+        title: 'Natural Desi Sattu & Curd Recovery Drink',
+        suggestedTime: '06:30 PM',
+        prepTips: 'Whisk 55g roasted sattu powder with chilled water, roasted cumin, black salt, lemon, and eat curd.',
+        items: [
+          { id: 'vnow-10', name: 'Desi Sattu Protein Drink (High Potency)', servingSize: '1 large glass (55g powder)', calories: 227, proteinGrams: 14.3, carbsGrams: 35.7, fatsGrams: 2.8, cuisine: 'Indian' },
+          { id: 'vnow-11', name: 'Fresh Curd / Dahi', servingSize: '150g', calories: 95, proteinGrams: 5.5, carbsGrams: 6.5, fatsGrams: 5.2, cuisine: 'Indian' }
+        ]
+      },
+      {
+        mealType: 'dinner',
+        title: 'Soya Chunks Masala Curry & Khichdi',
+        suggestedTime: '08:45 PM',
+        prepTips: 'Cook 50g dry soya chunks (swells to 150g) in spiced tomato onion gravy with brown rice khichdi.',
+        items: [
+          { id: 'vnow-12', name: 'Soya Chunks / Nutrela Masala Curry', servingSize: '180g (from 50g dry)', calories: 215, proteinGrams: 26.0, carbsGrams: 19.5, fatsGrams: 3.5, cuisine: 'Indian' },
+          { id: 'vnow-13', name: 'Moong Dal & Brown Rice Khichdi', servingSize: '200g', calories: 210, proteinGrams: 8.6, carbsGrams: 36.5, fatsGrams: 3.4, cuisine: 'Indian' },
+          { id: 'vnow-14', name: 'Roasted Foxnuts / Makhana', servingSize: '20g', calories: 73, proteinGrams: 2.0, carbsGrams: 14.0, fatsGrams: 1.1, cuisine: 'Indian' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'diet-vegan-high-protein-with-plant-protein',
+    title: 'Vegan High-Protein Powerhouse (With Pea & Rice Plant Protein) / वीगन हाई-प्रोटीन (प्लांट प्रोटीन के साथ)',
+    tagline: '150g Complete Plant-Based muscle blueprint with Tofu, Soya Chunks, Quinoa, Edamame, Oats, and Organic Plant Protein Powder.',
+    goal: 'muscle_gain',
+    targetGender: 'all',
+    targetLevel: 'intermediate',
+    cuisine: 'Fusion',
+    dietType: 'vegan',
+    dietTypeLabel: '100% Vegan (With Plant Protein Powder)',
+    wheyOption: 'with_plant_protein',
+    isVeg: true,
+    isVegan: true,
+    dailyCalories: 2320,
+    macros: {
+      proteinGrams: 150,
+      carbsGrams: 265,
+      fatsGrams: 52,
+    },
+    waterTargetMl: 3800,
+    recommendedSupplements: [
+      'Organic Pea & Brown Rice Plant Protein (1.5 scoops post-workout)',
+      'Creatine Monohydrate (5g daily - essential for vegans)',
+      'Vitamin B12 (Cyanocobalamin / Methylcobalamin 1000mcg)',
+      'Algal Oil Omega-3 (Vegan DHA/EPA)'
+    ],
+    keyBenefits: [
+      '100% Dairy-free, lactose-free, ethical plant-based nutrition designed for serious muscle hypertrophy',
+      'Blends pea and rice protein isolates to achieve a complete branched-chain amino acid (BCAA) profile',
+      'High in plant fiber, antioxidants, and phytonutrients for swift cardiovascular and muscular recovery'
+    ],
+    meals: [
+      {
+        mealType: 'breakfast',
+        title: 'Vegan Power Oats with Soy Milk & Peanut Butter',
+        suggestedTime: '08:00 AM',
+        prepTips: 'Warm rolled oats cooked in unsweetened soy milk, topped with 2 tbsp natural peanut butter and chia seeds.',
+        items: [
+          { id: 'vpp-1', name: 'Rolled Whole Oats (Raw / Porridge)', servingSize: '60g raw', calories: 233, proteinGrams: 8.0, carbsGrams: 40.0, fatsGrams: 4.2, cuisine: 'International' },
+          { id: 'vpp-2', name: 'Unsweetened Soy Milk (High Protein)', servingSize: '1 glass (250ml)', calories: 90, proteinGrams: 8.0, carbsGrams: 4.0, fatsGrams: 4.0, cuisine: 'Universal' },
+          { id: 'vpp-3', name: 'Natural Peanut Butter (100% Peanuts)', servingSize: '2 tbsp (32g)', calories: 188, proteinGrams: 8.0, carbsGrams: 6.3, fatsGrams: 16.0, cuisine: 'Universal' },
+          { id: 'vpp-4', name: 'Chia Seed Pudding / Seeds', servingSize: '15g seeds', calories: 73, proteinGrams: 2.5, carbsGrams: 6.3, fatsGrams: 4.6, cuisine: 'International' }
+        ]
+      },
+      {
+        mealType: 'lunch',
+        title: 'High-Protein Soya Chunks Curry & Quinoa Bowl',
+        suggestedTime: '01:15 PM',
+        prepTips: 'Cook 50g dry soya chunks in an aromatic Indian curry sauce; serve over a bowl of steamed quinoa and broccoli.',
+        items: [
+          { id: 'vpp-5', name: 'Soya Chunks / Nutrela Curry', servingSize: '160g (50g dry)', calories: 215, proteinGrams: 26.0, carbsGrams: 19.5, fatsGrams: 3.5, cuisine: 'Indian' },
+          { id: 'vpp-6', name: 'Quinoa Bowl (Cooked)', servingSize: '150g cooked', calories: 180, proteinGrams: 6.5, carbsGrams: 32.0, fatsGrams: 2.8, cuisine: 'International' },
+          { id: 'vpp-7', name: 'Steamed Broccoli & Green Veggies', servingSize: '150g', calories: 51, proteinGrams: 4.2, carbsGrams: 10.0, fatsGrams: 0.6, cuisine: 'Universal' },
+          { id: 'vpp-8', name: 'Sprouted Moong Bean Salad', servingSize: '100g', calories: 95, proteinGrams: 7.6, carbsGrams: 14.5, fatsGrams: 0.5, cuisine: 'Indian' }
+        ]
+      },
+      {
+        mealType: 'pre_workout',
+        title: 'Roasted Chana & Electrolyte Boost',
+        suggestedTime: '04:30 PM',
+        prepTips: 'Crunch on roasted black chana with fresh banana and black coffee.',
+        items: [
+          { id: 'vpp-9', name: 'Roasted Black Chana (Bengal Gram)', servingSize: '40g', calories: 148, proteinGrams: 9.2, carbsGrams: 23.2, fatsGrams: 2.0, cuisine: 'Indian' },
+          { id: 'vpp-10', name: 'Fresh Banana', servingSize: '1 medium', calories: 105, proteinGrams: 1.3, carbsGrams: 27.0, fatsGrams: 0.3, cuisine: 'Universal' }
+        ]
+      },
+      {
+        mealType: 'post_workout',
+        title: 'Organic Pea & Rice Plant Protein Shake',
+        suggestedTime: '06:30 PM',
+        prepTips: 'Shake 1.5 scoops plant protein with 350ml cold water; pair with pumpkin seeds.',
+        items: [
+          { id: 'vpp-11', name: 'Organic Pea & Rice Plant Protein (1.5 scoops)', servingSize: '50g powder', calories: 188, proteinGrams: 37.5, carbsGrams: 3.8, fatsGrams: 2.3, cuisine: 'International' },
+          { id: 'vpp-12', name: 'Roasted Pumpkin & Sunflower Seeds Mix', servingSize: '25g', calories: 138, proteinGrams: 7.1, carbsGrams: 4.2, fatsGrams: 11.3, cuisine: 'Universal' }
+        ]
+      },
+      {
+        mealType: 'dinner',
+        title: 'Pan-Seared Firm Tofu & Rajma Power Bowl',
+        suggestedTime: '08:45 PM',
+        prepTips: 'Cube firm tofu and pan-sear with garlic, ginger, and soy sauce; serve alongside Indian Rajma and 1 roti.',
+        items: [
+          { id: 'vpp-13', name: 'Firm Tofu / Bean Curd (Grilled/Pan-Seared)', servingSize: '160g', calories: 176, proteinGrams: 19.7, carbsGrams: 3.7, fatsGrams: 9.1, cuisine: 'International' },
+          { id: 'vpp-14', name: 'Rajma Masala / Red Kidney Beans Curry', servingSize: '180g', calories: 198, proteinGrams: 11.2, carbsGrams: 29.7, fatsGrams: 4.3, cuisine: 'Indian' },
+          { id: 'vpp-15', name: 'Whole Wheat Roti / Phulka (1 roti)', servingSize: '45g', calories: 85, proteinGrams: 3.2, carbsGrams: 17.5, fatsGrams: 0.5, cuisine: 'Indian' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'diet-vegan-high-protein-no-protein-powder',
+    title: '100% Whole-Foods Vegan High-Protein (Zero Protein Powder) / प्राकृतिक वीगन आहार (बिना पाउडर)',
+    tagline: '135g Natural plant protein without any synthetic protein powders: Tofu Bhurji, Soya Chunks, Rajma, Roasted Chana, Sprouted Moong & Hemp Seeds.',
+    goal: 'muscle_gain',
+    targetGender: 'all',
+    targetLevel: 'intermediate',
+    cuisine: 'Indian',
+    dietType: 'vegan',
+    dietTypeLabel: '100% Vegan (Zero Powder / Pure Plant Foods)',
+    wheyOption: 'zero_powders',
+    isVeg: true,
+    isVegan: true,
+    dailyCalories: 2280,
+    macros: {
+      proteinGrams: 135,
+      carbsGrams: 285,
+      fatsGrams: 50,
+    },
+    waterTargetMl: 3600,
+    recommendedSupplements: [
+      'No Synthetic Protein Powders Required (100% Whole Food Nutrition)',
+      'Vitamin B12 (Daily or Weekly Tablet - Vital for Vegans)',
+      'Vegan Vitamin D3 (Lichen Sourced)',
+      'Algal DHA/EPA Omega-3'
+    ],
+    keyBenefits: [
+      'Achieves 135g pure protein without relying on processed protein isolates or factory powders',
+      'Combines diverse plant amino acid pools (beans, soy, lentils, seeds, nuts) for complete protein completeness',
+      'Massive natural dietary fiber (40g+) for superior gut microbiome biodiversity'
+    ],
+    meals: [
+      {
+        mealType: 'breakfast',
+        title: 'Desi Tofu Bhurji & Sprouted Moong Salad',
+        suggestedTime: '08:00 AM',
+        prepTips: 'Scramble 160g firm tofu with onions, tomatoes, turmeric and green chilies; eat with freshly sprouted moong bowl.',
+        items: [
+          { id: 'vpnp-1', name: 'Firm Tofu Scramble / Bhurji (Cooked)', servingSize: '160g', calories: 185, proteinGrams: 20.0, carbsGrams: 4.5, fatsGrams: 9.5, cuisine: 'Indian' },
+          { id: 'vpnp-2', name: 'Sprouted Moong Bean Salad', servingSize: '150g', calories: 140, proteinGrams: 11.5, carbsGrams: 22.0, fatsGrams: 0.8, cuisine: 'Indian' },
+          { id: 'vpnp-3', name: 'Raw California Almonds', servingSize: '20g', calories: 116, proteinGrams: 4.2, carbsGrams: 4.0, fatsGrams: 10.0, cuisine: 'Universal' }
+        ]
+      },
+      {
+        mealType: 'lunch',
+        title: 'High-Protein Soya Chunks & Dal Tadka Feast',
+        suggestedTime: '01:15 PM',
+        prepTips: 'Cook 55g dry soya chunks with ginger-garlic gravy, serve with 1 bowl moong dal and 2 rotis.',
+        items: [
+          { id: 'vpnp-4', name: 'Soya Chunks / Nutrela (Dry)', servingSize: '55g dry (yields 165g cooked)', calories: 189, proteinGrams: 28.6, carbsGrams: 18.2, fatsGrams: 0.6, cuisine: 'Indian' },
+          { id: 'vpnp-5', name: 'Dal Tadka / Yellow Arhar-Moong Dal', servingSize: '200g', calories: 185, proteinGrams: 9.8, carbsGrams: 24.0, fatsGrams: 5.5, cuisine: 'Indian' },
+          { id: 'vpnp-6', name: 'Whole Wheat Roti / Phulka (2 rotis)', servingSize: '90g', calories: 170, proteinGrams: 6.4, carbsGrams: 35.0, fatsGrams: 1.0, cuisine: 'Indian' },
+          { id: 'vpnp-7', name: 'Steamed Broccoli & Green Veggies', servingSize: '120g', calories: 41, proteinGrams: 3.4, carbsGrams: 8.0, fatsGrams: 0.5, cuisine: 'Universal' }
+        ]
+      },
+      {
+        mealType: 'pre_workout',
+        title: 'Pre-Workout Roasted Chana & Banana',
+        suggestedTime: '04:30 PM',
+        prepTips: 'Crisp roasted black chickpeas and 1 banana 40 minutes prior to physical training.',
+        items: [
+          { id: 'vpnp-8', name: 'Roasted Black Chana (Bengal Gram)', servingSize: '50g', calories: 185, proteinGrams: 11.5, carbsGrams: 29.0, fatsGrams: 2.5, cuisine: 'Indian' },
+          { id: 'vpnp-9', name: 'Fresh Banana', servingSize: '1 medium', calories: 105, proteinGrams: 1.3, carbsGrams: 27.0, fatsGrams: 0.3, cuisine: 'Universal' }
+        ]
+      },
+      {
+        mealType: 'post_workout',
+        title: 'Desi Sattu Shake & Boiled Kala Chana Chaat',
+        suggestedTime: '06:30 PM',
+        prepTips: 'Drink chilled roasted sattu in water with lemon; eat 1 small bowl boiled spiced black chana.',
+        items: [
+          { id: 'vpnp-10', name: 'Desi Sattu Protein Drink', servingSize: '1 glass (45g powder)', calories: 186, proteinGrams: 11.7, carbsGrams: 29.3, fatsGrams: 2.3, cuisine: 'Indian' },
+          { id: 'vpnp-11', name: 'Boiled Kala Chana Chaat (Black Chickpeas)', servingSize: '120g', calories: 152, proteinGrams: 10.4, carbsGrams: 24.0, fatsGrams: 2.2, cuisine: 'Indian' }
+        ]
+      },
+      {
+        mealType: 'dinner',
+        title: 'Rajma Masala Curry & Roasted Seeds Bowl',
+        suggestedTime: '08:45 PM',
+        prepTips: 'Simmer red kidney beans in tomato gravy; serve with 1 roti and roasted pumpkin seeds.',
+        items: [
+          { id: 'vpnp-12', name: 'Rajma Masala / Red Kidney Beans Curry', servingSize: '200g', calories: 220, proteinGrams: 12.4, carbsGrams: 33.0, fatsGrams: 4.8, cuisine: 'Indian' },
+          { id: 'vpnp-13', name: 'Roasted Pumpkin & Sunflower Seeds Mix', servingSize: '25g', calories: 138, proteinGrams: 7.1, carbsGrams: 4.2, fatsGrams: 11.3, cuisine: 'Universal' },
+          { id: 'vpnp-14', name: 'Whole Wheat Roti / Phulka (1 roti)', servingSize: '45g', calories: 85, proteinGrams: 3.2, carbsGrams: 17.5, fatsGrams: 0.5, cuisine: 'Indian' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'diet-veg-shred-with-whey',
+    title: 'Vegetarian Lean Shred & Belly Fat Burn (With Whey) / शाकाहारी फैट लॉस (व्हे के साथ)',
+    tagline: 'High-satiety, low-carb 1,820 kcal cutting protocol with 145g protein: Low-fat paneer, moong sprouts, leafy greens, and Whey Isolate.',
+    goal: 'fat_loss',
+    targetGender: 'all',
+    targetLevel: 'intermediate',
+    cuisine: 'Indian',
+    dietType: 'pure_veg',
+    dietTypeLabel: 'Pure Veg Fat Loss (With Whey)',
+    wheyOption: 'with_whey',
+    isVeg: true,
+    isVegan: false,
+    dailyCalories: 1820,
+    macros: {
+      proteinGrams: 145,
+      carbsGrams: 155,
+      fatsGrams: 42,
+    },
+    waterTargetMl: 4000,
+    recommendedSupplements: [
+      'Whey Protein Isolate (1 scoop post-workout with water)',
+      'L-Carnitine L-Tartrate / Green Tea Extract',
+      'Daily Multivitamin & Omega-3'
+    ],
+    keyBenefits: [
+      'Aggressive caloric deficit while maintaining high 145g protein to spare muscle mass',
+      'Sub-160g complex carbs timed strictly around workouts for fat mobilization',
+      'Zero liquid sugars or hidden restaurant fats'
+    ],
+    meals: [
+      {
+        mealType: 'breakfast',
+        title: 'Sprouted Moong & Curd Fat Burner',
+        suggestedTime: '08:00 AM',
+        prepTips: 'Fresh sprout bowl with tomato, cucumber, chaat masala and low-fat curd.',
+        items: [
+          { id: 'vsw-1', name: 'Sprouted Moong Bean Salad', servingSize: '150g', calories: 140, proteinGrams: 11.5, carbsGrams: 22.0, fatsGrams: 0.8, cuisine: 'Indian' },
+          { id: 'vsw-2', name: 'Fresh Curd / Dahi', servingSize: '150g', calories: 95, proteinGrams: 5.5, carbsGrams: 6.5, fatsGrams: 5.2, cuisine: 'Indian' },
+          { id: 'vsw-3', name: 'Raw California Almonds', servingSize: '15g', calories: 87, proteinGrams: 3.2, carbsGrams: 3.0, fatsGrams: 7.5, cuisine: 'Universal' }
+        ]
+      },
+      {
+        mealType: 'lunch',
+        title: 'Low-Fat Grilled Paneer & Green Veggies',
+        suggestedTime: '01:00 PM',
+        prepTips: 'Grill 150g low-fat paneer with turmeric and black pepper; enjoy with 1 roti and cucumber salad.',
+        items: [
+          { id: 'vsw-4', name: 'Low-Fat / Diet Paneer', servingSize: '150g', calories: 218, proteinGrams: 36.8, carbsGrams: 6.3, fatsGrams: 5.3, cuisine: 'Indian' },
+          { id: 'vsw-5', name: 'Steamed Broccoli & Green Veggies', servingSize: '150g', calories: 51, proteinGrams: 4.2, carbsGrams: 10.0, fatsGrams: 0.6, cuisine: 'Universal' },
+          { id: 'vsw-6', name: 'Whole Wheat Roti / Phulka (1 roti)', servingSize: '45g', calories: 85, proteinGrams: 3.2, carbsGrams: 17.5, fatsGrams: 0.5, cuisine: 'Indian' }
+        ]
+      },
+      {
+        mealType: 'pre_workout',
+        title: 'Black Coffee & Light Carb Fuel',
+        suggestedTime: '04:30 PM',
+        prepTips: 'Black coffee with 1 small banana 30 mins before workout.',
+        items: [
+          { id: 'vsw-7', name: 'Fresh Banana (Medium)', servingSize: '1 small (90g)', calories: 80, proteinGrams: 1.0, carbsGrams: 20.5, fatsGrams: 0.2, cuisine: 'Universal' }
+        ]
+      },
+      {
+        mealType: 'post_workout',
+        title: 'Whey Protein Isolate Recovery Shake',
+        suggestedTime: '06:30 PM',
+        prepTips: '1.5 scoops whey isolate in ice-cold water immediately post-lift.',
+        items: [
+          { id: 'vsw-8', name: '100% Whey Protein Isolate (1.5 scoops)', servingSize: '45g powder', calories: 180, proteinGrams: 37.5, carbsGrams: 2.2, fatsGrams: 1.2, cuisine: 'International' },
+          { id: 'vsw-9', name: 'Roasted Foxnuts / Makhana', servingSize: '25g', calories: 92, proteinGrams: 2.5, carbsGrams: 17.5, fatsGrams: 1.4, cuisine: 'Indian' }
+        ]
+      },
+      {
+        mealType: 'dinner',
+        title: 'Soya Chunks Curry & Yellow Dal',
+        suggestedTime: '08:30 PM',
+        prepTips: 'Dry roasted soya chunks in tomato gravy with 1 cup yellow dal tadka.',
+        items: [
+          { id: 'vsw-10', name: 'Soya Chunks / Nutrela (Dry)', servingSize: '45g dry', calories: 155, proteinGrams: 23.4, carbsGrams: 14.8, fatsGrams: 0.5, cuisine: 'Indian' },
+          { id: 'vsw-11', name: 'Dal Tadka / Yellow Arhar-Moong Dal', servingSize: '150g', calories: 139, proteinGrams: 7.4, carbsGrams: 18.0, fatsGrams: 4.1, cuisine: 'Indian' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'diet-vegan-shred-no-powder',
+    title: 'Vegan Lean Fat Shred (Without Protein Powder) / वीगन फैट लॉस (बिना पाउडर)',
+    tagline: 'High-fiber, zero-dairy 1,750 kcal cutting plan with 125g natural plant protein: Firm tofu, soya chunks, boiled black chana, and raw greens.',
+    goal: 'fat_loss',
+    targetGender: 'all',
+    targetLevel: 'intermediate',
+    cuisine: 'Fusion',
+    dietType: 'vegan',
+    dietTypeLabel: 'Vegan Fat Loss (Zero Powder / Whole Plants)',
+    wheyOption: 'zero_powders',
+    isVeg: true,
+    isVegan: true,
+    dailyCalories: 1750,
+    macros: {
+      proteinGrams: 125,
+      carbsGrams: 175,
+      fatsGrams: 38,
+    },
+    waterTargetMl: 4000,
+    recommendedSupplements: [
+      'No Synthetic Protein Powders Required',
+      'Vitamin B12 Tablet (Essential)',
+      'Green Tea Extract / Caffeine for metabolic boost'
+    ],
+    keyBenefits: [
+      'Massive food volume keeps you full and stops cravings during aggressive fat loss',
+      '125g pure plant protein without any synthetic protein powders or shakes',
+      'Cholesterol-free, 100% cruelty-free, and gut-soothing whole foods'
+    ],
+    meals: [
+      {
+        mealType: 'breakfast',
+        title: 'Firm Tofu Scramble with Turmeric & Greens',
+        suggestedTime: '08:00 AM',
+        prepTips: '160g firm tofu scrambled with bell peppers, spinach, and black pepper.',
+        items: [
+          { id: 'vsnp-1', name: 'Firm Tofu Scramble / Bhurji', servingSize: '160g', calories: 176, proteinGrams: 19.7, carbsGrams: 3.7, fatsGrams: 9.1, cuisine: 'International' },
+          { id: 'vsnp-2', name: 'Sprouted Moong Bean Salad', servingSize: '120g', calories: 112, proteinGrams: 9.2, carbsGrams: 17.6, fatsGrams: 0.6, cuisine: 'Indian' }
+        ]
+      },
+      {
+        mealType: 'lunch',
+        title: 'Soya Chunks Masala & Steamed Broccoli',
+        suggestedTime: '01:00 PM',
+        prepTips: '50g soya chunks cooked in light home gravy with steamed broccoli and 1 whole wheat roti.',
+        items: [
+          { id: 'vsnp-3', name: 'Soya Chunks / Nutrela (Dry)', servingSize: '50g dry', calories: 172, proteinGrams: 26.0, carbsGrams: 16.5, fatsGrams: 0.5, cuisine: 'Indian' },
+          { id: 'vsnp-4', name: 'Steamed Broccoli & Green Veggies', servingSize: '180g', calories: 61, proteinGrams: 5.0, carbsGrams: 12.0, fatsGrams: 0.7, cuisine: 'Universal' },
+          { id: 'vsnp-5', name: 'Whole Wheat Roti / Phulka (1 roti)', servingSize: '45g', calories: 85, proteinGrams: 3.2, carbsGrams: 17.5, fatsGrams: 0.5, cuisine: 'Indian' }
+        ]
+      },
+      {
+        mealType: 'pre_workout',
+        title: 'Black Coffee & Roasted Chana',
+        suggestedTime: '04:30 PM',
+        prepTips: 'Crunch on roasted chana 40 minutes before workout.',
+        items: [
+          { id: 'vsnp-6', name: 'Roasted Black Chana (Bengal Gram)', servingSize: '40g', calories: 148, proteinGrams: 9.2, carbsGrams: 23.2, fatsGrams: 2.0, cuisine: 'Indian' }
+        ]
+      },
+      {
+        mealType: 'post_workout',
+        title: 'Desi Sattu Recovery Drink & Pumpkin Seeds',
+        suggestedTime: '06:30 PM',
+        prepTips: 'Chilled sattu in water with lemon juice and salt; small serving of pumpkin seeds.',
+        items: [
+          { id: 'vsnp-7', name: 'Desi Sattu Protein Drink', servingSize: '1 glass (40g powder)', calories: 165, proteinGrams: 10.4, carbsGrams: 26.0, fatsGrams: 2.1, cuisine: 'Indian' },
+          { id: 'vsnp-8', name: 'Roasted Pumpkin & Sunflower Seeds Mix', servingSize: '20g', calories: 110, proteinGrams: 5.7, carbsGrams: 3.3, fatsGrams: 9.0, cuisine: 'Universal' }
+        ]
+      },
+      {
+        mealType: 'dinner',
+        title: 'Boiled Kala Chana Chaat & Rajma Bowl',
+        suggestedTime: '08:30 PM',
+        prepTips: 'Warm bowl of spiced boiled black chickpeas and kidney beans with raw salad.',
+        items: [
+          { id: 'vsnp-9', name: 'Boiled Kala Chana Chaat (Black Chickpeas)', servingSize: '150g', calories: 190, proteinGrams: 13.0, carbsGrams: 30.0, fatsGrams: 2.8, cuisine: 'Indian' },
+          { id: 'vsnp-10', name: 'Rajma Masala / Red Kidney Beans Curry', servingSize: '150g', calories: 165, proteinGrams: 9.3, carbsGrams: 24.8, fatsGrams: 3.6, cuisine: 'Indian' }
+        ]
+      }
+    ]
   }
 ];
 
@@ -3080,6 +4279,16 @@ export const DEFAULT_DAILY_ROUTINE: RoutineItem[] = [
     durationMins: 20,
     completed: false,
     importance: 'high',
+  },
+  {
+    id: 'r-yoga-morning',
+    time: '07:30 AM',
+    title: 'Morning Yoga Sun Salutation & Spine Awakening',
+    description: '10-minute dynamic breath flow to decompress spine, activate core, and loosen morning stiffness.',
+    category: 'morning',
+    durationMins: 10,
+    completed: false,
+    importance: 'medium',
   },
   {
     id: 'r3',
@@ -3128,6 +4337,16 @@ export const DEFAULT_DAILY_ROUTINE: RoutineItem[] = [
     description: 'Lean protein (salmon/chicken/tofu), complex carbs (sweet potato/rice), and colorful greens.',
     category: 'evening',
     durationMins: 30,
+    completed: false,
+    importance: 'medium',
+  },
+  {
+    id: 'r-evening-stretch',
+    time: '09:30 PM',
+    title: 'Evening Deep Stretch & Full-Body Recovery',
+    description: '15-minute restorative stretches (Child’s pose, hip flexor release, supine twist) for parasympathetic calm and sleep.',
+    category: 'evening',
+    durationMins: 15,
     completed: false,
     importance: 'medium',
   },

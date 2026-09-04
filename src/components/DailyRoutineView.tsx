@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useFitness } from '../context/FitnessContext';
+import { useLanguage } from '../context/LanguageContext';
 import { RoutineItem, RoutineCategory, DailyHabit } from '../types';
 import {
   CalendarCheck,
@@ -18,10 +19,16 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import confetti from 'canvas-confetti';
+import { ReminderBannerWidget } from './reminders/ReminderBannerWidget';
 
-export const DailyRoutineView: React.FC = () => {
+interface DailyRoutineViewProps {
+  onOpenRemindersModal?: () => void;
+}
+
+export const DailyRoutineView: React.FC<DailyRoutineViewProps> = ({ onOpenRemindersModal }) => {
   const { routineItems, habits, toggleRoutineItem, addRoutineItem, deleteRoutineItem, toggleHabit, userProfile } =
     useFitness();
+  const { t, isHindi } = useLanguage();
 
   const [selectedCategory, setSelectedCategory] = useState<RoutineCategory | 'all'>('all');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -88,11 +95,15 @@ export const DailyRoutineView: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold uppercase tracking-wider mb-2">
-              <CalendarCheck className="w-3.5 h-3.5" /> Daily Routine & Discipline
+              <CalendarCheck className="w-3.5 h-3.5" /> {isHindi ? 'दैनिक दिनचर्या और अनुशासन' : 'Daily Routine & Discipline'}
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900">Daily Routine & Habit Schedule</h1>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+              {isHindi ? 'दैनिक दिनचर्या और आदत अनुसूची' : 'Daily Routine & Habit Schedule'}
+            </h1>
             <p className="text-xs sm:text-sm text-slate-500 max-w-xl mt-1">
-              Consistency builds greatness. Align your sleep, hydration, pre-workout fueling, training window, and recovery rituals.
+              {isHindi 
+                ? 'नियमितता ही सफलता की कुंजी है। अपनी नींद, पानी, भोजन, वर्कआउट और रिकवरी को व्यवस्थित करें।' 
+                : 'Consistency builds greatness. Align your sleep, hydration, pre-workout fueling, training window, and recovery rituals.'}
             </p>
           </div>
 
@@ -118,9 +129,9 @@ export const DailyRoutineView: React.FC = () => {
               <span className="absolute font-mono text-sm font-black text-emerald-700">{overallDailyScore}%</span>
             </div>
             <div>
-              <div className="text-xs font-bold text-slate-900">Today's Adherence</div>
+              <div className="text-xs font-bold text-slate-900">{isHindi ? 'आज का पालन' : "Today's Adherence"}</div>
               <div className="text-[11px] text-slate-500">
-                {completedRoutineCount}/{routineItems.length} Routine • {completedHabitsCount}/{habits.length} Habits
+                {completedRoutineCount}/{routineItems.length} {isHindi ? 'रूटीन' : 'Routine'} • {completedHabitsCount}/{habits.length} {isHindi ? 'आदतें' : 'Habits'}
               </div>
             </div>
           </div>
@@ -129,25 +140,33 @@ export const DailyRoutineView: React.FC = () => {
         {/* Mini Stats Summary */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-slate-100">
           <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80">
-            <div className="text-[11px] text-slate-500 font-semibold">Active Streak</div>
+            <div className="text-[11px] text-slate-500 font-semibold">{isHindi ? 'सक्रिय स्ट्रीक' : 'Active Streak'}</div>
             <div className="text-xl font-bold text-amber-600 font-mono mt-0.5 flex items-center gap-1">
-              <Flame className="w-4 h-4 fill-current" /> {userProfile.streakDays} Days
+              <Flame className="w-4 h-4 fill-current" /> {userProfile.streakDays} {t('days')}
             </div>
           </div>
           <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80">
-            <div className="text-[11px] text-slate-500 font-semibold">Schedule Blocks</div>
-            <div className="text-xl font-bold text-slate-900 font-mono mt-0.5">{routineItems.length} Events</div>
+            <div className="text-[11px] text-slate-500 font-semibold">{isHindi ? 'शेड्यूल इवेंट' : 'Schedule Blocks'}</div>
+            <div className="text-xl font-bold text-slate-900 font-mono mt-0.5">{routineItems.length} {isHindi ? 'इवेंट्स' : 'Events'}</div>
           </div>
           <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80">
-            <div className="text-[11px] text-slate-500 font-semibold">Completed Today</div>
-            <div className="text-xl font-bold text-emerald-600 font-mono mt-0.5">{completedRoutineCount} Done</div>
+            <div className="text-[11px] text-slate-500 font-semibold">{isHindi ? 'आज पूरे हुए' : 'Completed Today'}</div>
+            <div className="text-xl font-bold text-emerald-600 font-mono mt-0.5">{completedRoutineCount} {isHindi ? 'पूर्ण' : 'Done'}</div>
           </div>
           <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80">
-            <div className="text-[11px] text-slate-500 font-semibold">Habit Consistency</div>
+            <div className="text-[11px] text-slate-500 font-semibold">{isHindi ? 'आदत नियमितता' : 'Habit Consistency'}</div>
             <div className="text-xl font-bold text-blue-600 font-mono mt-0.5">{habitPercent}%</div>
           </div>
         </div>
       </div>
+
+      {/* Reminder Banner Widget */}
+      {onOpenRemindersModal && (
+        <ReminderBannerWidget
+          onOpenRemindersModal={onOpenRemindersModal}
+          variant="routine"
+        />
+      )}
 
       {/* Section: Daily Core Fitness Habits */}
       <section className="space-y-4">

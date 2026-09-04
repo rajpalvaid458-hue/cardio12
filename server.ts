@@ -17,7 +17,76 @@ function getAiClient(): GoogleGenAI | null {
   if (!apiKey || apiKey.trim() === "") {
     return null;
   }
-  return new GoogleGenAI({ apiKey });
+  return new GoogleGenAI({
+    apiKey,
+    httpOptions: {
+      headers: {
+        "User-Agent": "aistudio-build",
+      },
+    },
+  });
+}
+
+// Resilient Gemini API caller with automatic retry on 503/429 and failover to alternative models
+async function callGeminiWithFallback(
+  ai: GoogleGenAI,
+  params: {
+    contents: any;
+    config?: any;
+    primaryModel?: string;
+    fallbackModels?: string[];
+    timeoutMs?: number;
+  }
+) {
+  const modelsToTry = [
+    params.primaryModel || "gemini-3.1-flash-lite",
+    ...(params.fallbackModels || ["gemini-3.8-flash", "gemini-flash-latest"]),
+  ];
+
+  const timeoutMs = params.timeoutMs || 9000;
+  let lastError: any = null;
+
+  for (const modelName of modelsToTry) {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error(`Model ${modelName} timed out after ${timeoutMs}ms`)), timeoutMs)
+        );
+
+        const apiCall = ai.models.generateContent({
+          model: modelName,
+          contents: params.contents,
+          config: params.config,
+        });
+
+        const response: any = await Promise.race([apiCall, timeoutPromise]);
+        return response;
+      } catch (err: any) {
+        lastError = err;
+        const errStr = String(err?.message || err || "");
+        const isTransient =
+          err?.status === "UNAVAILABLE" ||
+          err?.status === 503 ||
+          errStr.includes("503") ||
+          errStr.includes("high demand") ||
+          errStr.includes("UNAVAILABLE") ||
+          errStr.includes("timed out") ||
+          errStr.includes("RESOURCE_EXHAUSTED") ||
+          errStr.includes("429");
+
+        if (isTransient && attempt === 0) {
+          // Wait 500ms before retrying once
+          await new Promise((resolve) => setTimeout(resolve, 500));
+          continue;
+        }
+
+        console.warn(`Model ${modelName} attempt ${attempt + 1} unavailable:`, err?.message || errStr);
+        break; // try next fallback model
+      }
+    }
+  }
+
+  throw lastError;
 }
 
 // Health check
@@ -263,8 +332,7 @@ app.post("/api/ai/generate-plan", async (req, res) => {
 
 Return in exact JSON matching schema.`;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+    const response = await callGeminiWithFallback(ai, {
       contents: prompt,
       config: {
         systemInstruction: "You are an elite CSCS strength coach and sports nutritionist. Create a comprehensive, science-backed workout routine split, macro targets, and daily routine. Output valid JSON.",
@@ -338,7 +406,7 @@ Return in exact JSON matching schema.`;
     const parsedData = JSON.parse(jsonText);
     res.json({ success: true, plan: parsedData });
   } catch (error: any) {
-    console.error("Error generating plan, serving smart fallback:", error);
+    console.warn("Notice: Plan generation using local fallback:", error?.message || error);
     const fallback = generateFallbackPlan("muscle_hypertrophy", 4, "High Protein", 75);
     res.json({ success: true, plan: fallback });
   }
@@ -347,16 +415,16 @@ Return in exact JSON matching schema.`;
 // Intelligent Fallback Coach Responses
 function getFallbackCoachReply(userMsg: string): string {
   const query = userMsg.toLowerCase();
-  if (query.includes("shoulder") || query.includes("bench press")) {
-    return `### How to Fix Shoulder Pain During Bench Press:
+  if (query.includes("shoulder") || query.includes("bench press") || query.includes("bench")) {
+    return `### How to Fix Shoulder Pain & Optimize Bench Press:
 
 1. **Scapular Retraction**: Before unbarring, pinch your shoulder blades together and down ("put them in your back pockets").
 2. **Tuck Your Elbows**: Avoid a 90° flare. Keep your elbows tucked at a **45°–75° angle** relative to your torso.
 3. **Touch Point**: Lower the barbell to your **lower sternum / nipple line**, not your neck or upper collarbone.
 4. **Warm-up & Substitutes**: Warm up with 3 sets of Face Pulls and Band Pull-aparts. If pain persists, switch to **Neutral Grip Dumbbell Press** or **Floor Press** for 2 weeks.`;
   }
-  if (query.includes("protein") || query.includes("veg") || query.includes("diet") || query.includes("meal")) {
-    return `### High-Protein Indian & International Post-Workout Nutrition:
+  if (query.includes("protein") || query.includes("veg") || query.includes("diet") || query.includes("meal") || query.includes("food")) {
+    return `### High-Protein Post-Workout Nutrition & Meal Planning:
 
 * **Vegetarian Gold Standard**: 
   - 100g Grilled Paneer / Tofu (18g Protein) + 1 Scoop Whey/Plant Protein (25g Protein) + 1 Banana.
@@ -365,6 +433,29 @@ function getFallbackCoachReply(userMsg: string): string {
   - 150g Grilled Chicken Breast / Boiled Eggs (35g Protein) + 1 cup Brown Rice / 2 Rotis + Green Salad.
 * **Timing Tip**: Consume within 45–90 minutes post-training alongside 30–50g of clean carbohydrates to replenish glycogen and accelerate muscle protein synthesis!`;
   }
+  if (query.includes("fat loss") || query.includes("cut") || query.includes("belly") || query.includes("weight loss") || query.includes("lose weight")) {
+    return `### Science-Based Protocol for Sustainable Fat Loss:
+
+1. **Caloric Deficit**: Target a moderate deficit of **300–500 kcal below maintenance** (approx. bodyweight in kg × 24-26).
+2. **Preserve Muscle Mass**: Keep protein high at **1.8–2.2g per kg of bodyweight** so your body burns adipose tissue rather than muscle.
+3. **Progressive Resistance Training**: Continue lifting heavy (6–12 rep range); do not drop the weight for high-rep "toning".
+4. **Daily Step Count (NEAT)**: Aim for 8,000–10,000 daily steps. It burns calories without spiking cortisol or appetite.`;
+  }
+  if (query.includes("creatine") || query.includes("supplement")) {
+    return `### Creatine Monohydrate & Essential Supplements Guide:
+
+* **Creatine Monohydrate**: 3–5g daily, every single day at any convenient time. No loading phase required. Increases intramuscular phosphocreatine for strength output and intracellular cell hydration.
+* **Whey / Plant Protein**: Fast, convenient source to hit your daily 1.6–2.2g/kg protein targets.
+* **Electrolytes & Sodium**: Critical for heavy training sessions; 500mg sodium in your pre-workout water prevents intra-set cramping and maximizes muscle pumps.`;
+  }
+  if (query.includes("deadlift") || query.includes("back pain") || query.includes("lower back")) {
+    return `### Deadlift Safety & Lower Back Protection:
+
+1. **Bar Placement**: Start with the bar over your mid-foot (1 inch from your shins).
+2. **Lat Engagement**: Pull your shoulder blades down and "bend the bar around your shins" to lock your lats before initiating the pull.
+3. **Leg Drive First**: Push the floor away with your quads before hinging at the hips; avoid yanking the bar off the floor with your lower back.
+4. **Alternative**: If conventional deadlifts irritate your lumbar spine, transition to **Trap Bar (Hex Bar) Deadlifts** or **Romanian Deadlifts (RDLs)** for a safer hip hinge.`;
+  }
   if (query.includes("squat") || query.includes("plateau") || query.includes("strength")) {
     return `### Breaking Through Squat & Strength Plateaus:
 
@@ -372,6 +463,13 @@ function getFallbackCoachReply(userMsg: string): string {
 2. **Footwear & Ankle Mobility**: Ensure a solid, flat-soled shoe or elevated heel squat shoe to allow deep knee flexion without torso collapse.
 3. **Core Bracing**: Practice the **Valsalva Maneuver** — deep diaphragmatic breath into your belt before initiating descent.
 4. **Deload Week**: If you've pushed heavy for 5+ weeks, take a 50% volume deload week to allow central nervous system (CNS) supercompensation.`;
+  }
+  if (query.includes("sleep") || query.includes("recovery") || query.includes("sore")) {
+    return `### Optimal Muscle Recovery & CNS Restoration:
+
+1. **Sleep Duration**: Target **7.5–9 hours of quality sleep**. Over 80% of human growth hormone (HGH) is secreted during stage 3 deep slow-wave sleep.
+2. **Hydration**: Drink 35–45ml of water per kg of bodyweight daily. Dehydrated muscle fibers take up to 40% longer to clear metabolic byproducts.
+3. **Active Recovery**: On rest days, do 20–30 minutes of low-intensity walking or light cycling to promote nutrient-rich blood flow to sore tissues.`;
   }
   if (query.includes("warm") || query.includes("pre")) {
     return `### Complete 7-Minute Pre-Workout Warm-Up:
@@ -385,6 +483,18 @@ function getFallbackCoachReply(userMsg: string): string {
    - Empty Barbell x 10 reps
    - 50% working weight x 5 reps
    - 75% working weight x 3 reps -> Rest 90s -> Start working set!`;
+  }
+  if (query.includes("hi") || query.includes("hello") || query.includes("hey") || query.includes("who are you")) {
+    return `### Hello! I am PulseCoach.
+
+I am here to help you achieve your strength, hypertrophy, and nutrition goals. You can ask me about:
+
+* **Exercise Form**: Bench press technique, squat depth, shoulder pain prevention, or deadlift cues.
+* **Macro & Diet Planning**: High-protein Indian & international foods, post-workout meals, or cutting protocols.
+* **Workout Splits**: PPL, Upper/Lower, Full Body, or progressive overload strategies.
+* **Supplements**: Creatine monohydrate, protein powder, and recovery timing.
+
+How can I assist your training today?`;
   }
 
   return `### Coach Pulse Training & Recovery Advice:
@@ -426,8 +536,7 @@ User asked: "${userMsg}"
 
 Respond with expert, encouraging, and clear fitness/training/diet/routine advice. Keep response concise, structured with clean markdown headers and bullet points, and highly actionable.`;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+    const response = await callGeminiWithFallback(ai, {
       contents: prompt,
       config: {
         systemInstruction: "You are 'PulseCoach', a world-class certified strength & conditioning specialist (CSCS) and sports nutritionist. You give science-backed, friendly, motivating, and actionable advice on workout form, workout timing, diet macros, hydration, recovery, daily routines, and progressive overload. Use clean markdown formatting.",
@@ -437,7 +546,7 @@ Respond with expert, encouraging, and clear fitness/training/diet/routine advice
     const replyText = response.text || getFallbackCoachReply(userMsg);
     return res.json({ success: true, reply: replyText });
   } catch (error: any) {
-    console.error("Error in coach chat, returning fallback:", error);
+    console.warn("Coach chat fallback engaged:", error?.message || error);
     const fallbackReply = getFallbackCoachReply(req.body?.message || "");
     return res.json({ success: true, reply: fallbackReply });
   }
@@ -471,8 +580,7 @@ app.post("/api/ai/estimate-meal", async (req, res) => {
       return res.json({ success: true, item: fallbackItem });
     }
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+    const response = await callGeminiWithFallback(ai, {
       contents: `Accurately estimate calories and macronutrients for this food/meal input (supports English, Hindi, Hinglish, regional dishes & international items): "${mealDescription}"`,
       config: {
         systemInstruction: "You are an expert sports dietitian and Indian & International food nutrition specialist. Understand Indian household measures (katori, roti, bowl, piece, plate, glass, scoop, cup, grams) as well as international culinary portions. Provide exact calories and macros.",
@@ -504,7 +612,7 @@ app.post("/api/ai/estimate-meal", async (req, res) => {
     const parsed = JSON.parse(response.text || "{}");
     res.json({ success: true, item: parsed });
   } catch (error: any) {
-    console.error("Error estimating meal:", error);
+    console.warn("Meal estimation using smart fallback:", error?.message || error);
     const fallbackItem = {
       foodName: req.body?.mealDescription || "Custom Meal",
       hindiName: "पौष्टिक भोजन",
@@ -524,56 +632,104 @@ app.post("/api/ai/estimate-meal", async (req, res) => {
 });
 
 // Fallback Diet Plan Generator
-function generateFallbackDiet(goal: string, targetCalories: number, weightKg: number) {
+// Fallback Diet Plan Generator
+function generateFallbackDiet(goal: string, targetCalories: number, weightKg: number, dietType: string = '') {
   const calories = targetCalories || 2400;
   const protein = Math.round(weightKg * 2.0);
   const fats = Math.round(weightKg * 0.9);
   const carbs = Math.round((calories - (protein * 4 + fats * 9)) / 4);
 
+  const isVegan = dietType.toLowerCase().includes('vegan');
+  const isPureVeg = !isVegan && (dietType.toLowerCase().includes('veg') || dietType.toLowerCase().includes('shakahari') || dietType.toLowerCase().includes('jain'));
+  const noWhey = dietType.toLowerCase().includes('without whey') || dietType.toLowerCase().includes('zero powder') || dietType.toLowerCase().includes('no whey') || dietType.toLowerCase().includes('kitchen staples') || dietType.toLowerCase().includes('whole plants');
+
+  let title = 'Elite High-Protein Indian & International Blueprint';
+  let tagline = 'Scientifically calibrated macronutrient distribution for peak athletic performance';
+  let dietTypeLabel = 'High Protein Muscle Fuel';
+  let supplements = [
+    'Whey Protein Isolate (1 scoop post-workout)',
+    'Creatine Monohydrate (3-5g daily with water)',
+    'Omega-3 Fish Oil / Flaxseed Oil (1000mg)',
+    'Vitamin D3 + K2 (Weekly / Daily)',
+  ];
+
+  if (isVegan) {
+    title = noWhey
+      ? '100% Whole-Foods Vegan High-Protein Blueprint (Zero Powders)'
+      : 'Elite Vegan High-Protein Blueprint (With Plant Protein Powder)';
+    tagline = 'Cruelty-free, dairy-free complete plant amino acid distribution for natural muscle growth';
+    dietTypeLabel = noWhey ? '100% Vegan (Zero Powder)' : '100% Vegan (With Plant Protein)';
+    supplements = noWhey
+      ? ['Zero Synthetic Powders (100% Whole Food Nutrition)', 'Vitamin B12 1000mcg', 'Algal Vegan Omega-3', 'Vegan Vitamin D3']
+      : ['Organic Pea & Rice Plant Protein (1.5 scoops)', 'Creatine Monohydrate (5g)', 'Vitamin B12 1000mcg', 'Algal Vegan Omega-3'];
+  } else if (isPureVeg) {
+    title = noWhey
+      ? '100% Natural Pure-Veg High-Protein Blueprint (Zero Whey / Desi Staples)'
+      : 'Pure-Vegetarian High-Protein Hypertrophy Blueprint (With Whey)';
+    tagline = 'Authentic Indian vegetarian nutrition powered by Low-Fat Paneer, Moong Sprouts, Sattu, and Legumes';
+    dietTypeLabel = noWhey ? '100% Pure Veg (No Whey / Natural)' : '100% Pure Veg (With Whey)';
+    supplements = noWhey
+      ? ['Zero Synthetic Whey Required', 'Desi Sattu & Roasted Chana for Recovery', 'Ashwagandha KSM-66', 'Vitamin D3+K2']
+      : ['Whey Protein Isolate (1-2 scoops post-workout)', 'Creatine Monohydrate (5g)', 'Ashwagandha KSM-66', 'Multivitamin & Zinc'];
+  }
+
+  const breakfastItem2 = isVegan
+    ? { id: `fb-1-2`, name: 'Organic Tofu Scramble / Bhurji with Turmeric', hindiName: 'टोफू भुर्जी', cuisine: 'Indian', servingSize: '150g', calories: 180, proteinGrams: 20, carbsGrams: 4, fatsGrams: 9, benefits: 'Clean plant protein & isoflavones' }
+    : { id: `fb-1-2`, name: 'Low-Fat Diet Paneer Besan Chilla', hindiName: 'पनीर बेसन चीला', cuisine: 'Indian', servingSize: '150g', calories: 240, proteinGrams: 20, carbsGrams: 22, fatsGrams: 8, benefits: 'Casein & chickpea amino acids' };
+
+  const lunchItem1 = isVegan
+    ? { id: `fb-2-1`, name: 'High-Protein Soya Chunks Masala Curry', hindiName: 'सोया चंक्स मसाला', cuisine: 'Indian', servingSize: '160g (50g dry)', calories: 215, proteinGrams: 26, carbsGrams: 18, fatsGrams: 3, benefits: 'Super high protein density' }
+    : { id: `fb-2-1`, name: 'Low-Fat Paneer Tikka / Soya Chunks Curry', hindiName: 'पनीर टिक्का / सोया', cuisine: 'Indian', servingSize: '150g', calories: 230, proteinGrams: 36, carbsGrams: 6, fatsGrams: 6, benefits: 'Dense bioavailable vegetarian protein' };
+
+  const postWorkoutItem1 = noWhey
+    ? { id: `fb-4-1`, name: 'Desi Roasted Sattu High-Protein Drink', hindiName: 'देसी सत्तू शरबत', cuisine: 'Indian', servingSize: '1 large glass (50g powder)', calories: 205, proteinGrams: 13, carbsGrams: 33, fatsGrams: 2.5, benefits: 'Natural muscle glycogen & amino acid replenishment' }
+    : isVegan
+      ? { id: `fb-4-1`, name: 'Organic Pea & Rice Plant Protein Shake', hindiName: 'प्लांट प्रोटीन शेक', cuisine: 'International', servingSize: '1.5 scoops (45g)', calories: 175, proteinGrams: 35, carbsGrams: 3, fatsGrams: 2, benefits: 'Rapid dairy-free vegan protein synthesis' }
+      : { id: `fb-4-1`, name: '100% Whey Protein Isolate Shake', hindiName: 'व्हे प्रोटीन आइसोलेट शेक', cuisine: 'International', servingSize: '1.5 scoops (45g)', calories: 180, proteinGrams: 37, carbsGrams: 2, fatsGrams: 1, benefits: 'Fastest leucine spike for hypertrophy' };
+
+  const dinnerItem1 = isVegan
+    ? { id: `fb-5-1`, name: 'Rajma Masala / Red Kidney Beans with Quinoa', hindiName: 'राजमा और क्विनोआ', cuisine: 'Indian', servingSize: '200g', calories: 230, proteinGrams: 14, carbsGrams: 36, fatsGrams: 4, benefits: 'Slow-burning complex plant recovery' }
+    : { id: `fb-5-1`, name: 'Low-Fat Paneer Bhurji / Moong Dal Khichdi', hindiName: 'पनीर भुर्जी और दाल खिचड़ी', cuisine: 'Indian', servingSize: '180g', calories: 250, proteinGrams: 24, carbsGrams: 22, fatsGrams: 8, benefits: 'Slow-digesting casein for overnight repair' };
+
   return {
     id: `diet-ai-${Date.now()}`,
-    title: "Elite High-Protein Indian & International Blueprint",
-    tagline: "Scientifically calibrated macronutrient distribution for peak athletic performance",
+    title,
+    tagline,
     dailyCalories: calories,
     macros: {
       proteinGrams: protein,
       carbsGrams: carbs,
       fatsGrams: fats,
     },
-    waterTargetMl: 3500,
-    cuisine: "Fusion",
-    dietTypeLabel: "High Protein Muscle Fuel",
+    waterTargetMl: 3600,
+    cuisine: "Indian",
+    dietTypeLabel,
     keyBenefits: [
-      "Optimal 2.0g/kg protein synthesis",
-      "Authentic Desi vegetarian & clean non-veg options",
-      "Stable blood glucose & energy levels throughout the day",
+      `Delivers ${protein}g targeted protein calibrated to your body weight`,
+      isVegan ? '100% Plant-based, lactose-free and ethical' : isPureVeg ? '100% Vegetarian with authentic Indian kitchen ingredients' : 'Balanced macro distribution for steady energy',
+      noWhey ? 'Zero synthetic powders or whey required — completely whole-food driven' : 'Includes premium protein shake post-workout for fast recovery',
     ],
-    recommendedSupplements: [
-      "Whey Protein Isolate (1 scoop post-workout)",
-      "Creatine Monohydrate (3-5g daily with water)",
-      "Omega-3 Fish Oil / Flaxseed Oil (1000mg)",
-      "Vitamin D3 + K2 (Weekly / Daily)",
-    ],
+    recommendedSupplements: supplements,
     meals: [
       {
         mealType: "breakfast",
-        title: "Power Muscle Oats & Eggs / Paneer",
+        title: isVegan ? "Vegan Morning Protein Fuel" : "Desi High-Protein Breakfast",
         suggestedTime: "08:00 AM",
-        prepTips: "Cook oats in milk or water, stir in whey/sattu powder after heat is off.",
+        prepTips: "Cook oats or chilla freshly with minimal oil.",
         items: [
-          { id: `fb-1-1`, name: "Rolled Oats with Almonds & Banana", hindiName: "ओट्स और बादाम", cuisine: "International", servingSize: "60g oats + 15g almonds", calories: 340, proteinGrams: 12, carbsGrams: 55, fatsGrams: 9, benefits: "Complex slow-release energy" },
-          { id: `fb-1-2`, name: "Boiled Eggs (3 Whole + 2 Whites) / 100g Paneer", hindiName: "उबले अंडे / पनीर", cuisine: "Indian", servingSize: "100g", calories: 260, proteinGrams: 24, carbsGrams: 3, fatsGrams: 16, benefits: "Complete amino acid profile" },
+          { id: `fb-1-1`, name: "Rolled Whole Oats with Almonds & Banana", hindiName: "ओट्स और बादाम", cuisine: "International", servingSize: "60g oats + 15g almonds", calories: 320, proteinGrams: 11, carbsGrams: 52, fatsGrams: 8, benefits: "Complex slow-release energy" },
+          breakfastItem2,
         ],
       },
       {
         mealType: "lunch",
-        title: "Clean Desi Athlete Thali",
-        suggestedTime: "01:30 PM",
-        prepTips: "Use minimal oil (1 tsp ghee), steam rice or dry roast multigrain rotis.",
+        title: "Clean Indian Athlete Thali",
+        suggestedTime: "01:15 PM",
+        prepTips: "Serve with warm multigrain phulkas and fresh green salad.",
         items: [
-          { id: `fb-2-1`, name: "Grilled Chicken Breast / Soya Chunks Bhurji", hindiName: "सोया चंक्स / चिकन", cuisine: "Indian", servingSize: "150g", calories: 240, proteinGrams: 36, carbsGrams: 8, fatsGrams: 5, benefits: "High density lean protein" },
-          { id: `fb-2-2`, name: "Thick Yellow Moong / Toor Dal", hindiName: "गाढ़ी दाल", cuisine: "Indian", servingSize: "1 large katori (150g)", calories: 150, proteinGrams: 9, carbsGrams: 22, fatsGrams: 2, benefits: "Dietary fiber & gut health" },
-          { id: `fb-2-3`, name: "Multigrain Rotis / Brown Rice", hindiName: "रोटी / चावल", cuisine: "Indian", servingSize: "2 rotis (70g)", calories: 180, proteinGrams: 6, carbsGrams: 36, fatsGrams: 2, benefits: "Glycogen replenishment" },
+          lunchItem1,
+          { id: `fb-2-2`, name: "Thick Yellow Moong Dal Tadka", hindiName: "दाल तड़का", cuisine: "Indian", servingSize: "1 bowl (180g)", calories: 165, proteinGrams: 9, carbsGrams: 22, fatsGrams: 3, benefits: "Dietary fiber & gut health" },
+          { id: `fb-2-3`, name: "Whole Wheat Roti / Phulka (2 rotis)", hindiName: "रोटी (2 पीस)", cuisine: "Indian", servingSize: "90g", calories: 170, proteinGrams: 6.4, carbsGrams: 35, fatsGrams: 1, benefits: "Glycogen replenishment" },
         ],
       },
       {
@@ -582,26 +738,27 @@ function generateFallbackDiet(goal: string, targetCalories: number, weightKg: nu
         suggestedTime: "04:30 PM",
         prepTips: "Consume 30-45 minutes prior to training session.",
         items: [
-          { id: `fb-3-1`, name: "Banana with Peanut Butter & Black Coffee", hindiName: "केला और पीनट बटर", cuisine: "Universal", servingSize: "1 medium banana + 15g PB", calories: 200, proteinGrams: 5, carbsGrams: 32, fatsGrams: 8, benefits: "Potassium, ATP pump & alertness" },
+          { id: `fb-3-1`, name: "Roasted Black Chana & Fresh Banana", hindiName: "भुना चना और केला", cuisine: "Indian", servingSize: "40g chana + 1 banana", calories: 230, proteinGrams: 9, carbsGrams: 42, fatsGrams: 2.5, benefits: "Natural potassium, complex carbs & ATP endurance" },
         ],
       },
       {
         mealType: "post_workout",
-        title: "Rapid Muscle Synthesis Recovery",
-        suggestedTime: "06:15 PM",
-        prepTips: "Mix in cold water within 45 minutes of training.",
+        title: noWhey ? "Natural Recovery Fuel" : "Rapid Muscle Protein Synthesis Recovery",
+        suggestedTime: "06:30 PM",
+        prepTips: noWhey ? "Whisk fresh sattu with cold water, roasted cumin, and black salt." : "Mix in shaker with 350ml cold water within 45 minutes of training.",
         items: [
-          { id: `fb-4-1`, name: "Whey Protein / Roasted Chana Sattu Shake", hindiName: "सत्तू / व्हे प्रोटीन शेक", cuisine: "Universal", servingSize: "1 scoop (32g)", calories: 130, proteinGrams: 25, carbsGrams: 3, fatsGrams: 2, benefits: "Rapid leucine delivery to muscle fibers" },
+          postWorkoutItem1,
+          { id: `fb-4-2`, name: "Roasted Makhana / Foxnuts", hindiName: "भुना मखाना", cuisine: "Indian", servingSize: "25g", calories: 92, proteinGrams: 2.5, carbsGrams: 17.5, fatsGrams: 1.4, benefits: "Antioxidants and magnesium" },
         ],
       },
       {
         mealType: "dinner",
-        title: "Lean Recovery & Evening Satiety",
-        suggestedTime: "08:30 PM",
-        prepTips: "Light on simple carbohydrates, rich in micronutrients and fiber.",
+        title: "Light Digestive Evening Satiety",
+        suggestedTime: "08:45 PM",
+        prepTips: "Light on carbohydrates, rich in micronutrients and easy on digestion before sleep.",
         items: [
-          { id: `fb-5-1`, name: "Grilled Fish / Paneer Tikka with Sautéed Veggies", hindiName: "पनीर टिक्का और सब्ज़ी", cuisine: "Indian", servingSize: "150g", calories: 280, proteinGrams: 26, carbsGrams: 12, fatsGrams: 14, benefits: "Slow-digesting casein protein for overnight recovery" },
-          { id: `fb-5-2`, name: "Fresh Cucumber, Tomato & Sprout Salad", hindiName: "खीरा टमाटर सलाद", cuisine: "Indian", servingSize: "1 bowl", calories: 60, proteinGrams: 3, carbsGrams: 10, fatsGrams: 0.5, benefits: "Hydration and digestive enzymes" },
+          dinnerItem1,
+          { id: `fb-5-2`, name: "Sprouted Moong & Cucumber Salad", hindiName: "अंकुरित मूंग सलाद", cuisine: "Indian", servingSize: "100g", calories: 85, proteinGrams: 6, carbsGrams: 14, fatsGrams: 0.5, benefits: "Active enzymes and hydration" },
         ],
       },
     ],
@@ -629,7 +786,7 @@ app.post("/api/ai/personal-diet-maker", async (req, res) => {
 
     const ai = getAiClient();
     if (!ai) {
-      const fallback = generateFallbackDiet(chosenGoal, chosenCalories, chosenWeight);
+      const fallback = generateFallbackDiet(chosenGoal, chosenCalories, chosenWeight, dietType || "");
       return res.json({ success: true, dietPlan: fallback });
     }
 
@@ -649,8 +806,7 @@ Please design a comprehensive meal schedule featuring:
 4. Recommended fitness supplements and timing
 5. Scientifically aligned daily water target (e.g. 3000-4000ml)`;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+    const response = await callGeminiWithFallback(ai, {
       contents: prompt,
       config: {
         systemInstruction: "You are a master sports nutritionist specializing in Indian fitness diets (Paneer, Soya, Dals, Sattu, Besan, Chicken Tikka, Roti, Khichdi, Makhana) and International athlete nutrition (Whey, Casein, Oats, Salmon, Chicken Breast, Eggs, Sweet Potato, Greek Yogurt, Quinoa). Generate precise, balanced nutritional plans in valid JSON.",
@@ -731,8 +887,13 @@ Please design a comprehensive meal schedule featuring:
     }
     res.json({ success: true, dietPlan: parsed });
   } catch (error: any) {
-    console.error("Error in personal-diet-maker, returning fallback:", error);
-    const fallback = generateFallbackDiet(req.body?.goal || "Fitness", parseInt(req.body?.targetCalories, 10) || 2400, parseFloat(req.body?.weightKg) || 75);
+    console.warn("Diet plan generation using smart fallback:", error?.message || error);
+    const fallback = generateFallbackDiet(
+      req.body?.goal || "Fitness",
+      parseInt(req.body?.targetCalories, 10) || 2400,
+      parseFloat(req.body?.weightKg) || 75,
+      req.body?.dietType || ""
+    );
     res.json({ success: true, dietPlan: fallback });
   }
 });
@@ -769,8 +930,7 @@ Available Equipment: ${availableEquipment || "Full gym equipment"}`;
       });
     }
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+    const response = await callGeminiWithFallback(ai, {
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -798,7 +958,7 @@ Available Equipment: ${availableEquipment || "Full gym equipment"}`;
 
     res.json(JSON.parse(response.text || "{}"));
   } catch (error: any) {
-    console.error("Error substituting exercise:", error);
+    console.warn("Substitute exercise using smart fallback:", error?.message || error);
     res.json({
       alternatives: [
         {
