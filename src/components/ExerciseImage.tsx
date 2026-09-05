@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Exercise, WorkoutExerciseItem } from '../types';
 import { Dumbbell, Flame, Waves, Heart, Shield, Music, Zap } from 'lucide-react';
-import { getExerciseImageUrl, isChestExercise } from '../utils/exerciseImages';
 
 interface ExerciseImageProps {
   exercise?: Partial<Exercise> | Partial<WorkoutExerciseItem> | {
@@ -32,36 +31,12 @@ export const ExerciseImage: React.FC<ExerciseImageProps> = ({
   exercise,
   name: nameProp,
   category: categoryProp,
-  imageUrl: imageUrlProp,
-  className = 'w-full h-full object-cover',
   containerClassName = '',
   aspectRatio = 'auto',
-  showZoomOnHover = false,
-  forceImage = false,
   onClick,
 }) => {
-  const [imageError, setImageError] = useState(false);
-
   const name = nameProp || exercise?.name || '';
   const category = categoryProp || exercise?.category || '';
-  const id = exercise?.id || '';
-
-  const isChest =
-    forceImage ||
-    isChestExercise(exercise) ||
-    category.toLowerCase() === 'chest' ||
-    (exercise?.targetMuscle && exercise.targetMuscle.toLowerCase().includes('chest'));
-
-  const imageUrl = isChest
-    ? imageUrlProp ||
-      (exercise as any)?.imageUrl ||
-      getExerciseImageUrl({
-        id,
-        name,
-        category,
-        imageUrl: imageUrlProp || (exercise as any)?.imageUrl,
-      })
-    : undefined;
 
   const getCategoryIcon = () => {
     const c = (category || '').toLowerCase();
@@ -90,39 +65,25 @@ export const ExerciseImage: React.FC<ExerciseImageProps> = ({
     }
   };
 
-  // If this is a chest exercise and we have an image that hasn't errored:
-  if (isChest && imageUrl && !imageError) {
-    return (
-      <div
-        onClick={onClick}
-        className={`relative overflow-hidden bg-slate-900 select-none ${getAspectClass()} ${
-          onClick ? 'cursor-pointer' : ''
-        } ${containerClassName}`}
-      >
-        <img
-          src={imageUrl}
-          alt={name || 'Chest workout'}
-          referrerPolicy="no-referrer"
-          onError={() => setImageError(true)}
-          className={`${className} ${
-            showZoomOnHover ? 'group-hover:scale-110 transition-transform duration-300' : ''
-          }`}
-          loading="lazy"
-        />
-      </div>
-    );
-  }
-
-  // Non-chest exercises or image error fallback to clean category icon
   return (
     <div
       onClick={onClick}
-      className={`relative overflow-hidden bg-emerald-50 text-emerald-700 flex items-center justify-center select-none ${getAspectClass()} ${
-        onClick ? 'cursor-pointer' : ''
+      className={`relative overflow-hidden bg-slate-900 border border-slate-800 flex items-center justify-center select-none ${getAspectClass()} ${
+        onClick ? 'cursor-pointer hover:border-emerald-500/50 transition-colors' : ''
       } ${containerClassName}`}
     >
-      <CategoryIcon className="w-5 h-5 text-emerald-600" />
+      <div className="flex flex-col items-center justify-center p-2 text-center text-emerald-400">
+        <div className="w-8 h-8 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+          <CategoryIcon className="w-4 h-4" />
+        </div>
+        {name && (
+          <span className="text-[10px] font-bold text-slate-300 truncate max-w-[95%] mt-1 px-1">
+            {name}
+          </span>
+        )}
+      </div>
     </div>
   );
 };
+
 

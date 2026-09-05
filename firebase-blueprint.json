@@ -1,0 +1,57 @@
+{
+  "entities": {
+    "UserDocument": {
+      "title": "UserDocument",
+      "description": "User cloud sync document containing profile, workout plans, logs, and diet settings",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "description": "User's verified email address"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Display name of the user"
+        },
+        "userProfile": {
+          "type": "object",
+          "description": "Biometric data, fitness goals, and preferences"
+        },
+        "plans": {
+          "type": "array",
+          "description": "Saved workout plans"
+        },
+        "workoutLogs": {
+          "type": "array",
+          "description": "Completed workout sessions history"
+        },
+        "dailyDiet": {
+          "type": "object",
+          "description": "Today's logged meals and nutrition"
+        },
+        "routineItems": {
+          "type": "array",
+          "description": "Daily workout and wellness routines"
+        },
+        "habits": {
+          "type": "array",
+          "description": "User habit tracking list"
+        },
+        "supplements": {
+          "type": "array",
+          "description": "Active supplement schedule"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "ISO timestamp of the last cloud sync"
+        }
+      }
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserDocument",
+      "description": "User-specific document storing private workouts, history, and profile"
+    }
+  }
+}

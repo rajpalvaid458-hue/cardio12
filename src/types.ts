@@ -104,6 +104,25 @@ export interface WorkoutExerciseItem {
   imageUrl?: string;
 }
 
+export interface WeeklyScheduleDay {
+  dayNumber: number;
+  dayName: string;
+  focus: string;
+  restDay?: boolean;
+  exerciseCount?: number;
+  exercisesSummary?: string[];
+  tips?: string;
+}
+
+export interface MonthlyWeekBlock {
+  weekNumber: number;
+  title: string;
+  goal: string;
+  focus: string;
+  intensity?: 'Low' | 'Moderate' | 'High' | 'Peak' | 'Deload';
+  scheduleTips: string;
+}
+
 export interface WorkoutPlan {
   id: string;
   title: string;
@@ -115,6 +134,9 @@ export interface WorkoutPlan {
   description: string;
   exercises: WorkoutExerciseItem[];
   tags: string[];
+  programType?: 'single' | '1-week' | '1-month' | 'daily';
+  weeklySchedule?: WeeklyScheduleDay[];
+  monthlySchedule?: MonthlyWeekBlock[];
 }
 
 export interface ActiveWorkoutSession {
@@ -429,4 +451,39 @@ export interface BodyProgressEntry {
   armsCm?: number;
   thighsCm?: number;
   createdAt: number;
+}
+
+export interface BodyweightChallengeDay {
+  day: number;
+  targetReps: number;
+  targetSets?: number;
+  isRestDay: boolean;
+  exerciseName: string;
+  variation?: string;
+  formCue: string;
+  targetDescription?: string;
+  completed: boolean;
+  actualReps?: number;
+  completedAt?: string;
+  notes?: string;
+}
+
+export interface BodyweightChallengeTrack {
+  id: string;
+  title: string;
+  titleHi?: string;
+  subtitle: string;
+  subtitleHi?: string;
+  exercise: string;
+  category: 'Chest & Arms' | 'Legs & Glutes' | 'Core & Abs' | 'Back & Pull' | 'Full Body';
+  unit: 'reps' | 'seconds';
+  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
+  description: string;
+  days: BodyweightChallengeDay[];
+}
+
+export interface BodyweightChallengeProgress {
+  trackId: string;
+  startDate: string;
+  completedDays: Record<number, { completed: boolean; actualReps: number; completedAt: string; notes?: string }>;
 }

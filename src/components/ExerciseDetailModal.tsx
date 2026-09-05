@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { Exercise } from '../types';
 import { ExerciseFormAnimation } from './ExerciseFormAnimation';
-import { ExerciseImage } from './ExerciseImage';
-import { isChestExercise } from '../utils/exerciseImages';
 import {
   X,
   Dumbbell,
@@ -76,20 +74,9 @@ export const ExerciseDetailModal: React.FC<ExerciseDetailModalProps> = ({ exerci
           </button>
 
           <div className="flex items-start gap-4 pr-8">
-            {/* Exercise Category Icon or Photo Thumbnail for Chest */}
-            {isChestExercise(exercise) ? (
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden shrink-0 border border-slate-700 bg-slate-950 shadow-md">
-                <ExerciseImage
-                  exercise={exercise}
-                  className="w-full h-full object-cover"
-                  showZoomOnHover={true}
-                />
-              </div>
-            ) : (
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl shrink-0 border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 flex items-center justify-center shadow-md">
-                <Dumbbell className="w-7 h-7" />
-              </div>
-            )}
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl shrink-0 border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 flex items-center justify-center shadow-md">
+              <Dumbbell className="w-7 h-7" />
+            </div>
 
             <div className="space-y-2.5 min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap">

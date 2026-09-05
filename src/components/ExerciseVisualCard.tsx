@@ -18,8 +18,6 @@ import {
   Info,
   Play,
   Pause,
-  Video,
-  ExternalLink,
   Volume2,
   Sparkles,
 } from 'lucide-react';
@@ -279,11 +277,10 @@ export const ExerciseVisualCard: React.FC<ExerciseVisualCardProps> = ({
   className = '',
   size = 'md',
   showControls = true,
-  defaultMode = 'clip',
+  defaultMode = 'anatomy',
 }) => {
-  const [activeTab, setActiveTab] = useState<'clip' | 'anatomy'>(defaultMode);
+  const [activeTab, setActiveTab] = useState<'technique' | 'anatomy'>(defaultMode === 'clip' ? 'anatomy' : defaultMode);
   const [activePhase, setActivePhase] = useState<'phase1' | 'phase2'>('phase1');
-  const [isPlayingVideo, setIsPlayingVideo] = useState(false);
 
   const bio = getMovementBioData(name, targetMuscle, category);
   const clip = getExerciseClipData({ name, category: category as string });
@@ -327,24 +324,9 @@ export const ExerciseVisualCard: React.FC<ExerciseVisualCardProps> = ({
           </span>
         </div>
 
-        {/* View Mode Switcher: Video Clip vs Anatomy */}
+        {/* View Mode Switcher: Form Angles vs Technique Cues */}
         {showControls && (
           <div className="flex items-center bg-slate-950 p-0.5 rounded-xl border border-slate-800 shrink-0">
-            <button
-              type="button"
-              onClick={() => {
-                setActiveTab('clip');
-                setIsPlayingVideo(true);
-              }}
-              className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all flex items-center gap-1.5 ${
-                activeTab === 'clip'
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <Video className="w-3 h-3 text-emerald-300" />
-              <span>🎬 Video Clip</span>
-            </button>
             <button
               type="button"
               onClick={() => setActiveTab('anatomy')}
@@ -357,60 +339,61 @@ export const ExerciseVisualCard: React.FC<ExerciseVisualCardProps> = ({
               <Activity className="w-3 h-3 text-cyan-400" />
               <span>🔬 Form Angles</span>
             </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('technique')}
+              className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all flex items-center gap-1.5 ${
+                activeTab === 'technique'
+                  ? 'bg-emerald-600 text-white shadow-xs'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Sparkles className="w-3 h-3 text-emerald-300" />
+              <span>📋 Step Cues</span>
+            </button>
           </div>
         )}
       </div>
 
-      {/* Main Content Area: Video Clip Mode OR Anatomy Mode */}
-      {activeTab === 'clip' ? (
-        <div className="relative z-10 flex-1 flex flex-col justify-between">
-          {/* Embedded YouTube / Video Demonstration Player */}
-          {clip.youtubeVideoId ? (
-            <div className="relative aspect-video w-full bg-black overflow-hidden group">
-              <iframe
-                src={`https://www.youtube-nocookie.com/embed/${clip.youtubeVideoId}?autoplay=0&rel=0&modestbranding=1&playsinline=1`}
-                title={`${name} video demonstration`}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="w-full h-full border-0"
-              />
+      {/* Main Content Area: Technique Mode OR Anatomy Mode */}
+      {activeTab === 'technique' ? (
+        <div className="relative z-10 flex-1 flex flex-col justify-between p-4 sm:p-5 bg-slate-950/90">
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-xs font-bold text-emerald-400 uppercase tracking-wider">
+              <Sparkles className="w-4 h-4" />
+              <span>Step-by-Step Technique & Coach Cues</span>
             </div>
-          ) : (
-            <div className="p-6 bg-slate-900/80 text-center space-y-3">
-              <div className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 mx-auto flex items-center justify-center">
-                <Video className="w-6 h-6" />
-              </div>
-              <p className="text-xs text-slate-300">
-                Live video tutorial ready for <strong>{name}</strong>
-              </p>
-              <a
-                href={`https://www.youtube.com/results?search_query=${encodeURIComponent(clip.youtubeSearchQuery)}`}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition-all"
-              >
-                <ExternalLink className="w-3.5 h-3.5" />
-                Watch 4K Technique Clip
-              </a>
-            </div>
-          )}
 
-          {/* Quick Clip Technique Cue */}
-          <div className="p-3.5 bg-slate-900/90 border-t border-slate-800 flex items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-2 text-slate-200 min-w-0">
-              <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span className="truncate text-[11px] text-slate-300">
-                <strong>Coach Cue:</strong> {clip.demonstrationCue}
-              </span>
-            </div>
-            <a
-              href={`https://www.youtube.com/results?search_query=${encodeURIComponent(clip.youtubeSearchQuery)}`}
-              target="_blank"
-              rel="noreferrer"
-              className="text-[10px] text-emerald-400 hover:text-emerald-300 underline font-mono flex items-center gap-1 shrink-0"
-            >
-              Full Search <ExternalLink className="w-2.5 h-2.5" />
-            </a>
+            {instructions && instructions.length > 0 ? (
+              <div className="space-y-2">
+                {instructions.map((inst, i) => (
+                  <div key={i} className="flex items-start gap-2.5 text-xs text-slate-200 bg-slate-900/60 p-2.5 rounded-xl border border-slate-800">
+                    <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 font-mono font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">
+                      {i + 1}
+                    </span>
+                    <span className="leading-relaxed">{inst}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300">
+                {clip.demonstrationCue || 'Execute through strict biomechanical plane with controlled eccentric tempo.'}
+              </div>
+            )}
+
+            {formTips && formTips.length > 0 && (
+              <div className="p-3 rounded-xl bg-amber-950/40 border border-amber-500/30 text-xs text-amber-200 space-y-1">
+                <div className="font-bold flex items-center gap-1.5 text-amber-300">
+                  <span>💡 Pro Form Tip:</span>
+                </div>
+                <div className="text-[11px] leading-relaxed">{formTips[0]}</div>
+              </div>
+            )}
+          </div>
+
+          <div className="pt-3 border-t border-slate-800/80 mt-3 flex items-center justify-between text-[11px] text-slate-400">
+            <span>Primary: <strong className="text-white">{targetMuscle}</strong></span>
+            <span>Joint Load: <strong className="text-emerald-400">{bio.planeOfMotion}</strong></span>
           </div>
         </div>
       ) : (

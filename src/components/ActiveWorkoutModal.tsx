@@ -18,8 +18,6 @@ import {
   Activity,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ExerciseImage } from './ExerciseImage';
-import { isChestExercise } from '../utils/exerciseImages';
 
 interface ActiveWorkoutModalProps {
   isOpen: boolean;
@@ -194,21 +192,10 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
                         };
                         onSelectExerciseDetails?.(fullEx);
                       }}
-                      className={`${
-                        isChestExercise(exercise)
-                          ? 'w-12 h-12 rounded-xl overflow-hidden shrink-0 border border-slate-200 bg-slate-900 shadow-xs cursor-pointer group/img'
-                          : 'w-11 h-11 rounded-xl bg-slate-100 hover:bg-emerald-100 border border-slate-200 hover:border-emerald-300 text-slate-700 hover:text-emerald-700 flex items-center justify-center shrink-0 shadow-xs cursor-pointer transition-colors'
-                      }`}
+                      className="w-11 h-11 rounded-xl bg-slate-100 hover:bg-emerald-100 border border-slate-200 hover:border-emerald-300 text-slate-700 hover:text-emerald-700 flex items-center justify-center shrink-0 shadow-xs cursor-pointer transition-colors"
                       title="Click to view form guide"
                     >
-                      {isChestExercise(exercise) ? (
-                        <ExerciseImage
-                          exercise={exercise}
-                          className="w-full h-full object-cover group-hover/img:scale-105 transition-transform"
-                        />
-                      ) : (
-                        <Dumbbell className="w-5 h-5" />
-                      )}
+                      <Dumbbell className="w-5 h-5" />
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">

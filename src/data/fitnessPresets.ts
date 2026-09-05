@@ -1,6 +1,165 @@
 import { Exercise, WorkoutPlan, FoodItem, RoutineItem, DailyHabit, SupplementItem, PersonalDietPlan } from '../types';
+import { NORMAL_WORKOUT_PLANS } from './normalWorkoutPlans';
 
 export const EXERCISE_DATABASE: Exercise[] = [
+  // HOME EXERCISES (NO EQUIPMENT / BODYWEIGHT)
+  {
+    id: 'bodyweight-pushups',
+    name: 'Standard Floor Push-Ups',
+    category: 'Chest',
+    discipline: 'Calisthenics',
+    equipment: 'Bodyweight',
+    targetMuscle: 'Pectoralis Major & Triceps',
+    secondaryMuscles: ['Anterior Deltoids', 'Core & Abs'],
+    instructions: [
+      'Set hands slightly wider than shoulder-width, fingers pointing slightly outwards.',
+      'Maintain straight line from head to heels with braced glutes and core.',
+      'Lower chest until 2 inches from floor, keeping elbows at a 45-degree angle.',
+      'Press firmly through palms back to top lockout.'
+    ],
+    formTips: ['Do not let lower back sag', 'Keep neck neutral, looking at the floor', 'Breathe in lowering, exhale pressing up'],
+    defaultSets: 4,
+    defaultReps: '12-20',
+    defaultRestSeconds: 60,
+    caloriesBurnedPerMin: 7,
+  },
+  {
+    id: 'diamond-pushups',
+    name: 'Diamond Close-Grip Push-Ups',
+    category: 'Triceps',
+    discipline: 'Calisthenics',
+    equipment: 'Bodyweight',
+    targetMuscle: 'Triceps Brachii & Inner Chest',
+    secondaryMuscles: ['Front Shoulders', 'Core'],
+    instructions: [
+      'Assume push-up position with index fingers and thumbs touching to form a diamond.',
+      'Lower chest directly toward hands while keeping elbows tucked tight to ribs.',
+      'Press through triceps to full arm extension.'
+    ],
+    formTips: ['Keep elbows tucked in, do not flare', 'Squeeze triceps hard at lockout'],
+    defaultSets: 3,
+    defaultReps: '10-15',
+    defaultRestSeconds: 60,
+    caloriesBurnedPerMin: 8,
+  },
+  {
+    id: 'bodyweight-air-squats',
+    name: 'Bodyweight Air Squats',
+    category: 'Quadriceps',
+    discipline: 'Calisthenics',
+    equipment: 'Bodyweight',
+    targetMuscle: 'Quadriceps & Gluteus Maximus',
+    secondaryMuscles: ['Hamstrings', 'Calves', 'Core'],
+    instructions: [
+      'Stand with feet shoulder-width apart, toes angled slightly outward 15-20 degrees.',
+      'Initiate squat by sending hips back and down as if sitting in a low chair.',
+      'Lower until hip crease is parallel or below knees, keeping chest tall and heels glued.',
+      'Drive powerfully through heels to return to standing.'
+    ],
+    formTips: ['Push knees outward in line with toes', 'Keep spine long and eyes forward'],
+    defaultSets: 4,
+    defaultReps: '15-25',
+    defaultRestSeconds: 60,
+    caloriesBurnedPerMin: 8,
+  },
+  {
+    id: 'walking-lunges-bw',
+    name: 'Bodyweight Walking Lunges',
+    category: 'Quadriceps',
+    discipline: 'Calisthenics',
+    equipment: 'Bodyweight',
+    targetMuscle: 'Glutes, Quads & Hamstrings',
+    secondaryMuscles: ['Calves', 'Core Balance'],
+    instructions: [
+      'Take a long step forward with right leg, lowering back knee toward floor.',
+      'Keep front knee directly above ankle at a 90-degree angle.',
+      'Drive through front heel to step forward into next lunge with opposite leg.'
+    ],
+    formTips: ['Keep torso upright with braced core', 'Do not let front knee collapse inward'],
+    defaultSets: 3,
+    defaultReps: '20 steps',
+    defaultRestSeconds: 60,
+    caloriesBurnedPerMin: 9,
+  },
+  {
+    id: 'glute-bridges-bw',
+    name: 'Bodyweight Glute Bridges',
+    category: 'Glutes',
+    discipline: 'Calisthenics',
+    equipment: 'Bodyweight',
+    targetMuscle: 'Gluteus Maximus & Hamstrings',
+    secondaryMuscles: ['Lower Back', 'Erector Spinae'],
+    instructions: [
+      'Lie face up on floor, knees bent, feet flat on ground hip-width apart.',
+      'Drive through heels and squeeze glutes to elevate hips toward ceiling.',
+      'Hold at top contraction for 2 seconds forming straight diagonal from knees to shoulders.',
+      'Lower slowly under control.'
+    ],
+    formTips: ['Squeeze glutes actively at top, avoid over-arching lower back'],
+    defaultSets: 3,
+    defaultReps: '15-20',
+    defaultRestSeconds: 45,
+    caloriesBurnedPerMin: 6,
+  },
+  {
+    id: 'mountain-climbers-bw',
+    name: 'Dynamic Mountain Climbers',
+    category: 'Core & Abs',
+    discipline: 'Cardio & HIIT',
+    equipment: 'Bodyweight',
+    targetMuscle: 'Rectus Abdominis & Cardio Stamina',
+    secondaryMuscles: ['Shoulders', 'Hip Flexors', 'Quads'],
+    instructions: [
+      'Start in tall plank position with hands under shoulders.',
+      'Drive one knee forward toward chest rapidly without lifting hips too high.',
+      'Quickly switch legs in a rhythmic running cadence on balls of feet.'
+    ],
+    formTips: ['Maintain flat back', 'Keep shoulders stacked over wrists'],
+    defaultSets: 4,
+    defaultReps: '30-45 sec',
+    defaultRestSeconds: 45,
+    caloriesBurnedPerMin: 11,
+  },
+  {
+    id: 'chair-dips-home',
+    name: 'Home Chair / Couch Dips',
+    category: 'Triceps',
+    discipline: 'Calisthenics',
+    equipment: 'Bodyweight',
+    targetMuscle: 'Triceps & Anterior Deltoids',
+    secondaryMuscles: ['Upper Chest'],
+    instructions: [
+      'Sit on edge of sturdy chair or sofa, grip edge next to hips.',
+      'Slide hips off edge, legs extended or knees bent at 90 degrees.',
+      'Lower hips by bending elbows to 90 degrees.',
+      'Press through palms to straighten arms and lock out triceps.'
+    ],
+    formTips: ['Keep back close to the chair edge', 'Do not shrug shoulders up'],
+    defaultSets: 3,
+    defaultReps: '12-15',
+    defaultRestSeconds: 60,
+    caloriesBurnedPerMin: 7,
+  },
+  {
+    id: 'bicycle-crunches-bw',
+    name: 'Bicycle Crunches',
+    category: 'Core & Abs',
+    discipline: 'Calisthenics',
+    equipment: 'Bodyweight',
+    targetMuscle: 'Obliques & Rectus Abdominis',
+    secondaryMuscles: ['Hip Flexors'],
+    instructions: [
+      'Lie flat on back, hands lightly touching behind ears.',
+      'Lift shoulders off floor, bring right elbow to meet left knee as right leg extends.',
+      'Alternate sides in smooth, deliberate pedaling tempo.'
+    ],
+    formTips: ['Do not pull on neck', 'Rotate through thoracic ribcage'],
+    defaultSets: 3,
+    defaultReps: '20 total',
+    defaultRestSeconds: 45,
+    caloriesBurnedPerMin: 7,
+  },
+
   // CHEST
   {
     id: 'bench-press-bb',
@@ -1229,6 +1388,155 @@ export const EXERCISE_DATABASE: Exercise[] = [
 ];
 
 export const PRESET_WORKOUT_PLANS: WorkoutPlan[] = [
+  ...NORMAL_WORKOUT_PLANS,
+  {
+    id: 'plan-home-no-equipment-fullbody',
+    title: 'Home Workout (Zero Equipment Full Body)',
+    splitType: 'Calisthenics & Bodyweight',
+    level: 'beginner',
+    durationMinutes: 35,
+    daysPerWeek: 4,
+    description: 'Complete home workout requiring zero gym equipment. Build muscle tone, burn fat, and strengthen joints using bodyweight mechanics.',
+    tags: ['Home Workout', 'No Equipment', 'Bodyweight', 'Full Body'],
+    exercises: [
+      {
+        id: 'hw1',
+        exerciseId: 'bodyweight-pushups',
+        name: 'Standard Floor Push-Ups',
+        targetMuscle: 'Chest, Triceps & Core',
+        restSec: 60,
+        formTip: 'Keep core tight in straight plank, elbows at 45 degrees',
+        sets: [
+          { id: 's1', setNumber: 1, weightKg: 0, reps: 15, completed: false },
+          { id: 's2', setNumber: 2, weightKg: 0, reps: 15, completed: false },
+          { id: 's3', setNumber: 3, weightKg: 0, reps: 12, completed: false },
+        ]
+      },
+      {
+        id: 'hw2',
+        exerciseId: 'bodyweight-air-squats',
+        name: 'Bodyweight Air Squats',
+        targetMuscle: 'Quadriceps & Glutes',
+        restSec: 60,
+        formTip: 'Hips back and down below parallel, chest tall',
+        sets: [
+          { id: 's1', setNumber: 1, weightKg: 0, reps: 20, completed: false },
+          { id: 's2', setNumber: 2, weightKg: 0, reps: 20, completed: false },
+          { id: 's3', setNumber: 3, weightKg: 0, reps: 20, completed: false },
+        ]
+      },
+      {
+        id: 'hw3',
+        exerciseId: 'walking-lunges-bw',
+        name: 'Bodyweight Walking Lunges',
+        targetMuscle: 'Glutes & Legs',
+        restSec: 60,
+        formTip: 'Step forward 90 degrees, keep chest upright',
+        sets: [
+          { id: 's1', setNumber: 1, weightKg: 0, reps: 20, completed: false },
+          { id: 's2', setNumber: 2, weightKg: 0, reps: 20, completed: false },
+        ]
+      },
+      {
+        id: 'hw4',
+        exerciseId: 'chair-dips-home',
+        name: 'Home Chair / Couch Dips',
+        targetMuscle: 'Triceps & Deltoids',
+        restSec: 60,
+        formTip: 'Keep back close to chair edge, lower to 90 degrees',
+        sets: [
+          { id: 's1', setNumber: 1, weightKg: 0, reps: 15, completed: false },
+          { id: 's2', setNumber: 2, weightKg: 0, reps: 12, completed: false },
+          { id: 's3', setNumber: 3, weightKg: 0, reps: 12, completed: false },
+        ]
+      },
+      {
+        id: 'hw5',
+        exerciseId: 'glute-bridges-bw',
+        name: 'Bodyweight Glute Bridges',
+        targetMuscle: 'Glutes & Lower Back',
+        restSec: 45,
+        formTip: 'Drive through heels, squeeze glutes hard for 2 seconds at top',
+        sets: [
+          { id: 's1', setNumber: 1, weightKg: 0, reps: 20, completed: false },
+          { id: 's2', setNumber: 2, weightKg: 0, reps: 20, completed: false },
+        ]
+      },
+      {
+        id: 'hw6',
+        exerciseId: 'bicycle-crunches-bw',
+        name: 'Bicycle Crunches',
+        targetMuscle: 'Abs & Obliques',
+        restSec: 45,
+        formTip: 'Rotate ribcage smoothly without pulling on neck',
+        sets: [
+          { id: 's1', setNumber: 1, weightKg: 0, reps: 20, completed: false },
+          { id: 's2', setNumber: 2, weightKg: 0, reps: 20, completed: false },
+        ]
+      },
+    ]
+  },
+  {
+    id: 'plan-home-hiit-burn',
+    title: 'Home HIIT & Core Burn (Zero Equipment)',
+    splitType: 'Cardio & HIIT',
+    level: 'beginner',
+    durationMinutes: 25,
+    daysPerWeek: 3,
+    description: 'High energy metabolic bodyweight circuit for cardiovascular stamina, core definition, and maximum calorie burn at home.',
+    tags: ['Home Workout', 'No Equipment', 'HIIT', 'Fat Loss', 'Abs'],
+    exercises: [
+      {
+        id: 'hiit1',
+        exerciseId: 'mountain-climbers-bw',
+        name: 'Dynamic Mountain Climbers',
+        targetMuscle: 'Core & Cardio Stamina',
+        restSec: 45,
+        formTip: 'Fast rhythmic knee drives in strong plank posture',
+        sets: [
+          { id: 's1', setNumber: 1, weightKg: 0, reps: 30, completed: false },
+          { id: 's2', setNumber: 2, weightKg: 0, reps: 30, completed: false },
+          { id: 's3', setNumber: 3, weightKg: 0, reps: 30, completed: false },
+        ]
+      },
+      {
+        id: 'hiit2',
+        exerciseId: 'bodyweight-pushups',
+        name: 'Standard Floor Push-Ups',
+        targetMuscle: 'Chest & Arms',
+        restSec: 45,
+        formTip: 'Explosive push, smooth 2-second descent',
+        sets: [
+          { id: 's1', setNumber: 1, weightKg: 0, reps: 15, completed: false },
+          { id: 's2', setNumber: 2, weightKg: 0, reps: 15, completed: false },
+        ]
+      },
+      {
+        id: 'hiit3',
+        exerciseId: 'diamond-pushups',
+        name: 'Diamond Close-Grip Push-Ups',
+        targetMuscle: 'Triceps & Inner Chest',
+        restSec: 45,
+        formTip: 'Keep elbows tucked to torso',
+        sets: [
+          { id: 's1', setNumber: 1, weightKg: 0, reps: 10, completed: false },
+          { id: 's2', setNumber: 2, weightKg: 0, reps: 10, completed: false },
+        ]
+      },
+      {
+        id: 'hiit4',
+        exerciseId: 'bicycle-crunches-bw',
+        name: 'Bicycle Crunches',
+        targetMuscle: 'Abs & Obliques',
+        restSec: 30,
+        formTip: 'Elbow-to-knee contact with full leg extension',
+        sets: [
+          { id: 's1', setNumber: 1, weightKg: 0, reps: 25, completed: false },
+          { id: 's2', setNumber: 2, weightKg: 0, reps: 25, completed: false },
+        ]
+      }
+    ]
+  },
   {
     id: 'plan-push-hypertrophy',
     title: 'Push Power & Hypertrophy',

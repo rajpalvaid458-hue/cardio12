@@ -10,8 +10,6 @@ const EXERCISE_SPECIFIC_IMAGES: Record<string, string> = {
   'cable-chest-fly': 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&auto=format&fit=crop&q=80',
   'bodyweight-dips': 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?w=800&auto=format&fit=crop&q=80',
   'parallel-bar-dips': 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?w=800&auto=format&fit=crop&q=80',
-
-  // Additional Chest & Push
   'push-ups': 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?w=800&auto=format&fit=crop&q=80',
   'pushup': 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?w=800&auto=format&fit=crop&q=80',
   'diamond-push-ups': 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?w=800&auto=format&fit=crop&q=80',
@@ -25,6 +23,7 @@ const EXERCISE_SPECIFIC_IMAGES: Record<string, string> = {
   'bent-over-bb-row': 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=800&auto=format&fit=crop&q=80',
   'barbell-bent-over-row': 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=800&auto=format&fit=crop&q=80',
   'pull-ups': 'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=800&auto=format&fit=crop&q=80',
+  'seated-cable-row': 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&auto=format&fit=crop&q=80',
 
   // Shoulders
   'overhead-db-press': 'https://images.unsplash.com/photo-1532029837206-abbe2b7620e3?w=800&auto=format&fit=crop&q=80',
@@ -37,6 +36,7 @@ const EXERCISE_SPECIFIC_IMAGES: Record<string, string> = {
   // Legs & Glutes
   'barbell-squat': 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=800&auto=format&fit=crop&q=80',
   'barbell-back-squat': 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=800&auto=format&fit=crop&q=80',
+  'bodyweight-air-squat': 'https://images.unsplash.com/photo-1566241142559-40e1dab266c6?w=800&auto=format&fit=crop&q=80',
   'romanian-deadlift': 'https://images.unsplash.com/photo-1534367507873-d2d7e24c797f?w=800&auto=format&fit=crop&q=80',
   'leg-press': 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=800&auto=format&fit=crop&q=80',
   '45-degree-leg-press': 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=800&auto=format&fit=crop&q=80',
@@ -48,6 +48,7 @@ const EXERCISE_SPECIFIC_IMAGES: Record<string, string> = {
   'cable-glute-kickback': 'https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=800&auto=format&fit=crop&q=80',
   'db-goblet-squat': 'https://images.unsplash.com/photo-1567598508481-65985588e295?w=800&auto=format&fit=crop&q=80',
   'dumbbell-goblet-squat': 'https://images.unsplash.com/photo-1567598508481-65985588e295?w=800&auto=format&fit=crop&q=80',
+  'glute-bridges': 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800&auto=format&fit=crop&q=80',
 
   // Arms
   'barbell-bicep-curl': 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=800&auto=format&fit=crop&q=80',
@@ -63,6 +64,8 @@ const EXERCISE_SPECIFIC_IMAGES: Record<string, string> = {
   'cable-woodchopper': 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&auto=format&fit=crop&q=80',
   'plank-hold': 'https://images.unsplash.com/photo-1566241142559-40e1dab266c6?w=800&auto=format&fit=crop&q=80',
   'forearm-plank': 'https://images.unsplash.com/photo-1566241142559-40e1dab266c6?w=800&auto=format&fit=crop&q=80',
+  'bicycle-crunches': 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&auto=format&fit=crop&q=80',
+  'mountain-climbers': 'https://images.unsplash.com/photo-1599058917212-d750089bc07e?w=800&auto=format&fit=crop&q=80',
 
   // Cardio, HIIT & Plyometrics
   'hiit-burpees': 'https://images.unsplash.com/photo-1599058917212-d750089bc07e?w=800&auto=format&fit=crop&q=80',
@@ -163,6 +166,30 @@ const CATEGORY_DEFAULT_IMAGES: Record<string, string> = {
   Zumba: 'https://images.unsplash.com/photo-1524594152303-9fd13543fe6e?w=800&auto=format&fit=crop&q=80',
 };
 
+// Curated high-res workout plan cover banners
+const WORKOUT_PLAN_SPECIFIC_IMAGES: Record<string, string> = {
+  'plan-normal-1week-fullbody': 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1000&auto=format&fit=crop&q=80',
+  'plan-normal-1week-5day': 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=1000&auto=format&fit=crop&q=80',
+  'plan-normal-1month-transformation': 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1000&auto=format&fit=crop&q=80',
+  'plan-normal-daily-30min': 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=1000&auto=format&fit=crop&q=80',
+  'plan-normal-1week-home': 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?w=1000&auto=format&fit=crop&q=80',
+  'plan-normal-1month-fatloss': 'https://images.unsplash.com/photo-1538805060514-97d9cc17730c?w=1000&auto=format&fit=crop&q=80',
+  'plan-home-no-equipment-fullbody': 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?w=1000&auto=format&fit=crop&q=80',
+  'plan-classic-push-pull-legs': 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=1000&auto=format&fit=crop&q=80',
+  'plan-arnold-split': 'https://images.unsplash.com/photo-1581009137042-c552e485697a?w=1000&auto=format&fit=crop&q=80',
+  'plan-women-glute-hourglass': 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1000&auto=format&fit=crop&q=80',
+  'plan-upper-lower-4day': 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=1000&auto=format&fit=crop&q=80',
+  'plan-hiit-fat-loss': 'https://images.unsplash.com/photo-1599058917212-d750089bc07e?w=1000&auto=format&fit=crop&q=80',
+  'plan-full-body-calisthenics': 'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=1000&auto=format&fit=crop&q=80',
+  'plan-yoga-flow-mobility': 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=1000&auto=format&fit=crop&q=80',
+  'plan-zumba-dance-party': 'https://images.unsplash.com/photo-1524594152303-9fd13543fe6e?w=1000&auto=format&fit=crop&q=80',
+  'plan-swimming-conditioning': 'https://images.unsplash.com/photo-1530549387789-4c1017266635?w=1000&auto=format&fit=crop&q=80',
+  'plan-pilates-core-sculpt': 'https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=1000&auto=format&fit=crop&q=80',
+  'plan-boxing-conditioning': 'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=1000&auto=format&fit=crop&q=80',
+  'plan-crossfit-wod': 'https://images.unsplash.com/photo-1517963879433-6ad2b056d712?w=1000&auto=format&fit=crop&q=80',
+  'plan-recovery-stretching': 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=1000&auto=format&fit=crop&q=80',
+};
+
 export function getExerciseImageUrl(params: {
   id?: string;
   name?: string;
@@ -183,45 +210,123 @@ export function getExerciseImageUrl(params: {
   }
 
   // 2. Specific exercise keyword checks
-  if (id.includes('bench') || name.includes('bench press')) return EXERCISE_SPECIFIC_IMAGES['bench-press-bb'];
-  if (name.includes('incline dumbbell') || name.includes('incline db')) return EXERCISE_SPECIFIC_IMAGES['incline-db-press'];
-  if (name.includes('chest fly') || name.includes('crossover')) return EXERCISE_SPECIFIC_IMAGES['cable-crossover-fly'];
-  if (name.includes('dip')) return EXERCISE_SPECIFIC_IMAGES['bodyweight-dips'];
-  if (name.includes('deadlift') && !name.includes('romanian')) return EXERCISE_SPECIFIC_IMAGES['deadlift-bb'];
-  if (name.includes('romanian') || name.includes('rdl')) return EXERCISE_SPECIFIC_IMAGES['romanian-deadlift'];
-  if (name.includes('lat pulldown')) return EXERCISE_SPECIFIC_IMAGES['lat-pulldown'];
-  if (name.includes('row') && !name.includes('rowing machine')) return EXERCISE_SPECIFIC_IMAGES['bent-over-bb-row'];
-  if (name.includes('pull-up') || name.includes('pull up') || name.includes('chin-up')) return EXERCISE_SPECIFIC_IMAGES['pull-ups'];
-  if (name.includes('shoulder press') || name.includes('military press') || name.includes('overhead press')) return EXERCISE_SPECIFIC_IMAGES['overhead-db-press'];
-  if (name.includes('lateral raise')) return EXERCISE_SPECIFIC_IMAGES['db-lateral-raise'];
-  if (name.includes('face pull')) return EXERCISE_SPECIFIC_IMAGES['face-pulls'];
-  if (name.includes('back squat') || (name.includes('squat') && name.includes('barbell'))) return EXERCISE_SPECIFIC_IMAGES['barbell-squat'];
-  if (name.includes('leg press')) return EXERCISE_SPECIFIC_IMAGES['leg-press'];
-  if (name.includes('lunge') && !name.includes('low lunge')) return EXERCISE_SPECIFIC_IMAGES['walking-lunges'];
-  if (name.includes('calf')) return EXERCISE_SPECIFIC_IMAGES['standing-calf-raise'];
-  if (name.includes('hip thrust')) return EXERCISE_SPECIFIC_IMAGES['barbell-hip-thrust'];
-  if (name.includes('split squat') || name.includes('bulgarian')) return EXERCISE_SPECIFIC_IMAGES['bulgarian-split-squat'];
-  if (name.includes('glute kickback') || name.includes('abduction')) return EXERCISE_SPECIFIC_IMAGES['cable-glute-kickback'];
-  if (name.includes('goblet squat')) return EXERCISE_SPECIFIC_IMAGES['db-goblet-squat'];
-  if (name.includes('bicep curl') || name.includes('barbell curl')) return EXERCISE_SPECIFIC_IMAGES['barbell-bicep-curl'];
-  if (name.includes('tricep rope') || name.includes('pushdown')) return EXERCISE_SPECIFIC_IMAGES['tricep-rope-pushdown'];
-  if (name.includes('skull crusher')) return EXERCISE_SPECIFIC_IMAGES['skull-crushers'];
-  if (name.includes('leg raise') || name.includes('knee raise')) return EXERCISE_SPECIFIC_IMAGES['hanging-leg-raise'];
-  if (name.includes('woodchopper') || name.includes('rotational twist')) return EXERCISE_SPECIFIC_IMAGES['cable-woodchopper'];
-  if (name.includes('plank')) return EXERCISE_SPECIFIC_IMAGES['plank-hold'];
-  if (name.includes('burpee')) return EXERCISE_SPECIFIC_IMAGES['hiit-burpees'];
-  if (name.includes('kettlebell')) return EXERCISE_SPECIFIC_IMAGES['kettlebell-swing'];
-  if (name.includes('treadmill')) return EXERCISE_SPECIFIC_IMAGES['treadmill-incline-walk'];
-  if (name.includes('rowing machine') || name.includes('rowing intervals')) return EXERCISE_SPECIFIC_IMAGES['rowing-intervals'];
-  if (name.includes('jump rope') || name.includes('skipping')) return EXERCISE_SPECIFIC_IMAGES['speed-jump-rope'];
-  if (name.includes('thruster')) return EXERCISE_SPECIFIC_IMAGES['dumbbell-thruster'];
-  if (name.includes('box jump')) return EXERCISE_SPECIFIC_IMAGES['box-jump-explosive'];
+  if (name.includes('push-up') || name.includes('pushup') || name.includes('push up')) {
+    return EXERCISE_SPECIFIC_IMAGES['push-ups'];
+  }
+  if (name.includes('bench press') || id.includes('bench')) {
+    return EXERCISE_SPECIFIC_IMAGES['bench-press-bb'];
+  }
+  if (name.includes('incline dumbbell') || name.includes('incline db') || name.includes('incline press')) {
+    return EXERCISE_SPECIFIC_IMAGES['incline-db-press'];
+  }
+  if (name.includes('chest fly') || name.includes('crossover') || name.includes('pec deck')) {
+    return EXERCISE_SPECIFIC_IMAGES['cable-crossover-fly'];
+  }
+  if (name.includes('dip') || name.includes('dips')) {
+    return EXERCISE_SPECIFIC_IMAGES['bodyweight-dips'];
+  }
+  if (name.includes('romanian') || name.includes('rdl')) {
+    return EXERCISE_SPECIFIC_IMAGES['romanian-deadlift'];
+  }
+  if (name.includes('deadlift')) {
+    return EXERCISE_SPECIFIC_IMAGES['deadlift-bb'];
+  }
+  if (name.includes('lat pulldown') || name.includes('pulldown')) {
+    return EXERCISE_SPECIFIC_IMAGES['lat-pulldown'];
+  }
+  if (name.includes('row') && !name.includes('rowing machine')) {
+    return EXERCISE_SPECIFIC_IMAGES['bent-over-bb-row'];
+  }
+  if (name.includes('pull-up') || name.includes('pull up') || name.includes('chin-up') || name.includes('chin up')) {
+    return EXERCISE_SPECIFIC_IMAGES['pull-ups'];
+  }
+  if (name.includes('shoulder press') || name.includes('overhead press') || name.includes('military press')) {
+    return EXERCISE_SPECIFIC_IMAGES['overhead-db-press'];
+  }
+  if (name.includes('lateral raise') || name.includes('side raise')) {
+    return EXERCISE_SPECIFIC_IMAGES['db-lateral-raise'];
+  }
+  if (name.includes('face pull')) {
+    return EXERCISE_SPECIFIC_IMAGES['face-pulls'];
+  }
+  if (name.includes('goblet squat')) {
+    return EXERCISE_SPECIFIC_IMAGES['db-goblet-squat'];
+  }
+  if (name.includes('air squat') || name.includes('bodyweight squat')) {
+    return EXERCISE_SPECIFIC_IMAGES['bodyweight-air-squat'];
+  }
+  if (name.includes('squat')) {
+    return EXERCISE_SPECIFIC_IMAGES['barbell-squat'];
+  }
+  if (name.includes('leg press')) {
+    return EXERCISE_SPECIFIC_IMAGES['leg-press'];
+  }
+  if (name.includes('lunge') && !name.includes('low lunge')) {
+    return EXERCISE_SPECIFIC_IMAGES['walking-lunges'];
+  }
+  if (name.includes('calf') || name.includes('calves')) {
+    return EXERCISE_SPECIFIC_IMAGES['standing-calf-raise'];
+  }
+  if (name.includes('hip thrust') || name.includes('glute bridge') || name.includes('glute bridges')) {
+    return EXERCISE_SPECIFIC_IMAGES['barbell-hip-thrust'];
+  }
+  if (name.includes('split squat') || name.includes('bulgarian')) {
+    return EXERCISE_SPECIFIC_IMAGES['bulgarian-split-squat'];
+  }
+  if (name.includes('glute kickback') || name.includes('abduction')) {
+    return EXERCISE_SPECIFIC_IMAGES['cable-glute-kickback'];
+  }
+  if (name.includes('bicep curl') || name.includes('barbell curl') || name.includes('dumbbell curl') || name.includes('hammer curl')) {
+    return EXERCISE_SPECIFIC_IMAGES['barbell-bicep-curl'];
+  }
+  if (name.includes('tricep rope') || name.includes('triceps pushdown') || name.includes('rope pushdown')) {
+    return EXERCISE_SPECIFIC_IMAGES['tricep-rope-pushdown'];
+  }
+  if (name.includes('skull crusher') || name.includes('tricep extension')) {
+    return EXERCISE_SPECIFIC_IMAGES['skull-crushers'];
+  }
+  if (name.includes('leg raise') || name.includes('knee raise')) {
+    return EXERCISE_SPECIFIC_IMAGES['hanging-leg-raise'];
+  }
+  if (name.includes('woodchopper') || name.includes('rotational twist') || name.includes('russian twist')) {
+    return EXERCISE_SPECIFIC_IMAGES['cable-woodchopper'];
+  }
+  if (name.includes('bicycle crunch') || name.includes('crunches') || name.includes('crunch')) {
+    return EXERCISE_SPECIFIC_IMAGES['bicycle-crunches'];
+  }
+  if (name.includes('mountain climber') || name.includes('climbers')) {
+    return EXERCISE_SPECIFIC_IMAGES['mountain-climbers'];
+  }
+  if (name.includes('plank')) {
+    return EXERCISE_SPECIFIC_IMAGES['plank-hold'];
+  }
+  if (name.includes('burpee') || name.includes('burpees')) {
+    return EXERCISE_SPECIFIC_IMAGES['hiit-burpees'];
+  }
+  if (name.includes('kettlebell')) {
+    return EXERCISE_SPECIFIC_IMAGES['kettlebell-swing'];
+  }
+  if (name.includes('treadmill') || name.includes('running') || name.includes('jogging')) {
+    return EXERCISE_SPECIFIC_IMAGES['treadmill-incline-walk'];
+  }
+  if (name.includes('rowing machine') || name.includes('rowing intervals') || name.includes('rower')) {
+    return EXERCISE_SPECIFIC_IMAGES['rowing-intervals'];
+  }
+  if (name.includes('jump rope') || name.includes('skipping')) {
+    return EXERCISE_SPECIFIC_IMAGES['speed-jump-rope'];
+  }
+  if (name.includes('thruster') || name.includes('thrusters')) {
+    return EXERCISE_SPECIFIC_IMAGES['dumbbell-thruster'];
+  }
+  if (name.includes('box jump') || name.includes('box jumps')) {
+    return EXERCISE_SPECIFIC_IMAGES['box-jump-explosive'];
+  }
 
   // Zumba & Dance
   if (name.includes('salsa') || name.includes('merengue')) return EXERCISE_SPECIFIC_IMAGES['zumba-salsa-cardio'];
   if (name.includes('reggaeton')) return EXERCISE_SPECIFIC_IMAGES['zumba-reggaeton-bounce'];
   if (name.includes('cumbia')) return EXERCISE_SPECIFIC_IMAGES['zumba-cumbia-cross'];
-  if (name.includes('zumba') || name.includes('toning stick')) return EXERCISE_SPECIFIC_IMAGES['zumba-toning-sticks'];
+  if (name.includes('zumba') || name.includes('toning stick') || name.includes('dance')) return EXERCISE_SPECIFIC_IMAGES['zumba-toning-sticks'];
 
   // Swimming
   if (name.includes('freestyle') || name.includes('crawl')) return EXERCISE_SPECIFIC_IMAGES['swim-freestyle-laps'];
@@ -286,6 +391,81 @@ export function getExerciseImageUrl(params: {
 }
 
 export const getExerciseImage = getExerciseImageUrl;
+
+export function getWorkoutPlanImageUrl(plan: {
+  id?: string;
+  title?: string;
+  splitType?: string;
+  tags?: string[];
+  level?: string;
+  programType?: string;
+  imageUrl?: string;
+}): string {
+  if (plan.imageUrl && plan.imageUrl.trim() !== '') {
+    return plan.imageUrl;
+  }
+
+  const id = (plan.id || '').toLowerCase();
+  if (id && WORKOUT_PLAN_SPECIFIC_IMAGES[id]) {
+    return WORKOUT_PLAN_SPECIFIC_IMAGES[id];
+  }
+
+  const title = (plan.title || '').toLowerCase();
+  const split = (plan.splitType || '').toLowerCase();
+  const tagsStr = (plan.tags || []).join(' ').toLowerCase();
+
+  // Match by keyword combinations
+  if (id.includes('home') || title.includes('home') || tagsStr.includes('zero equipment') || tagsStr.includes('no equipment')) {
+    return 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?w=1000&auto=format&fit=crop&q=80';
+  }
+  if (title.includes('female') || title.includes('hourglass') || title.includes('glute') || tagsStr.includes('female')) {
+    return 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1000&auto=format&fit=crop&q=80';
+  }
+  if (title.includes('fat loss') || title.includes('hiit') || title.includes('cardio') || tagsStr.includes('hiit')) {
+    return 'https://images.unsplash.com/photo-1538805060514-97d9cc17730c?w=1000&auto=format&fit=crop&q=80';
+  }
+  if (title.includes('yoga') || split.includes('yoga') || tagsStr.includes('yoga')) {
+    return 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=1000&auto=format&fit=crop&q=80';
+  }
+  if (title.includes('stretch') || title.includes('recovery') || tagsStr.includes('mobility')) {
+    return 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=1000&auto=format&fit=crop&q=80';
+  }
+  if (title.includes('calisthenic') || split.includes('calisthenic') || tagsStr.includes('calisthenics')) {
+    return 'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=1000&auto=format&fit=crop&q=80';
+  }
+  if (title.includes('swim') || split.includes('swim') || tagsStr.includes('swimming')) {
+    return 'https://images.unsplash.com/photo-1530549387789-4c1017266635?w=1000&auto=format&fit=crop&q=80';
+  }
+  if (title.includes('box') || title.includes('combat') || tagsStr.includes('boxing')) {
+    return 'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=1000&auto=format&fit=crop&q=80';
+  }
+  if (title.includes('zumba') || title.includes('dance') || tagsStr.includes('dance')) {
+    return 'https://images.unsplash.com/photo-1524594152303-9fd13543fe6e?w=1000&auto=format&fit=crop&q=80';
+  }
+  if (title.includes('pilates') || tagsStr.includes('pilates')) {
+    return 'https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=1000&auto=format&fit=crop&q=80';
+  }
+  if (title.includes('push pull') || title.includes('ppl')) {
+    return 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=1000&auto=format&fit=crop&q=80';
+  }
+  if (title.includes('upper') || title.includes('lower')) {
+    return 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=1000&auto=format&fit=crop&q=80';
+  }
+  if (title.includes('arnold') || title.includes('chest') || title.includes('back')) {
+    return 'https://images.unsplash.com/photo-1581009137042-c552e485697a?w=1000&auto=format&fit=crop&q=80';
+  }
+  if (title.includes('crossfit') || title.includes('wod')) {
+    return 'https://images.unsplash.com/photo-1517963879433-6ad2b056d712?w=1000&auto=format&fit=crop&q=80';
+  }
+  if (title.includes('1-month') || title.includes('transformation')) {
+    return 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1000&auto=format&fit=crop&q=80';
+  }
+  if (title.includes('daily') || title.includes('30-min')) {
+    return 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=1000&auto=format&fit=crop&q=80';
+  }
+
+  return 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1000&auto=format&fit=crop&q=80';
+}
 
 export function isChestExercise(exercise?: {
   id?: string;

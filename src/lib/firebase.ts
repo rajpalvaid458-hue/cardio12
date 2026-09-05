@@ -28,6 +28,18 @@ export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId || undefi
 
 // Providers
 export const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({
+  prompt: 'select_account',
+});
+
+// Test connection in background
+if (typeof window !== 'undefined') {
+  import('firebase/firestore').then(({ getDocFromServer }) => {
+    getDocFromServer(doc(db, 'test', 'connection')).catch((err) => {
+      // Expected for unauthenticated test doc or offline, ignore safely
+    });
+  });
+}
 
 export {
   signInWithPopup,

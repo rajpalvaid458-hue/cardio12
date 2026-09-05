@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Exercise } from '../types';
-import { getExerciseClipData } from '../utils/exerciseClips';
 import {
   Play,
   Pause,
@@ -13,7 +12,6 @@ import {
   Wind,
   Target,
   ShieldCheck,
-  Video,
   ExternalLink,
   ChevronRight,
   Activity,
@@ -21,17 +19,15 @@ import {
   Sliders,
   Volume2,
   VolumeX,
-  Camera,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { isChestExercise, getExerciseImageUrl } from '../utils/exerciseImages';
 
 interface ExerciseFormAnimationProps {
   exercise: Exercise;
   className?: string;
 }
 
-type DemonstrationMode = 'animated' | 'video' | 'dos_donts' | 'photo';
+type DemonstrationMode = 'animated' | 'dos_donts';
 
 interface FormCheckpoint {
   id: string;
@@ -55,9 +51,6 @@ export const ExerciseFormAnimation: React.FC<ExerciseFormAnimationProps> = ({
   const [showAngles, setShowAngles] = useState<boolean>(true);
   const [showHeatmap, setShowHeatmap] = useState<boolean>(true);
   const [showSpineGuide, setShowSpineGuide] = useState<boolean>(true);
-
-  const clipData = useMemo(() => getExerciseClipData({ name: exercise.name, category: exercise.category }), [exercise]);
-  const isChest = useMemo(() => isChestExercise(exercise), [exercise]);
 
   // Determine movement archetype: yoga, stretch, weight_squat, weight_push, weight_pull, weight_hinge, weight_arm, cardio
   const movementArchetype = useMemo(() => {
@@ -95,8 +88,8 @@ export const ExerciseFormAnimation: React.FC<ExerciseFormAnimationProps> = ({
   // Cycle animation progress timer
   const cycleDurationSeconds = useMemo(() => {
     if (movementArchetype === 'yoga' || movementArchetype === 'stretching') return 6 / playbackSpeed;
-    return (clipData.repCadenceSeconds || 3) / playbackSpeed;
-  }, [movementArchetype, playbackSpeed, clipData.repCadenceSeconds]);
+    return 3 / playbackSpeed;
+  }, [movementArchetype, playbackSpeed]);
 
   useEffect(() => {
     if (!isPlaying) return;
@@ -404,28 +397,6 @@ export const ExerciseFormAnimation: React.FC<ExerciseFormAnimationProps> = ({
             <ShieldCheck className="w-3.5 h-3.5 text-amber-300" />
             <span>Dos & Don'ts</span>
           </button>
-          {clipData.youtubeVideoId && (
-            <button
-              onClick={() => setMode('video')}
-              className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
-                mode === 'video' ? 'bg-blue-700 text-white shadow-xs' : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              <Video className="w-3.5 h-3.5 text-blue-300" />
-              <span>Tutorial Clip</span>
-            </button>
-          )}
-          {isChest && (
-            <button
-              onClick={() => setMode('photo')}
-              className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
-                mode === 'photo' ? 'bg-emerald-700 text-white shadow-xs' : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              <Camera className="w-3.5 h-3.5 text-emerald-300" />
-              <span>Chest Photo</span>
-            </button>
-          )}
         </div>
       </div>
 
@@ -970,47 +941,6 @@ export const ExerciseFormAnimation: React.FC<ExerciseFormAnimationProps> = ({
                   <span>Holding breath (Valsalva) on non-maximal attempts, causing elevated blood pressure.</span>
                 </div>
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* MODE 4: EMBEDDED VIDEO TUTORIAL */}
-        {mode === 'video' && clipData.youtubeVideoId && (
-          <div className="relative w-full h-full bg-black">
-            <iframe
-              src={`https://www.youtube-nocookie.com/embed/${clipData.youtubeVideoId}?autoplay=1&rel=0&modestbranding=1&playsinline=1`}
-              title={`${exercise.name} form tutorial`}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              className="w-full h-full border-0"
-            />
-          </div>
-        )}
-
-        {/* MODE: REAL PHOTO FOR CHEST WORKOUTS */}
-        {mode === 'photo' && isChest && (
-          <div className="relative w-full h-full bg-slate-950 flex items-center justify-center overflow-hidden">
-            <img
-              src={getExerciseImageUrl(exercise)}
-              alt={exercise.name}
-              referrerPolicy="no-referrer"
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-black/30 pointer-events-none" />
-            <div className="absolute top-3 left-3 z-10 flex items-center gap-2">
-              <span className="px-2.5 py-1 rounded-lg bg-black/70 text-emerald-300 border border-emerald-500/40 text-[11px] font-mono font-bold flex items-center gap-1.5 backdrop-blur-xs">
-                <Camera className="w-3.5 h-3.5 text-emerald-400" />
-                Chest Form Reference
-              </span>
-            </div>
-            <div className="absolute bottom-3 left-3 right-3 z-10 p-3 rounded-xl bg-slate-950/85 border border-slate-800 text-xs text-slate-200 backdrop-blur-sm flex items-center justify-between gap-3">
-              <div className="min-w-0">
-                <div className="font-bold text-white text-xs truncate">{exercise.name}</div>
-                <div className="text-[11px] text-slate-400 line-clamp-1">{exercise.formTips?.[0] || exercise.instructions?.[0]}</div>
-              </div>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shrink-0 font-bold">
-                {exercise.targetMuscle}
-              </span>
             </div>
           </div>
         )}

@@ -46,7 +46,7 @@ import {
 } from '../utils/notifications';
 import confetti from 'canvas-confetti';
 import { useAuth } from './AuthContext';
-import { db, doc, getDoc, setDoc } from '../lib/firebase';
+import { auth, db, doc, getDoc, setDoc } from '../lib/firebase';
 
 interface RestTimerState {
   active: boolean;
@@ -399,7 +399,20 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [plans, setPlans] = useState<WorkoutPlan[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.PLANS);
-      return saved ? JSON.parse(saved) : PRESET_WORKOUT_PLANS;
+      if (saved) {
+        const parsed: WorkoutPlan[] = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const existingIds = new Set(parsed.map((p) => p.id));
+          const missingPresets = PRESET_WORKOUT_PLANS.filter((p) => !existingIds.has(p.id));
+          if (missingPresets.length > 0) {
+            const combined = [...missingPresets, ...parsed];
+            localStorage.setItem(STORAGE_KEYS.PLANS, JSON.stringify(combined));
+            return combined;
+          }
+          return parsed;
+        }
+      }
+      return PRESET_WORKOUT_PLANS;
     } catch {
       return PRESET_WORKOUT_PLANS;
     }
@@ -711,6 +724,10 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
   // Cloud Sync: Fetch user cloud data when logged in
   useEffect(() => {
     if (!currentUser) return;
+    if ((currentUser as any).isLocal || !auth.currentUser) {
+      setIsCloudSyncing(false);
+      return;
+    }
     const fetchUserData = async () => {
       setIsCloudSyncing(true);
       try {
@@ -1003,6 +1020,9 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
   // Auto-sync debounced to Cloud Firestore if logged in
   const syncToCloud = useCallback(async () => {
     if (!currentUser) return;
+    if ((currentUser as any).isLocal || !auth.currentUser) {
+      return;
+    }
     try {
       setIsCloudSyncing(true);
       const userDocRef = doc(db, 'users', currentUser.uid);

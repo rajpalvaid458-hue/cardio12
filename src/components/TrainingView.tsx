@@ -20,10 +20,14 @@ import {
   Heart,
   Shield,
   Zap,
+  Calendar as CalendarIcon,
+  Download,
 } from 'lucide-react';
-import { motion } from 'motion/react';
-import { ExerciseImage } from './ExerciseImage';
-import { isChestExercise } from '../utils/exerciseImages';
+import { motion, AnimatePresence } from 'motion/react';
+import { WorkoutCalendar } from './WorkoutCalendar';
+import { ProgramScheduleModal } from './ProgramScheduleModal';
+import { BodyweightChallenge } from './BodyweightChallenge';
+import { WarmUpGenerator } from './WarmUpGenerator';
 
 interface TrainingViewProps {
   onOpenPlanCreator: () => void;
@@ -76,11 +80,58 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
   const [selectedMuscle, setSelectedMuscle] = useState<MuscleGroup | 'All'>('All');
   const [selectedGender, setSelectedGender] = useState<'all' | 'female' | 'male'>('all');
   const [selectedLevel, setSelectedLevel] = useState<'all' | 'beginner' | 'intermediate' | 'athlete'>('all');
+  const [selectedProgramType, setSelectedProgramType] = useState<'all' | 'normal' | '1-week' | '1-month' | 'daily'>('all');
+  const [scheduleModalPlan, setScheduleModalPlan] = useState<WorkoutPlan | null>(null);
   const [yogaSubFilter, setYogaSubFilter] = useState<'all' | 'yoga' | 'stretching' | 'posture'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedPlanId, setExpandedPlanId] = useState<string | null>(null);
+  const [showCalendar, setShowCalendar] = useState<boolean>(true);
+  const [showChallengeSection, setShowChallengeSection] = useState<boolean>(true);
+  const [showWarmUpSection, setShowWarmUpSection] = useState<boolean>(true);
+  const [warmUpSelectedPlanId, setWarmUpSelectedPlanId] = useState<string | null>(null);
+
+  const handleSelectWarmUpForPlan = (plan: WorkoutPlan) => {
+    setWarmUpSelectedPlanId(plan.id);
+    setShowWarmUpSection(true);
+    setTimeout(() => {
+      const el = document.getElementById('warmup-routine-generator');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 100);
+  };
 
   const filteredPlans = plans.filter((plan) => {
+    // Normal / Program Duration Filter
+    if (selectedProgramType === 'normal') {
+      const isNormal =
+        plan.tags.some((t) => t.toLowerCase().includes('normal')) ||
+        plan.title.toLowerCase().includes('normal') ||
+        plan.splitType.toLowerCase().includes('normal');
+      if (!isNormal) return false;
+    } else if (selectedProgramType === '1-week') {
+      const is1Week =
+        plan.programType === '1-week' ||
+        plan.tags.some((t) => t.toLowerCase().includes('1-week') || t.toLowerCase().includes('week')) ||
+        plan.title.toLowerCase().includes('1-week') ||
+        plan.splitType.toLowerCase().includes('1-week');
+      if (!is1Week) return false;
+    } else if (selectedProgramType === '1-month') {
+      const is1Month =
+        plan.programType === '1-month' ||
+        plan.tags.some((t) => t.toLowerCase().includes('1-month') || t.toLowerCase().includes('month')) ||
+        plan.title.toLowerCase().includes('1-month') ||
+        plan.splitType.toLowerCase().includes('1-month');
+      if (!is1Month) return false;
+    } else if (selectedProgramType === 'daily') {
+      const isDaily =
+        plan.programType === 'daily' ||
+        plan.tags.some((t) => t.toLowerCase().includes('daily')) ||
+        plan.title.toLowerCase().includes('daily') ||
+        plan.durationMinutes <= 30;
+      if (!isDaily) return false;
+    }
+
     // Gender filter
     if (selectedGender === 'female') {
       const isFemale = plan.targetGender === 'female' || plan.tags.some((t) => t.toLowerCase().includes('female') || t.toLowerCase().includes('glute') || t.toLowerCase().includes('hourglass'));
@@ -256,6 +307,42 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
               <span>{t('ai_smart_plan')}</span>
             </button>
             <button
+              onClick={() => setShowChallengeSection((prev) => !prev)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all cursor-pointer ${
+                showChallengeSection
+                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-xs'
+                  : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-200'
+              }`}
+              title="Toggle 30-Day Calisthenics Challenge"
+            >
+              <Flame className="w-4 h-4 text-amber-400 fill-amber-500/30" />
+              <span>{isHindi ? '30-दिन बॉडीवेट चैलेंज' : '30-Day Challenge'}</span>
+            </button>
+            <button
+              onClick={() => setShowWarmUpSection((prev) => !prev)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all cursor-pointer ${
+                showWarmUpSection
+                  ? 'bg-orange-500/20 text-orange-300 border-orange-500/40 shadow-xs'
+                  : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-200'
+              }`}
+              title="Toggle 5-Minute Dynamic Warm-Up Routine Generator"
+            >
+              <Flame className="w-4 h-4 text-orange-400 fill-orange-500/30" />
+              <span>{isHindi ? '5-मिनट वॉर्म-अप' : 'Warm-up Routine'}</span>
+            </button>
+            <button
+              onClick={() => setShowCalendar((prev) => !prev)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all ${
+                showCalendar
+                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 shadow-xs'
+                  : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-200'
+              }`}
+              title="Toggle Consistency Calendar & CSV Download"
+            >
+              <CalendarIcon className="w-4 h-4 text-emerald-400" />
+              <span>{isHindi ? 'वर्कआउट कैलेंडर' : 'Training Calendar'}</span>
+            </button>
+            <button
               onClick={onOpenPlanCreator}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-semibold text-sm transition-colors shadow-sm"
             >
@@ -328,6 +415,57 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
           </button>
         </motion.div>
       )}
+
+      {/* Interactive Workout Calendar & Consistency Tracker with CSV Export */}
+      <AnimatePresence>
+        {showCalendar && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden"
+          >
+            <WorkoutCalendar
+              workoutLogs={workoutLogs}
+              onStartNewWorkout={onOpenPlanCreator}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 30-Day Bodyweight Challenge Section */}
+      <AnimatePresence>
+        {showChallengeSection && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden"
+          >
+            <BodyweightChallenge />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 5-Minute Dynamic Warm-Up Routine Generator */}
+      <AnimatePresence>
+        {showWarmUpSection && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden"
+          >
+            <WarmUpGenerator
+              plans={plans}
+              selectedPlanId={warmUpSelectedPlanId}
+              onSelectPlan={(plan) => setWarmUpSelectedPlanId(plan.id)}
+              onStartWorkout={(plan) => handleStartWorkout(plan)}
+              onClose={() => setShowWarmUpSection(false)}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Discipline Category Switcher Pills */}
       <div className="space-y-2">
@@ -428,6 +566,79 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
             </button>
           </div>
         )}
+
+        {/* Normal Workouts & Routine Duration Bar */}
+        <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-950 via-slate-900 to-slate-900 text-white shadow-sm border border-emerald-500/30 space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[11px] font-bold uppercase tracking-wider border border-emerald-500/30">
+                <Sparkles className="w-3 h-3" />
+                {isHindi ? 'नॉर्मल वर्कआउट व रूटीन शेड्यूल' : 'Normal Workouts & Routine Schedules'}
+              </div>
+              <h3 className="text-sm sm:text-base font-extrabold text-white mt-1">
+                {isHindi ? '1-सप्ताह, 1-महीना और सामान्य दैनिक वर्कआउट्स' : '1-Week, 1-Month & Everyday Normal Fitness Splits'}
+              </h3>
+              <p className="text-xs text-slate-300">
+                {isHindi
+                  ? 'दैनिक जीवन के लिए संतुलित व सुरक्षित वर्कआउट - 7-दिन का शेड्यूल व 4-सप्ताह का प्रोग्रेसिव ओवरलोड रोडमैप।'
+                  : 'Balanced, sustainable training programs with day-by-day 7-day schedules and 4-week progressive roadmaps.'}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-slate-800">
+            <button
+              onClick={() => setSelectedProgramType('all')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                selectedProgramType === 'all'
+                  ? 'bg-emerald-500 text-slate-950 shadow-xs'
+                  : 'bg-slate-800/90 text-slate-300 hover:text-white border border-slate-700'
+              }`}
+            >
+              🌐 {isHindi ? 'सभी वर्कआउट्स' : 'All Workouts'}
+            </button>
+            <button
+              onClick={() => setSelectedProgramType('normal')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                selectedProgramType === 'normal'
+                  ? 'bg-emerald-500 text-slate-950 shadow-xs'
+                  : 'bg-slate-800/90 text-slate-300 hover:text-white border border-slate-700'
+              }`}
+            >
+              🌟 {isHindi ? 'सामान्य वर्कआउट्स (Normal Workouts)' : 'Normal Workouts'}
+            </button>
+            <button
+              onClick={() => setSelectedProgramType('1-week')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                selectedProgramType === '1-week'
+                  ? 'bg-emerald-500 text-slate-950 shadow-xs'
+                  : 'bg-slate-800/90 text-slate-300 hover:text-white border border-slate-700'
+              }`}
+            >
+              📅 {isHindi ? '1-सप्ताह का शेड्यूल (1-Week Split)' : '1-Week Routine (7-Day)'}
+            </button>
+            <button
+              onClick={() => setSelectedProgramType('1-month')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                selectedProgramType === '1-month'
+                  ? 'bg-emerald-500 text-slate-950 shadow-xs'
+                  : 'bg-slate-800/90 text-slate-300 hover:text-white border border-slate-700'
+              }`}
+            >
+              🗓️ {isHindi ? '1-महीने का प्लान (1-Month Program)' : '1-Month Program (4-Week)'}
+            </button>
+            <button
+              onClick={() => setSelectedProgramType('daily')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                selectedProgramType === 'daily'
+                  ? 'bg-emerald-500 text-slate-950 shadow-xs'
+                  : 'bg-slate-800/90 text-slate-300 hover:text-white border border-slate-700'
+              }`}
+            >
+              ⚡ {isHindi ? 'रोजाना 30-मिनट (Daily 30-Min)' : 'Daily 30-Min Maintenance'}
+            </button>
+          </div>
+        </div>
 
         {/* Dual Sub-Filters: Gender & Level Switchers */}
         <div className="flex flex-wrap items-center gap-3 p-3 bg-slate-50/80 rounded-2xl border border-slate-200">
@@ -535,6 +746,21 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
                         <BadgeIcon className="w-3 h-3" />
                         {plan.splitType}
                       </span>
+                      {plan.programType === '1-week' && (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-blue-100 text-blue-800 border border-blue-200 flex items-center gap-1">
+                          📅 1-Week Split
+                        </span>
+                      )}
+                      {plan.programType === '1-month' && (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-purple-100 text-purple-800 border border-purple-200 flex items-center gap-1">
+                          🗓️ 1-Month Program
+                        </span>
+                      )}
+                      {plan.programType === 'daily' && (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
+                          ⚡ Daily 30-Min
+                        </span>
+                      )}
                       {isFemale && (
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-pink-100 text-pink-700 border border-pink-200">
                           🌸 Female Focus
@@ -611,15 +837,9 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
                               className="text-xs flex items-center justify-between p-2 rounded-xl bg-slate-50 hover:bg-emerald-50/60 border border-slate-200/70 hover:border-emerald-300 cursor-pointer transition-all group gap-3"
                             >
                               <div className="flex items-center gap-2.5 min-w-0">
-                                {isChestExercise(fullEx) ? (
-                                  <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0 border border-slate-200 bg-slate-900 shadow-2xs">
-                                    <ExerciseImage exercise={fullEx} className="w-full h-full object-cover" />
-                                  </div>
-                                ) : (
-                                  <div className="w-9 h-9 rounded-lg shrink-0 border border-slate-200 bg-emerald-50 flex items-center justify-center text-emerald-600">
-                                    <Dumbbell className="w-4 h-4" />
-                                  </div>
-                                )}
+                                <div className="w-9 h-9 rounded-lg shrink-0 border border-slate-200 bg-emerald-50 flex items-center justify-center text-emerald-600">
+                                  <Dumbbell className="w-4 h-4" />
+                                </div>
                                 <div className="min-w-0">
                                   <span className="font-semibold text-slate-800 group-hover:text-emerald-700 block truncate transition-colors">{ex.name}</span>
                                   <div className="text-[10px] text-slate-500">{ex.targetMuscle} • Click for Form Guide</div>
@@ -640,13 +860,42 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
                   </div>
                 </div>
 
-                <div className="mt-5 pt-3 border-t border-slate-100 flex items-center gap-2">
+                {(plan.weeklySchedule || plan.monthlySchedule) && (
+                  <button
+                    type="button"
+                    onClick={() => setScheduleModalPlan(plan)}
+                    className="w-full mt-4 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 text-xs font-bold transition border border-slate-200 cursor-pointer"
+                  >
+                    <CalendarIcon className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>
+                      {plan.monthlySchedule
+                        ? isHindi
+                          ? '4-सप्ताह का रोडमैप देखें'
+                          : 'View 4-Week Roadmap'
+                        : isHindi
+                        ? '7-दिन का शेड्यूल देखें'
+                        : 'View 7-Day Schedule'}
+                    </span>
+                  </button>
+                )}
+
+                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center gap-2">
                   <button
                     onClick={() => handleStartWorkout(plan)}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition-all shadow-sm"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition-all shadow-sm cursor-pointer"
                   >
                     <Play className="w-3.5 h-3.5 fill-current" />
                     <span>{t('start_plan_now')}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSelectWarmUpForPlan(plan)}
+                    className="flex items-center justify-center gap-1 px-3 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 hover:text-amber-950 font-bold text-xs border border-amber-300 transition-all cursor-pointer shrink-0"
+                    title={isHindi ? `${plan.title} के लिए 5-मिनट वॉर्म-अप रूटीन बनाएं` : `Generate 5-min dynamic warm-up for ${plan.title}`}
+                  >
+                    <Flame className="w-3.5 h-3.5 text-amber-600 fill-amber-500/30" />
+                    <span>{isHindi ? 'वॉर्म-अप (5m)' : 'Warm-up (5m)'}</span>
                   </button>
 
                   {plan.id.startsWith('custom-') && (
@@ -716,23 +965,9 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
               <div
                 key={ex.id}
                 onClick={() => onSelectExerciseDetails(ex)}
-                className="group cursor-pointer rounded-2xl bg-white border border-slate-200/90 hover:border-emerald-500/60 overflow-hidden transition-all hover:shadow-md flex flex-col justify-between shadow-xs"
+                className="group cursor-pointer rounded-2xl bg-white border border-slate-200/90 hover:border-emerald-500/60 p-5 transition-all hover:shadow-md flex flex-col justify-between shadow-xs space-y-4"
               >
-                {isChestExercise(ex) && (
-                  <div className="h-40 w-full overflow-hidden bg-slate-950 relative">
-                    <ExerciseImage
-                      exercise={ex}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent pointer-events-none" />
-                    <span className="absolute bottom-2.5 left-3 text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-black/60 text-emerald-300 border border-emerald-500/30 backdrop-blur-xs flex items-center gap-1">
-                      <Dumbbell className="w-3 h-3 text-emerald-400" />
-                      Chest Exercise
-                    </span>
-                  </div>
-                )}
-                <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                  <div className="space-y-3">
+                <div className="space-y-3">
                     {/* Header: Discipline Badge & Equipment */}
                     <div className="flex items-center justify-between gap-2">
                       <span className={`inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg border ${badge.bg}`}>
@@ -780,7 +1015,6 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
                       {t('view_form_guide')} <ChevronRight className="w-3.5 h-3.5" />
                     </span>
                   </div>
-                </div>
               </div>
             );
           })}
@@ -837,6 +1071,13 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
           </div>
         </section>
       )}
+
+      {/* Program Schedule & Roadmap Modal */}
+      <ProgramScheduleModal
+        plan={scheduleModalPlan}
+        onClose={() => setScheduleModalPlan(null)}
+        onStartWorkout={handleStartWorkout}
+      />
     </div>
   );
 };

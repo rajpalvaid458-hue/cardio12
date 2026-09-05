@@ -8,6 +8,8 @@ import { HydrationTracker } from './diet/HydrationTracker';
 import { SupplementTracker } from './diet/SupplementTracker';
 import { PersonalDietMaker } from './diet/PersonalDietMaker';
 import { CaloriesChecker } from './diet/CaloriesChecker';
+import { MacroBalanceAdvisor } from './diet/MacroBalanceAdvisor';
+import { SnapAndLogFoodModal } from './diet/SnapAndLogFoodModal';
 import { ReminderBannerWidget } from './reminders/ReminderBannerWidget';
 import {
   UtensilsCrossed,
@@ -25,10 +27,12 @@ import {
   Calculator,
   Calendar,
   Layers,
+  Camera,
+  ChevronRight,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
-type DietTab = 'log' | 'diet_maker' | 'calories_checker' | 'water_reminder' | 'supplements';
+type DietTab = 'log' | 'snap_log' | 'macro_advisor' | 'diet_maker' | 'calories_checker' | 'water_reminder' | 'supplements';
 
 interface DietViewProps {
   onOpenRemindersModal?: () => void;
@@ -43,10 +47,14 @@ export const DietView: React.FC<DietViewProps> = ({ onOpenRemindersModal }) => {
     supplements,
     waterReminder,
     activeDietPlan,
+    userProfile,
+    updateUserProfile,
   } = useFitness();
   const { t, isHindi } = useLanguage();
 
   const [activeTab, setActiveTab] = useState<DietTab>('log');
+  const [isSnapModalOpen, setIsSnapModalOpen] = useState(false);
+  const [snapInitialMeal, setSnapInitialMeal] = useState<MealType>('lunch');
 
   // Food Picker Modal State
   const [isFoodPickerOpen, setIsFoodPickerOpen] = useState(false);
@@ -122,6 +130,18 @@ export const DietView: React.FC<DietViewProps> = ({ onOpenRemindersModal }) => {
 
   const tabs: { id: DietTab; label: string; icon: React.ReactNode; badge?: string }[] = [
     { id: 'log', label: isHindi ? 'दैनिक भोजन लॉग' : 'Daily Meals Log', icon: <UtensilsCrossed className="w-4 h-4" /> },
+    {
+      id: 'snap_log',
+      label: isHindi ? 'स्नैप और लॉग (कैमरा)' : 'Snap & Log Food',
+      icon: <Camera className="w-4 h-4 text-emerald-600" />,
+      badge: isHindi ? 'एआई विज़न' : 'AI Camera',
+    },
+    {
+      id: 'macro_advisor',
+      label: isHindi ? 'मैक्रो बैलेंस व दैनिक टिप्स' : 'Macro Balance & Daily Tips',
+      icon: <Sparkles className="w-4 h-4 text-emerald-500" />,
+      badge: isHindi ? 'स्मार्ट टिप्स' : 'AI Tips',
+    },
     { id: 'diet_maker', label: isHindi ? 'कस्टम डाइट प्लान' : 'Personal Diet Maker', icon: <ChefHat className="w-4 h-4" />, badge: isHindi ? 'एआई व देसी' : 'AI & Desi' },
     { id: 'calories_checker', label: isHindi ? 'कैलोरी चेकर' : 'Calories Checker', icon: <Calculator className="w-4 h-4" /> },
     {
@@ -152,7 +172,34 @@ export const DietView: React.FC<DietViewProps> = ({ onOpenRemindersModal }) => {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <button
+              onClick={() => {
+                setSnapInitialMeal('lunch');
+                setIsSnapModalOpen(true);
+              }}
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black transition shadow-sm cursor-pointer"
+              title={isHindi ? 'कैमरा से भोजन स्कैन करें और ऑटो-लॉग करें' : 'Snap meal with camera to auto-estimate & log'}
+            >
+              <Camera className="w-4 h-4" />
+              <span>{isHindi ? '📸 स्नैप और लॉग' : '📸 Snap & Log'}</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setActiveTab('macro_advisor');
+                setTimeout(() => {
+                  const el = document.getElementById('macro-balance-advisor');
+                  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 100);
+              }}
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition shadow-2xs cursor-pointer"
+              title={isHindi ? 'मैक्रो बैलेंस विश्लेषण व दैनिक टिप्स देखें' : 'View Macro Balance Analysis & Personalized Daily Tips'}
+            >
+              <Sparkles className="w-4 h-4 text-emerald-600" />
+              <span>{isHindi ? 'दैनिक मैक्रो टिप्स' : 'Macro Balance Tips'}</span>
+            </button>
+
             <div className="bg-slate-50 px-4 py-2.5 rounded-2xl border border-slate-200 text-right">
               <span className="text-[11px] text-slate-500 font-semibold block">
                 {isHindi ? 'शेष कैलोरी' : 'Remaining Calories'}
@@ -302,6 +349,14 @@ export const DietView: React.FC<DietViewProps> = ({ onOpenRemindersModal }) => {
           {/* Quick Water Reminder Banner */}
           <WaterReminderWidget />
 
+          {/* Real-time Macro Balance Analysis & Personalized Daily Tips */}
+          <MacroBalanceAdvisor
+            dailyDiet={dailyDiet}
+            userGoal={userProfile?.goal || 'muscle_gain'}
+            onLogFoodItem={logFoodItem}
+            onUpdateGoal={(newGoal) => updateUserProfile({ goal: newGoal })}
+          />
+
           {/* Daily Meals Breakdown */}
           <section className="space-y-4">
             <div className="flex items-center justify-between">
@@ -379,19 +434,55 @@ export const DietView: React.FC<DietViewProps> = ({ onOpenRemindersModal }) => {
                       </div>
                     </div>
 
-                    {/* Add Food Button */}
-                    <button
-                      onClick={() => handleOpenFoodPicker(sec.type)}
-                      className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors border border-slate-200/80"
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                      <span>{isHindi ? `+ ${sec.label} में खाना जोड़ें` : `Add Food to ${sec.label}`}</span>
-                    </button>
+                    {/* Meal Action Buttons */}
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleOpenFoodPicker(sec.type)}
+                        className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors border border-slate-200/80 cursor-pointer"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>{isHindi ? `+ ${sec.label} में जोड़ें` : `+ Add to ${sec.label}`}</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSnapInitialMeal(sec.type);
+                          setIsSnapModalOpen(true);
+                        }}
+                        className="flex items-center justify-center gap-1.5 py-2.5 px-3.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold transition-colors border border-emerald-200 cursor-pointer"
+                        title={isHindi ? `${sec.label} की फ़ोटो लेकर लॉग करें` : `Snap photo for ${sec.label}`}
+                      >
+                        <Camera className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>{isHindi ? 'स्नैप' : 'Snap'}</span>
+                      </button>
+                    </div>
                   </div>
                 );
               })}
             </div>
           </section>
+        </motion.div>
+      )}
+
+      {/* Tab: Snap & Log Food (Camera AI) */}
+      {activeTab === 'snap_log' && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+          <SnapAndLogFoodModal
+            isOpen={true}
+            isInlineView={true}
+            initialMealType="lunch"
+          />
+        </motion.div>
+      )}
+
+      {/* Tab: Macro Balance Advisor & Daily Tips */}
+      {activeTab === 'macro_advisor' && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+          <MacroBalanceAdvisor
+            dailyDiet={dailyDiet}
+            userGoal={userProfile?.goal || 'muscle_gain'}
+            onLogFoodItem={logFoodItem}
+            onUpdateGoal={(newGoal) => updateUserProfile({ goal: newGoal })}
+          />
         </motion.div>
       )}
 
@@ -450,6 +541,27 @@ export const DietView: React.FC<DietViewProps> = ({ onOpenRemindersModal }) => {
 
               {!showCustomFoodForm ? (
                 <>
+                  {/* Quick Snap & Log shortcut inside Food Picker */}
+                  <button
+                    onClick={() => {
+                      setIsFoodPickerOpen(false);
+                      setSnapInitialMeal(pickerMealType);
+                      setIsSnapModalOpen(true);
+                    }}
+                    className="w-full flex items-center justify-between p-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-900 transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-2xs">
+                        <Camera className="w-4 h-4" />
+                      </div>
+                      <div className="text-left">
+                        <span className="text-xs font-bold block">{isHindi ? 'कैमरा से भोजन स्कैन करें' : 'Snap Food with Camera'}</span>
+                        <span className="text-[10px] text-emerald-700">{isHindi ? 'एआई सामग्री और मैक्रोज़ का सटीक अनुमान लगाएगा' : 'Auto-estimate calories & macros with AI vision'}</span>
+                      </div>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-emerald-600" />
+                  </button>
+
                   <div className="relative">
                     <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input
@@ -597,6 +709,14 @@ export const DietView: React.FC<DietViewProps> = ({ onOpenRemindersModal }) => {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Snap & Log Food Modal */}
+      <SnapAndLogFoodModal
+        isOpen={isSnapModalOpen}
+        isInlineView={false}
+        initialMealType={snapInitialMeal}
+        onClose={() => setIsSnapModalOpen(false)}
+      />
     </div>
   );
 };
