@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useFitness } from '../context/FitnessContext';
 import { useLanguage } from '../context/LanguageContext';
-import { Exercise } from '../types';
+import { Exercise, WorkoutIntensity } from '../types';
+import { ActiveWorkoutWarmUp } from './ActiveWorkoutWarmUp';
 import {
   Play,
   Pause,
@@ -77,6 +78,13 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
     updateActiveWorkout((prev) => {
       if (!prev) return null;
       return { ...prev, isPaused: !prev.isPaused };
+    });
+  };
+
+  const handleUpdateIntensity = (intensity: WorkoutIntensity) => {
+    updateActiveWorkout((prev) => {
+      if (!prev) return null;
+      return { ...prev, intensity };
     });
   };
 
@@ -163,6 +171,13 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
             </div>
           </div>
         </div>
+
+        {/* Dedicated Warm-up Section tailored by workout intensity */}
+        <ActiveWorkoutWarmUp
+          activeWorkout={activeWorkout}
+          onUpdateIntensity={handleUpdateIntensity}
+          isHindi={isHindi}
+        />
 
         {/* Exercises List */}
         <div className="space-y-4">

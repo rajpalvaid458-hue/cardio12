@@ -213,7 +213,7 @@ export const translations: Record<Language, Translations> = {
     verified_health: 'Verified Health',
     reminders_title: 'Workout & Nutrition Reminders',
     profile_settings: 'Profile & Settings',
-    language_toggle: 'English / हिंदी',
+    language_toggle: 'Switch Language',
 
     // Common Actions & Labels
     save: 'Save',
@@ -363,9 +363,9 @@ export const translations: Record<Language, Translations> = {
     profile_title: 'Profile & Settings',
     profile_tab_info: 'Personal Info & Goals',
     profile_tab_milestones: 'Badges & Milestones',
-    language_preference: 'Language / भाषा',
+    language_preference: 'Language Preference',
     language_select_en: 'English',
-    language_select_hi: 'हिंदी (Hindi)',
+    language_select_hi: 'Hindi (हिंदी)',
     body_metrics: 'Body Metrics',
     height: 'Height',
     fitness_goal: 'Primary Fitness Goal',

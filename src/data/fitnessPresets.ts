@@ -3898,7 +3898,8 @@ export const PRESET_DIET_PLANS: PersonalDietPlan[] = [
   },
   {
     id: 'diet-female-tone-hormone',
-    title: "Women's Lean Tone & Hormone Balance (महिला स्पेशल)",
+    title: "Women's Lean Tone & Hormone Balance",
+    titleHi: "महिलाओं के लिए लीन टोन व हार्मोन संतुलन",
     tagline: 'Calibrated 1,650 kcal plan with bioavailable iron, calcium, clean proteins, and healthy hormone-balancing fats',
     goal: 'fat_loss',
     targetGender: 'female',
@@ -3967,7 +3968,8 @@ export const PRESET_DIET_PLANS: PersonalDietPlan[] = [
   },
   {
     id: 'diet-athlete-peak-power',
-    title: 'Elite Athlete & Cross-Training High-Fuel Blueprint (एथलीट)',
+    title: 'Elite Athlete & Cross-Training High-Fuel Blueprint',
+    titleHi: 'एलीट एथलीट व क्रॉस-ट्रेनिंग हाई-फ्यूल ब्लूप्रिंट',
     tagline: 'High-glycogen 2,900 kcal performance diet designed for explosive power output, CNS recovery, and lean mass',
     goal: 'muscle_gain',
     targetGender: 'all',
@@ -4046,7 +4048,8 @@ export const PRESET_DIET_PLANS: PersonalDietPlan[] = [
   },
   {
     id: 'diet-veg-high-protein-with-whey',
-    title: 'Pure-Veg High-Protein Hypertrophy (With Whey Protein) / शाकाहारी हाई-प्रोटीन (व्हे के साथ)',
+    title: 'Pure-Veg High-Protein Hypertrophy (With Whey Protein)',
+    titleHi: 'शाकाहारी हाई-प्रोटीन हाइपरट्रॉफी (व्हे प्रोटीन के साथ)',
     tagline: '155g High-Protein vegetarian muscle builder powered by Low-Fat Paneer, Moong Sprouts, Sattu, Besan Chilla, and Gold-Standard Post-Workout Whey.',
     goal: 'muscle_gain',
     targetGender: 'all',
@@ -4134,7 +4137,8 @@ export const PRESET_DIET_PLANS: PersonalDietPlan[] = [
   },
   {
     id: 'diet-veg-high-protein-no-whey',
-    title: '100% Natural Pure-Veg High-Protein (Zero Whey / Kitchen Staples) / शाकाहारी बिना व्हे (100% प्राकृतिक)',
+    title: '100% Natural Pure-Veg High-Protein (Zero Whey / Kitchen Staples)',
+    titleHi: '100% प्राकृतिक शाकाहारी हाई-प्रोटीन (बिना व्हे पाउडर)',
     tagline: '142g High-Protein muscle builder using zero synthetic supplements or whey powder — powered 100% by Low-Fat Paneer, Soya Chunks, Sattu, Besan, and Curd.',
     goal: 'muscle_gain',
     targetGender: 'all',
@@ -4222,7 +4226,8 @@ export const PRESET_DIET_PLANS: PersonalDietPlan[] = [
   },
   {
     id: 'diet-vegan-high-protein-with-plant-protein',
-    title: 'Vegan High-Protein Powerhouse (With Pea & Rice Plant Protein) / वीगन हाई-प्रोटीन (प्लांट प्रोटीन के साथ)',
+    title: 'Vegan High-Protein Powerhouse (With Pea & Rice Plant Protein)',
+    titleHi: 'वीगन हाई-प्रोटीन पावरहाउस (प्लांट प्रोटीन के साथ)',
     tagline: '150g Complete Plant-Based muscle blueprint with Tofu, Soya Chunks, Quinoa, Edamame, Oats, and Organic Plant Protein Powder.',
     goal: 'muscle_gain',
     targetGender: 'all',
@@ -4311,7 +4316,8 @@ export const PRESET_DIET_PLANS: PersonalDietPlan[] = [
   },
   {
     id: 'diet-vegan-high-protein-no-protein-powder',
-    title: '100% Whole-Foods Vegan High-Protein (Zero Protein Powder) / प्राकृतिक वीगन आहार (बिना पाउडर)',
+    title: '100% Whole-Foods Vegan High-Protein (Zero Protein Powder)',
+    titleHi: '100% प्राकृतिक वीगन हाई-प्रोटीन (बिना प्रोटीन पाउडर)',
     tagline: '135g Natural plant protein without any synthetic protein powders: Tofu Bhurji, Soya Chunks, Rajma, Roasted Chana, Sprouted Moong & Hemp Seeds.',
     goal: 'muscle_gain',
     targetGender: 'all',
@@ -4399,7 +4405,8 @@ export const PRESET_DIET_PLANS: PersonalDietPlan[] = [
   },
   {
     id: 'diet-veg-shred-with-whey',
-    title: 'Vegetarian Lean Shred & Belly Fat Burn (With Whey) / शाकाहारी फैट लॉस (व्हे के साथ)',
+    title: 'Vegetarian Lean Shred & Belly Fat Burn (With Whey)',
+    titleHi: 'शाकाहारी लीन श्रेड व बेली फैट बर्न (व्हे के साथ)',
     tagline: 'High-satiety, low-carb 1,820 kcal cutting protocol with 145g protein: Low-fat paneer, moong sprouts, leafy greens, and Whey Isolate.',
     goal: 'fat_loss',
     targetGender: 'all',
@@ -4483,7 +4490,8 @@ export const PRESET_DIET_PLANS: PersonalDietPlan[] = [
   },
   {
     id: 'diet-vegan-shred-no-powder',
-    title: 'Vegan Lean Fat Shred (Without Protein Powder) / वीगन फैट लॉस (बिना पाउडर)',
+    title: 'Vegan Lean Fat Shred (Without Protein Powder)',
+    titleHi: 'वीगन लीन फैट श्रेड (बिना प्रोटीन पाउडर)',
     tagline: 'High-fiber, zero-dairy 1,750 kcal cutting plan with 125g natural plant protein: Firm tofu, soya chunks, boiled black chana, and raw greens.',
     goal: 'fat_loss',
     targetGender: 'all',

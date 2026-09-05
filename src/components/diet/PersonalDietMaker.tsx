@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useFitness } from '../../context/FitnessContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { PersonalDietPlan, MealType } from '../../types';
 import { PRESET_DIET_PLANS } from '../../data/fitnessPresets';
 import {
@@ -33,6 +34,7 @@ export const PersonalDietMaker: React.FC = () => {
     applyDietPlanToDailyLog,
     userProfile,
   } = useFitness();
+  const { isHindi } = useLanguage();
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<PersonalDietPlan | null>(
@@ -450,7 +452,9 @@ export const PersonalDietMaker: React.FC = () => {
                       </span>
                     )}
                   </div>
-                  <h4 className="font-extrabold text-sm text-slate-900 mt-2">{plan.title}</h4>
+                  <h4 className="font-extrabold text-sm text-slate-900 mt-2">
+                    {isHindi && plan.titleHi ? plan.titleHi : plan.title}
+                  </h4>
                   <p className="text-[11px] text-slate-500 line-clamp-2 mt-0.5">{plan.tagline}</p>
                 </div>
 
@@ -485,7 +489,9 @@ export const PersonalDietMaker: React.FC = () => {
                   </span>
                 )}
               </div>
-              <h3 className="text-2xl font-black text-slate-900 mt-1">{selectedPlan.title}</h3>
+              <h3 className="text-2xl font-black text-slate-900 mt-1">
+                {isHindi && selectedPlan.titleHi ? selectedPlan.titleHi : selectedPlan.title}
+              </h3>
               <p className="text-xs sm:text-sm text-slate-600 mt-0.5">{selectedPlan.tagline}</p>
             </div>
 
@@ -627,10 +633,10 @@ export const PersonalDietMaker: React.FC = () => {
                         >
                           <div>
                             <div className="font-semibold text-slate-800 flex items-center gap-1.5">
-                              {food.name}
-                              {food.hindiName && (
+                              {isHindi && food.hindiName ? food.hindiName : food.name}
+                              {isHindi && food.hindiName && (
                                 <span className="text-[10px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-normal">
-                                  {food.hindiName}
+                                  {food.name}
                                 </span>
                               )}
                             </div>

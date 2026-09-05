@@ -608,7 +608,7 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
                   : 'bg-slate-800/90 text-slate-300 hover:text-white border border-slate-700'
               }`}
             >
-              🌟 {isHindi ? 'सामान्य वर्कआउट्स (Normal Workouts)' : 'Normal Workouts'}
+              🌟 {isHindi ? 'सामान्य वर्कआउट्स' : 'Normal Workouts'}
             </button>
             <button
               onClick={() => setSelectedProgramType('1-week')}
@@ -618,7 +618,7 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
                   : 'bg-slate-800/90 text-slate-300 hover:text-white border border-slate-700'
               }`}
             >
-              📅 {isHindi ? '1-सप्ताह का शेड्यूल (1-Week Split)' : '1-Week Routine (7-Day)'}
+              📅 {isHindi ? '1-सप्ताह का शेड्यूल' : '1-Week Routine (7-Day)'}
             </button>
             <button
               onClick={() => setSelectedProgramType('1-month')}
@@ -628,7 +628,7 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
                   : 'bg-slate-800/90 text-slate-300 hover:text-white border border-slate-700'
               }`}
             >
-              🗓️ {isHindi ? '1-महीने का प्लान (1-Month Program)' : '1-Month Program (4-Week)'}
+              🗓️ {isHindi ? '1-महीने का प्लान' : '1-Month Program (4-Week)'}
             </button>
             <button
               onClick={() => setSelectedProgramType('daily')}
@@ -638,7 +638,7 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
                   : 'bg-slate-800/90 text-slate-300 hover:text-white border border-slate-700'
               }`}
             >
-              ⚡ {isHindi ? 'रोजाना 30-मिनट (Daily 30-Min)' : 'Daily 30-Min Maintenance'}
+              ⚡ {isHindi ? 'दैनिक 30-मिनट' : 'Daily 30-Min Maintenance'}
             </button>
           </div>
         </div>
@@ -792,9 +792,11 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
                   </div>
 
                   <h3 className="text-base font-bold text-slate-900 mt-3 group-hover:text-emerald-600 transition-colors">
-                    {plan.title}
+                    {isHindi && plan.titleHi ? plan.titleHi : plan.title}
                   </h3>
-                  <p className="text-xs text-slate-500 mt-1 line-clamp-2">{plan.description}</p>
+                  <p className="text-xs text-slate-500 mt-1 line-clamp-2">
+                    {isHindi && plan.descriptionHi ? plan.descriptionHi : plan.description}
+                  </p>
 
                   {/* Tags */}
                   <div className="flex flex-wrap gap-1.5 mt-3">

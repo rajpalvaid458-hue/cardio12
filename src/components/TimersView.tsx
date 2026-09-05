@@ -22,35 +22,90 @@ import {
 
 type TimerMode = 'rest' | 'tabata' | 'emom' | 'stopwatch';
 
+const TIMERS_STORAGE_KEY = 'pulsefit_timers_config_v1';
+
+interface SavedTimersState {
+  activeMode?: TimerMode;
+  soundEnabled?: boolean;
+  restDuration?: number;
+  tabataWork?: number;
+  tabataRest?: number;
+  tabataTotalRounds?: number;
+  emomTotalMins?: number;
+  stopwatchMs?: number;
+  laps?: { id: number; timeMs: number; splitMs: number }[];
+}
+
+const getSavedTimers = (): SavedTimersState => {
+  try {
+    const data = localStorage.getItem(TIMERS_STORAGE_KEY);
+    return data ? JSON.parse(data) : {};
+  } catch {
+    return {};
+  }
+};
+
 export const TimersView: React.FC = () => {
   const { startRestTimer } = useFitness();
-  const [activeMode, setActiveMode] = useState<TimerMode>('rest');
-  const [soundEnabled, setSoundEnabled] = useState(true);
+  const savedState = useRef(getSavedTimers()).current;
+
+  const [activeMode, setActiveMode] = useState<TimerMode>(savedState.activeMode || 'rest');
+  const [soundEnabled, setSoundEnabled] = useState(savedState.soundEnabled ?? true);
 
   // 1. REST TIMER STATE
-  const [restDuration, setRestDuration] = useState<number>(60);
-  const [restRemaining, setRestRemaining] = useState<number>(60);
+  const [restDuration, setRestDuration] = useState<number>(savedState.restDuration || 60);
+  const [restRemaining, setRestRemaining] = useState<number>(savedState.restDuration || 60);
   const [isRestRunning, setIsRestRunning] = useState<boolean>(false);
 
   // 2. TABATA / HIIT STATE
-  const [tabataWork, setTabataWork] = useState<number>(20);
-  const [tabataRest, setTabataRest] = useState<number>(10);
-  const [tabataTotalRounds, setTabataTotalRounds] = useState<number>(8);
+  const [tabataWork, setTabataWork] = useState<number>(savedState.tabataWork || 20);
+  const [tabataRest, setTabataRest] = useState<number>(savedState.tabataRest || 10);
+  const [tabataTotalRounds, setTabataTotalRounds] = useState<number>(savedState.tabataTotalRounds || 8);
   const [tabataCurrentRound, setTabataCurrentRound] = useState<number>(1);
   const [tabataPhase, setTabataPhase] = useState<'prepare' | 'work' | 'rest' | 'done'>('prepare');
   const [tabataRemaining, setTabataRemaining] = useState<number>(5);
   const [isTabataRunning, setIsTabataRunning] = useState<boolean>(false);
 
   // 3. EMOM STATE
-  const [emomTotalMins, setEmomTotalMins] = useState<number>(12);
+  const [emomTotalMins, setEmomTotalMins] = useState<number>(savedState.emomTotalMins || 12);
   const [emomCurrentMin, setEmomCurrentMin] = useState<number>(1);
   const [emomSecRemaining, setEmomSecRemaining] = useState<number>(60);
   const [isEmomRunning, setIsEmomRunning] = useState<boolean>(false);
 
   // 4. STOPWATCH STATE
-  const [stopwatchMs, setStopwatchMs] = useState<number>(0);
+  const [stopwatchMs, setStopwatchMs] = useState<number>(savedState.stopwatchMs || 0);
   const [isStopwatchRunning, setIsStopwatchRunning] = useState<boolean>(false);
-  const [laps, setLaps] = useState<{ id: number; timeMs: number; splitMs: number }[]>([]);
+  const [laps, setLaps] = useState<{ id: number; timeMs: number; splitMs: number }[]>(savedState.laps || []);
+
+  // Persist timer configurations to localStorage
+  useEffect(() => {
+    try {
+      const stateToSave: SavedTimersState = {
+        activeMode,
+        soundEnabled,
+        restDuration,
+        tabataWork,
+        tabataRest,
+        tabataTotalRounds,
+        emomTotalMins,
+        stopwatchMs,
+        laps,
+      };
+      localStorage.setItem(TIMERS_STORAGE_KEY, JSON.stringify(stateToSave));
+    } catch {
+      // Ignore quota errors if storage full
+    }
+  }, [
+    activeMode,
+    soundEnabled,
+    restDuration,
+    tabataWork,
+    tabataRest,
+    tabataTotalRounds,
+    emomTotalMins,
+    stopwatchMs,
+    laps,
+  ]);
 
   // Rest Timer Ticking
   useEffect(() => {

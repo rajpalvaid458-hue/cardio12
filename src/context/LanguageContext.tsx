@@ -20,13 +20,10 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       if (saved === 'hi' || saved === 'en') {
         return saved;
       }
-      // Check browser navigator language
-      if (typeof navigator !== 'undefined' && navigator.language?.startsWith('hi')) {
-        return 'hi';
-      }
     } catch {
       // Fallback
     }
+    // Strict default: English unless user explicitly chose Hindi
     return 'en';
   });
 

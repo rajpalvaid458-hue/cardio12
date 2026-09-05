@@ -966,11 +966,13 @@ export const WorkoutCalendar: React.FC<WorkoutCalendarProps> = ({
                           </span>
                           <div>
                             <h5 className="text-sm font-bold text-white group-hover:text-emerald-300 transition-colors">
-                              {ex.name}
+                              {isHindi && ex.hindiName ? ex.hindiName : ex.name}
                             </h5>
-                            <div className="text-xs text-slate-400 mt-0.5 font-medium">
-                              {ex.hindiName}
-                            </div>
+                            {isHindi && ex.name && (
+                              <div className="text-xs text-slate-400 mt-0.5 font-medium">
+                                {ex.name}
+                              </div>
+                            )}
                           </div>
                         </div>
 

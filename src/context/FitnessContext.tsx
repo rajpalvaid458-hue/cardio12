@@ -165,6 +165,7 @@ const STORAGE_KEYS = {
   ACTIVE_DIET_PLAN: 'pulsefit_active_diet_plan_v1',
   PROFILE: 'pulsefit_profile_v1',
   ACTIVE_WORKOUT: 'pulsefit_active_workout_v1',
+  REST_TIMER: 'pulsefit_rest_timer_v1',
 };
 
 const DEFAULT_WORKOUT_REMINDER: WorkoutReminderSettings = {
@@ -718,8 +719,32 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
   });
 
-  // 11. Rest Timer
-  const [restTimer, setRestTimer] = useState<RestTimerState | null>(null);
+  // 11. Rest Timer (with offline persistence & time recovery)
+  const [restTimer, setRestTimer] = useState<RestTimerState | null>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.REST_TIMER);
+      if (!saved) return null;
+      const parsed = JSON.parse(saved);
+      if (!parsed || !parsed.active) return null;
+
+      // If active and was not paused, calculate remaining seconds after page reload or network drop
+      if (!parsed.isPaused && parsed.lastSavedAt) {
+        const elapsedSinceSave = Math.floor((Date.now() - parsed.lastSavedAt) / 1000);
+        const remaining = parsed.remainingSeconds - elapsedSinceSave;
+        if (remaining <= 0) {
+          localStorage.removeItem(STORAGE_KEYS.REST_TIMER);
+          return null;
+        }
+        return {
+          ...parsed,
+          remainingSeconds: remaining,
+        };
+      }
+      return parsed;
+    } catch {
+      return null;
+    }
+  });
   const [selectedDate, setSelectedDate] = useState<string>(getTodayString());
 
   // Cloud Sync: Fetch user cloud data when logged in
@@ -836,6 +861,21 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.ACTIVE_DIET_PLAN, JSON.stringify(activeDietPlan));
   }, [activeDietPlan]);
+
+  // Persist Rest Timer across reloads & offline drops
+  useEffect(() => {
+    if (restTimer && restTimer.active) {
+      localStorage.setItem(
+        STORAGE_KEYS.REST_TIMER,
+        JSON.stringify({
+          ...restTimer,
+          lastSavedAt: Date.now(),
+        })
+      );
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.REST_TIMER);
+    }
+  }, [restTimer]);
 
   // Periodic Hydration Reminder Check Loop
   useEffect(() => {
@@ -1053,6 +1093,15 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
       setIsCloudSyncing(false);
     }
   }, [currentUser, userProfile, plans, workoutLogs, dailyDiet, routineItems, habits, supplements, waterReminder, workoutReminder, mealReminders, savedDietPlans, activeDietPlan]);
+
+  // Auto-sync pending data when reconnecting to network
+  useEffect(() => {
+    const handleReconnected = () => {
+      syncToCloud();
+    };
+    window.addEventListener('online', handleReconnected);
+    return () => window.removeEventListener('online', handleReconnected);
+  }, [syncToCloud]);
 
   // Active workout elapsed timer
   useEffect(() => {
@@ -1302,6 +1351,7 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
       completedSetsCount: activeWorkout.completedSetsCount,
       caloriesBurned: Math.max(80, estCalories),
       exercises: completedExercises,
+      intensity: activeWorkout.intensity,
       notes: activeWorkout.notes,
     };
 

@@ -115,12 +115,12 @@ export const DietView: React.FC<DietViewProps> = ({ onOpenRemindersModal }) => {
   };
 
   const mealSections: { type: MealType; label: string; icon: string }[] = [
-    { type: 'breakfast', label: isHindi ? 'नाश्ता (Breakfast)' : 'Breakfast', icon: '🍳' },
-    { type: 'lunch', label: isHindi ? 'दोपहर का भोजन (Lunch)' : 'Lunch', icon: '🥗' },
-    { type: 'dinner', label: isHindi ? 'रात का खाना (Dinner)' : 'Dinner', icon: '🥩' },
-    { type: 'pre_workout', label: isHindi ? 'प्री-वर्कआउट ऊर्जा' : 'Pre-Workout Fuel', icon: '⚡' },
-    { type: 'post_workout', label: isHindi ? 'पोस्ट-वर्कआउट शेक व भोजन' : 'Post-Workout Shake & Meal', icon: '🥤' },
-    { type: 'snack', label: isHindi ? 'स्नैक्स और फल' : 'Snacks & Fruit', icon: '🍎' },
+    { type: 'breakfast', label: isHindi ? 'नाश्ता' : 'Breakfast', icon: '🍳' },
+    { type: 'lunch', label: isHindi ? 'दोपहर का भोजन' : 'Lunch', icon: '🥗' },
+    { type: 'dinner', label: isHindi ? 'रात का खाना' : 'Dinner', icon: '🥩' },
+    { type: 'pre_workout', label: isHindi ? 'प्री-वर्कआउट' : 'Pre-Workout Fuel', icon: '⚡' },
+    { type: 'post_workout', label: isHindi ? 'पोस्ट-वर्कआउट' : 'Post-Workout Shake & Meal', icon: '🥤' },
+    { type: 'snack', label: isHindi ? 'स्नैक्स' : 'Snacks & Fruit', icon: '🍎' },
   ];
 
   const filteredPopularFoods = POPULAR_FOODS_DATABASE.filter((f) =>
@@ -361,7 +361,7 @@ export const DietView: React.FC<DietViewProps> = ({ onOpenRemindersModal }) => {
           <section className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-bold text-slate-900">
-                {isHindi ? "आज का भोजन (Today's Meals)" : "Today's Meals"}
+                {isHindi ? 'आज का भोजन' : "Today's Meals"}
               </h2>
               <span className="text-xs text-slate-500 bg-white px-3 py-1 rounded-xl border border-slate-200 shadow-xs">
                 {dailyDiet.meals.reduce((acc, m) => acc + m.items.length, 0)} {isHindi ? 'खाद्य पदार्थ लॉग किए गए' : 'logged food items'}
@@ -403,10 +403,10 @@ export const DietView: React.FC<DietViewProps> = ({ onOpenRemindersModal }) => {
                             >
                               <div>
                                 <div className="font-semibold text-slate-800 flex items-center gap-1.5">
-                                  {item.name}
-                                  {item.hindiName && (
+                                  {isHindi && item.hindiName ? item.hindiName : item.name}
+                                  {isHindi && item.hindiName && (
                                     <span className="text-[10px] text-emerald-700 bg-emerald-100/60 px-1.5 py-0.5 rounded font-normal">
-                                      {item.hindiName}
+                                      {item.name}
                                     </span>
                                   )}
                                 </div>
@@ -583,10 +583,10 @@ export const DietView: React.FC<DietViewProps> = ({ onOpenRemindersModal }) => {
                       >
                         <div>
                           <div className="font-bold text-slate-900 text-xs group-hover:text-emerald-700 transition-colors flex items-center gap-1.5">
-                            {food.name}
-                            {food.hindiName && (
+                            {isHindi && food.hindiName ? food.hindiName : food.name}
+                            {isHindi && food.hindiName && (
                               <span className="text-[10px] text-emerald-700 bg-emerald-100/60 px-1.5 py-0.5 rounded font-normal">
-                                {food.hindiName}
+                                {food.name}
                               </span>
                             )}
                             <span className="text-[10px] text-slate-400">{food.cuisine === 'Indian' ? '🇮🇳' : '🌍'}</span>

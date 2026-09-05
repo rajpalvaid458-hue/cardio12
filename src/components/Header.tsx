@@ -20,6 +20,7 @@ import {
   Bell,
   Languages,
 } from 'lucide-react';
+import { PWAInstallButton } from './PWAInstallButton';
 
 export type TabType = 'training' | 'timers' | 'diet' | 'routine' | 'coach' | 'analytics';
 
@@ -147,11 +148,14 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             )}
 
+            {/* In-App PWA Install Button */}
+            <PWAInstallButton />
+
             {/* Language Switcher Button (English / हिंदी) */}
             <button
               onClick={toggleLanguage}
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold transition-all shadow-xs group"
-              title={isHindi ? "Switch to English" : "हिंदी में बदलें (Switch to Hindi)"}
+              title={isHindi ? "Switch to English" : "Switch to Hindi"}
             >
               <Languages className="w-3.5 h-3.5 text-emerald-400 group-hover:rotate-12 transition-transform" />
               <div className="flex items-center text-[11px] font-mono tracking-tight">

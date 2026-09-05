@@ -358,10 +358,10 @@ export const SnapAndLogFoodModal: React.FC<SnapAndLogFoodModalProps> = ({
   const currentFiber = analysisResult?.totalFiber ? Math.round(analysisResult.totalFiber * portionMultiplier * 10) / 10 : 0;
 
   const mealOptions: { type: MealType; label: string; icon: string }[] = [
-    { type: 'breakfast', label: isHindi ? 'नाश्ता (Breakfast)' : 'Breakfast', icon: '🌅' },
-    { type: 'lunch', label: isHindi ? 'दोपहर का भोजन (Lunch)' : 'Lunch', icon: '☀️' },
-    { type: 'dinner', label: isHindi ? 'रात का भोजन (Dinner)' : 'Dinner', icon: '🌙' },
-    { type: 'snack', label: isHindi ? 'स्नैक (Snack)' : 'Snack', icon: '🍎' },
+    { type: 'breakfast', label: isHindi ? 'नाश्ता' : 'Breakfast', icon: '🌅' },
+    { type: 'lunch', label: isHindi ? 'दोपहर का भोजन' : 'Lunch', icon: '☀️' },
+    { type: 'dinner', label: isHindi ? 'रात का भोजन' : 'Dinner', icon: '🌙' },
+    { type: 'snack', label: isHindi ? 'स्नैक' : 'Snack', icon: '🍎' },
     { type: 'pre_workout', label: isHindi ? 'प्री-वर्कआउट' : 'Pre-Workout', icon: '⚡' },
     { type: 'post_workout', label: isHindi ? 'पोस्ट-वर्कआउट' : 'Post-Workout', icon: '💪' },
   ];
@@ -683,8 +683,8 @@ export const SnapAndLogFoodModal: React.FC<SnapAndLogFoodModalProps> = ({
                       <h3 className="text-xl font-extrabold text-slate-900 tracking-tight">
                         {isHindi && analysisResult.hindiName ? analysisResult.hindiName : analysisResult.dishName}
                       </h3>
-                      {analysisResult.hindiName && !isHindi && (
-                        <p className="text-xs text-slate-500 font-medium">{analysisResult.hindiName}</p>
+                      {isHindi && analysisResult.hindiName && analysisResult.dishName !== analysisResult.hindiName && (
+                        <p className="text-xs text-slate-500 font-medium">{analysisResult.dishName}</p>
                       )}
                     </div>
 

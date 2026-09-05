@@ -34,7 +34,7 @@ export interface BmiCategoryInfo {
 const BMI_CATEGORIES: BmiCategoryInfo[] = [
   {
     label: 'Underweight',
-    hindiLabel: 'कम वजन (अंडरवेट)',
+    hindiLabel: 'कम वजन',
     min: 0,
     max: 18.5,
     colorClass: 'bg-amber-400',
@@ -46,7 +46,7 @@ const BMI_CATEGORIES: BmiCategoryInfo[] = [
   },
   {
     label: 'Normal (Healthy)',
-    hindiLabel: 'सामान्य व स्वस्थ (नॉर्मल)',
+    hindiLabel: 'सामान्य व स्वस्थ',
     min: 18.5,
     max: 24.9,
     colorClass: 'bg-emerald-500',
@@ -58,7 +58,7 @@ const BMI_CATEGORIES: BmiCategoryInfo[] = [
   },
   {
     label: 'Overweight',
-    hindiLabel: 'अधिक वजन (ओवरवेट)',
+    hindiLabel: 'अधिक वजन',
     min: 25.0,
     max: 29.9,
     colorClass: 'bg-amber-500',

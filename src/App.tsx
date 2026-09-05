@@ -17,6 +17,7 @@ import { ProfileModal } from './components/ProfileModal';
 import { MedicalComplianceModal } from './components/MedicalComplianceModal';
 import { RemindersModal } from './components/reminders/RemindersModal';
 import { RestTimerBanner } from './components/RestTimerBanner';
+import { OfflineIndicator } from './components/OfflineIndicator';
 import { AuthModal } from './components/AuthModal';
 import { Exercise } from './types';
 import { ShieldAlert, Stethoscope, Award, Lock, FileText, CheckCircle2 } from 'lucide-react';
@@ -176,6 +177,9 @@ function FitnessAppContent() {
         onClose={() => setIsRemindersModalOpen(false)}
         onNavigateTab={(tab) => setActiveTab(tab)}
       />
+
+      {/* Connectivity & Offline Status Indicator */}
+      <OfflineIndicator />
     </div>
   );
 }

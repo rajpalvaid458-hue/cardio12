@@ -66,9 +66,11 @@ export const ProgramScheduleModal: React.FC<ProgramScheduleModalProps> = ({
             </span>
           </div>
 
-          <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">{plan.title}</h2>
+          <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">
+            {isHindi && plan.titleHi ? plan.titleHi : plan.title}
+          </h2>
           <p className="text-xs sm:text-sm text-slate-300 mt-2 line-clamp-3 leading-relaxed">
-            {plan.description}
+            {isHindi && plan.descriptionHi ? plan.descriptionHi : plan.description}
           </p>
 
           <div className="flex flex-wrap items-center gap-4 mt-4 pt-4 border-t border-slate-800/80 text-xs font-semibold text-slate-300">
@@ -113,7 +115,9 @@ export const ProgramScheduleModal: React.FC<ProgramScheduleModalProps> = ({
                         <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
                           {isHindi ? `सप्ताह ${block.weekNumber}` : `Week ${block.weekNumber}`}
                         </span>
-                        <h4 className="font-bold text-slate-900 text-sm mt-1">{block.title}</h4>
+                        <h4 className="font-bold text-slate-900 text-sm mt-1">
+                          {isHindi && block.titleHi ? block.titleHi : block.title}
+                        </h4>
                       </div>
                       {block.intensity && (
                         <span
@@ -154,7 +158,7 @@ export const ProgramScheduleModal: React.FC<ProgramScheduleModalProps> = ({
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-emerald-600" />
-                  <span>{isHindi ? '7-दिन की दिनचर्या (Daily Breakdown)' : '7-Day Routine (Day-by-Day Breakdown)'}</span>
+                  <span>{isHindi ? '7-दिन की दिनचर्या' : '7-Day Routine (Day-by-Day Breakdown)'}</span>
                 </h3>
                 <span className="text-xs text-slate-500 font-medium">
                   {plan.daysPerWeek ? `${plan.daysPerWeek} Active Days` : 'Weekly Schedule'}
@@ -185,7 +189,9 @@ export const ProgramScheduleModal: React.FC<ProgramScheduleModalProps> = ({
 
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="font-bold text-sm text-slate-900">{day.dayName}</span>
+                            <span className="font-bold text-sm text-slate-900">
+                              {isHindi && day.dayNameHi ? day.dayNameHi : day.dayName}
+                            </span>
                             {day.restDay ? (
                               <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-blue-100 text-blue-800 border border-blue-200 flex items-center gap-1">
                                 <Moon className="w-3 h-3" />
@@ -198,7 +204,9 @@ export const ProgramScheduleModal: React.FC<ProgramScheduleModalProps> = ({
                               </span>
                             )}
                           </div>
-                          <p className="text-xs font-semibold text-slate-700 mt-0.5">{day.focus}</p>
+                          <p className="text-xs font-semibold text-slate-700 mt-0.5">
+                            {isHindi && day.focusHi ? day.focusHi : day.focus}
+                          </p>
                         </div>
                       </div>
 

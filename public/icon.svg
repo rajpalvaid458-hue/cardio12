@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </linearGradient>
+    <linearGradient id="emeraldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34D399"/>
+      <stop offset="50%" stop-color="#10B981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#10B981" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <!-- Rounded Base Background -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)"/>
+  
+  <!-- Subtle Outer Accent Ring -->
+  <rect x="24" y="24" width="464" height="464" rx="96" fill="none" stroke="#10B981" stroke-width="4" stroke-opacity="0.2"/>
+
+  <!-- Pulse Wave Graphic -->
+  <path d="M 80 256 L 150 256 L 190 190 L 230 320 L 270 140 L 310 360 L 340 256 L 432 256" 
+        fill="none" 
+        stroke="url(#emeraldGrad)" 
+        stroke-width="18" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"
+        filter="url(#glow)"/>
+
+  <!-- Dumbbell Center Core Symbol -->
+  <g transform="translate(256, 256) rotate(-35) translate(-256, -256)" filter="url(#glow)">
+    <!-- Central Bar -->
+    <rect x="196" y="244" width="120" height="24" rx="12" fill="#F8FAFC"/>
+    <!-- Inner Weight Plates -->
+    <rect x="172" y="216" width="24" height="80" rx="10" fill="url(#emeraldGrad)"/>
+    <rect x="316" y="216" width="24" height="80" rx="10" fill="url(#emeraldGrad)"/>
+    <!-- Outer Weight Plates -->
+    <rect x="148" y="228" width="20" height="56" rx="8" fill="#10B981"/>
+    <rect x="344" y="228" width="20" height="56" rx="8" fill="#10B981"/>
+  </g>
+</svg>

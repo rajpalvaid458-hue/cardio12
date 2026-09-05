@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useFitness } from '../../context/FitnessContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { MealType, FoodItem } from '../../types';
 import { POPULAR_FOODS_DATABASE } from '../../data/fitnessPresets';
 import {
@@ -24,6 +25,7 @@ interface CaloriesCheckerProps {
 
 export const CaloriesChecker: React.FC<CaloriesCheckerProps> = ({ onAddFoodToMeal }) => {
   const { logFoodItem } = useFitness();
+  const { isHindi } = useLanguage();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCuisine, setSelectedCuisine] = useState<string>('all');
@@ -199,7 +201,7 @@ export const CaloriesChecker: React.FC<CaloriesCheckerProps> = ({ onAddFoodToMea
                   <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded">
                     {aiResult.cuisine || 'Estimated'}
                   </span>
-                  {aiResult.hindiName && (
+                  {isHindi && aiResult.hindiName && (
                     <span className="text-xs text-slate-300 font-medium">({aiResult.hindiName})</span>
                   )}
                 </div>
@@ -335,10 +337,12 @@ export const CaloriesChecker: React.FC<CaloriesCheckerProps> = ({ onAddFoodToMea
                 >
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-slate-900 text-xs truncate">{food.name}</span>
-                      {food.hindiName && (
+                      <span className="font-bold text-slate-900 text-xs truncate">
+                        {isHindi && food.hindiName ? food.hindiName : food.name}
+                      </span>
+                      {isHindi && food.hindiName && (
                         <span className="text-[10px] text-emerald-700 bg-emerald-100/60 px-1.5 py-0.5 rounded font-medium">
-                          {food.hindiName}
+                          {food.name}
                         </span>
                       )}
                       <span className="text-[10px] text-slate-400">{food.cuisine === 'Indian' ? '🇮🇳' : '🌍'}</span>
@@ -369,9 +373,11 @@ export const CaloriesChecker: React.FC<CaloriesCheckerProps> = ({ onAddFoodToMea
                   <span className="text-xs text-slate-400 font-mono">{activeFood.cuisine}</span>
                 </div>
 
-                <h4 className="font-extrabold text-base text-slate-900 mt-2">{activeFood.name}</h4>
-                {activeFood.hindiName && (
-                  <p className="text-xs text-emerald-700 font-medium">Hindi: {activeFood.hindiName}</p>
+                <h4 className="font-extrabold text-base text-slate-900 mt-2">
+                  {isHindi && activeFood.hindiName ? activeFood.hindiName : activeFood.name}
+                </h4>
+                {isHindi && activeFood.hindiName && (
+                  <p className="text-xs text-emerald-700 font-medium">{activeFood.name}</p>
                 )}
                 <p className="text-xs text-slate-500 mt-0.5">Base: {activeFood.servingSize}</p>
 

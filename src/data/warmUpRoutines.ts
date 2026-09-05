@@ -1,4 +1,4 @@
-import { WorkoutPlan } from '../types';
+import { WorkoutPlan, WorkoutIntensity } from '../types';
 
 export interface DynamicStretch {
   id: string;
@@ -345,6 +345,94 @@ export const MASTER_DYNAMIC_STRETCHES: Record<string, DynamicStretch> = {
     whyItMattersHi: 'स्क्वाट के बुनियादी फॉर्म की प्रैक्टिस कराता है और पूरे शरीर को स्ट्रेच करता है।',
     intensity: 'Dynamic',
   },
+
+  threadTheNeedleThoracic: {
+    id: 'thread-needle-thoracic',
+    name: 'Quadruped Thread-the-Needle Thoracic Mobilization',
+    nameHi: 'क्वाड्रुपेड थ्रेड-द-नीडल थोरेसिक मोबिलिटी',
+    category: 'Spine & Core',
+    targetJoints: ['Thoracic Spine', 'Posterior Shoulder Capsule', 'Cervical Spine'],
+    targetMuscles: ['Rhomboids', 'Rear Deltoids', 'Rotator Cuff', 'Thoracic Paraspinals'],
+    durationSeconds: 45,
+    cadence: '6-8 smooth passes per side, holding rotational reach 1.5s',
+    cadenceHi: '6-8 धीमे घुमाव प्रति साइड, 1.5 सेकंड होल्ड',
+    description: 'On all fours, slide one arm underneath your chest along the floor until shoulder rests lightly, then unwind and reach tall toward ceiling.',
+    descriptionHi: 'चौपाये होकर एक हाथ को सीने के नीचे फर्श पर सरकाएं, फिर ऊपर आसमान की ओर घुमाकर सीना खोलें।',
+    formCues: [
+      'Keep hips stacked square over knees; avoid swaying sideways.',
+      'Exhale deeply as you slide through to deepen ribcage rotation.',
+      'Allow head to gently turn with your reaching shoulder.',
+    ],
+    whyItMatters: 'Relieves upper back stiffness and opens rotational thoracic degrees of freedom necessary for safe benching and overhead squats.',
+    whyItMattersHi: 'पीठ के ऊपरी हिस्से की जकड़न खोलता है और कंधों की सुरक्षा बढ़ाता है।',
+    intensity: 'Gentle',
+  },
+
+  hipNinetyNinetyFlow: {
+    id: 'hip-90-90-swivel',
+    name: 'Seated 90/90 Hip Rotational Swivels',
+    nameHi: 'सीटेड 90/90 हिप रोटेशनल मोबिलिटी',
+    category: 'Hips & Glutes',
+    targetJoints: ['Coxofemoral Hip Capsule', 'Pelvis', 'Sacroiliac'],
+    targetMuscles: ['Gluteus Medius', 'Piriformis', 'Hip Adductors', 'Psoas'],
+    durationSeconds: 45,
+    cadence: '8 smooth transitions alternating side-to-side',
+    cadenceHi: '8 सहज रोटेशन दोनों तरफ',
+    description: 'Sit on floor with both legs bent at 90-degree angles. Fluidly pivot knees across midline to swap lead leg without lifting pelvis excessively.',
+    descriptionHi: 'फर्श पर बैठकर दोनों घुटनों को 90 डिग्री मोड़ें और सहजता से एक तरफ से दूसरी तरफ घुमाएं।',
+    formCues: [
+      'Maintain tall upright posture throughout each swivel.',
+      'Keep heels pinned to ground as pivot points.',
+      'Place fingertips behind for support if hip flexors are tight.',
+    ],
+    whyItMatters: 'Directly mobilizes internal and external hip rotation, preventing lower back compensations during squats and deadlifts.',
+    whyItMattersHi: 'कूल्हों की अंदरूनी और बाहरी गतिशीलता सुधारता है जिससे स्क्वाट्स में पीठ पर दबाव न आए।',
+    intensity: 'Gentle',
+  },
+
+  deepSquatPry: {
+    id: 'deep-squat-pry-elbows',
+    name: 'Deep Goblet Squat Pry & Ankle Rocking',
+    nameHi: 'डीप स्क्वाट प्राइ व एंकल रॉक्स',
+    category: 'Lower Body',
+    targetJoints: ['Ankles (Talocrural)', 'Hips', 'Knees'],
+    targetMuscles: ['Soleus', 'Gastrocnemius', 'Adductor Magnus', 'Glutes'],
+    durationSeconds: 50,
+    cadence: 'Sink deep, pry knees with elbows for 3s, gently rock ankles',
+    cadenceHi: 'गहरा बैठें, कोहनियों से घुटनों को बाहर दबाएं और एंकल रॉक करें',
+    description: 'Sink into deepest comfortable squat stance, press elbows inside knees, rock weight gently side to side to load ankles and stretch groin.',
+    descriptionHi: 'गहरे स्क्वाट में बैठें, कोहनियों से घुटनों को बाहर फैलाएं और टखनों को लचीला बनाएं।',
+    formCues: [
+      'Keep entire foot in contact with the floor, especially heels.',
+      'Pry knees wide to activate hip abductors and decompress hips.',
+      'Maintain an open chest and proud collarbones.',
+    ],
+    whyItMatters: 'Dramatically improves bottom-position squat depth and ankle dorsiflexion under safe bodyweight conditions.',
+    whyItMattersHi: 'गहरे स्क्वाट में स्थिरता और संतुलन बढ़ाता है।',
+    intensity: 'Moderate',
+  },
+
+  highKneesButtKicks: {
+    id: 'high-knees-butt-kicks-combo',
+    name: 'Explosive High Knees & Rapid Heel Flicks',
+    nameHi: 'एक्सप्लोसिव हाई नीज व बट किक्स',
+    category: 'Full Body & Cardio',
+    targetJoints: ['Ankles', 'Knees', 'Hips'],
+    targetMuscles: ['Hip Flexors', 'Quadriceps', 'Hamstrings', 'Cardiopulmonary System'],
+    durationSeconds: 45,
+    cadence: '20s rhythmic high knees, 25s rapid heel flick butt kicks',
+    cadenceHi: '20s हाई नीज, 25s तेज बट किक्स',
+    description: 'Drive knees up explosively to hip height with aggressive arm pump, transitioning smoothly into rapid heel flicks toward glutes.',
+    descriptionHi: 'घुटनों को तेजी से ऊपर उठाएं और फिर एड़ियों को पीछे की ओर चलाकर दिल की धड़कन तेज करें।',
+    formCues: [
+      'Stay bouncy on the balls of your feet with rapid ground contact times.',
+      'Keep torso upright with slight forward athletic tilt.',
+      'Coordinate opposite arm drive with opposite knee.',
+    ],
+    whyItMatters: 'Maximizes central nervous system firing, rapid motor unit recruitment, and cardiac stroke volume before high-output training.',
+    whyItMattersHi: 'नर्वस सिस्टम और मांसपेशियों को हाई-स्पीड ट्रेनिंग के लिए पूरी तरह जगाता है।',
+    intensity: 'Dynamic',
+  },
 };
 
 // Generator logic to create a specialized 5-minute dynamic warm-up
@@ -520,4 +608,230 @@ export function generateWarmUpRoutine(
     rationaleHi,
     stretches: chosenStretches,
   };
+}
+
+export interface IntensityWarmUpConfig {
+  intensity: WorkoutIntensity;
+  label: string;
+  labelHi: string;
+  badge: string;
+  rpeRange: string;
+  targetBpm: string;
+  colorClass: string;
+  badgeBg: string;
+  borderColor: string;
+  focusSummary: string;
+  focusSummaryHi: string;
+  rationale: string;
+  rationaleHi: string;
+  suggestedDurationSeconds: number;
+}
+
+export const INTENSITY_WARMUP_CONFIGS: Record<WorkoutIntensity, IntensityWarmUpConfig> = {
+  Light: {
+    intensity: 'Light',
+    label: 'Light / Recovery',
+    labelHi: 'हल्का / रिकवरी',
+    badge: 'Low RPE 4-6',
+    rpeRange: '4 - 6',
+    targetBpm: '90 - 110 bpm',
+    colorClass: 'text-emerald-700 bg-emerald-50 border-emerald-200',
+    badgeBg: 'bg-emerald-500',
+    borderColor: 'border-emerald-300',
+    focusSummary: 'Low-impact joint lubrication, gentle synovial fluid circulation & postural decompression',
+    focusSummaryHi: 'हल्का खिंचाव, जोड़ों का स्नेहन और तनावमुक्ति',
+    rationale: 'Prioritizes unweighted rotational gliding, respiratory rhythm, and tissue decompression without draining nervous system energy.',
+    rationaleHi: 'जोड़ों को बिना थकाए सहज बनाता है और शरीर को गतिशीलता प्रदान करता है।',
+    suggestedDurationSeconds: 240,
+  },
+  Moderate: {
+    intensity: 'Moderate',
+    label: 'Moderate / Hypertrophy',
+    labelHi: 'मध्यम / हाइपरट्रॉफी',
+    badge: 'Standard RPE 7-8',
+    rpeRange: '7 - 8',
+    targetBpm: '110 - 130 bpm',
+    colorClass: 'text-blue-700 bg-blue-50 border-blue-200',
+    badgeBg: 'bg-blue-500',
+    borderColor: 'border-blue-300',
+    focusSummary: 'Balanced motor pattern activation, active ROM expansion & core abdominal bracing',
+    focusSummaryHi: 'संतुलित सक्रियता, गति सीमा विस्तार और कोर मजबूती',
+    rationale: 'Balances joint lubrication with active motor unit activation, prepping muscles for working hypertrophy sets and volume accumulation.',
+    rationaleHi: 'मानक वर्कआउट के लिए संतुलित तैयारी: मांसपेशियों को काम के लिए तैयार करता है।',
+    suggestedDurationSeconds: 300,
+  },
+  High: {
+    intensity: 'High',
+    label: 'High / Heavy Strength',
+    labelHi: 'उच्च / भारी स्ट्रेंथ',
+    badge: 'Heavy RPE 8-9',
+    rpeRange: '8 - 9',
+    targetBpm: '125 - 145 bpm',
+    colorClass: 'text-amber-700 bg-amber-50 border-amber-200',
+    badgeBg: 'bg-amber-500',
+    borderColor: 'border-amber-300',
+    focusSummary: 'High neuromuscular priming, CNS readiness, posterior chain firing & deep joint mobilization',
+    focusSummaryHi: 'नर्वस सिस्टम और रीढ़ की हड्डी की मजबूत तैयारी',
+    rationale: 'Tailored for heavy compound loads (bench, squats, deadlifts, presses). Mobilizes weight-bearing capsules and fires stabilizing synergists.',
+    rationaleHi: 'भारी वजन उठाने से पहले जरूरी: नसों को जगाता है और जोड़ों को सुरक्षित रखता है।',
+    suggestedDurationSeconds: 300,
+  },
+  Peak: {
+    intensity: 'Peak',
+    label: 'Peak / Explosive',
+    labelHi: 'अधिकतम / एक्सप्लोसिव',
+    badge: 'Max RPE 9-10',
+    rpeRange: '9 - 10',
+    targetBpm: '140 - 165 bpm',
+    colorClass: 'text-rose-700 bg-rose-50 border-rose-200',
+    badgeBg: 'bg-rose-500',
+    borderColor: 'border-rose-300',
+    focusSummary: 'Maximum velocity, elastic tendon stiffness, plyometric readiness & rapid cardiac elevation',
+    focusSummaryHi: 'उच्च गति, इलास्टिक टेंडन और तेजी से धड़कन बढ़ाना',
+    rationale: 'Required for max effort attempts, PR testing, and high-tempo HIIT. Optimizes the stretch-shortening cycle (SSC) and primes rapid motor firing.',
+    rationaleHi: 'अधिकतम गति और पीआर के लिए: पूरे शरीर को तुरंत हाई-गियर में लाता है।',
+    suggestedDurationSeconds: 300,
+  },
+};
+
+export function getWarmUpForIntensity(
+  intensity: WorkoutIntensity,
+  workoutTitle: string = '',
+  targetMuscles: string[] = []
+): {
+  config: IntensityWarmUpConfig;
+  stretches: DynamicStretch[];
+} {
+  const config = INTENSITY_WARMUP_CONFIGS[intensity] || INTENSITY_WARMUP_CONFIGS.Moderate;
+  const titleLower = workoutTitle.toLowerCase();
+  const musclesLower = targetMuscles.map((m) => m.toLowerCase());
+
+  const isPush =
+    titleLower.includes('push') ||
+    titleLower.includes('chest') ||
+    musclesLower.some((m) => m.includes('chest') || m.includes('pec') || m.includes('shoulder') || m.includes('tricep'));
+
+  const isPull =
+    titleLower.includes('pull') ||
+    titleLower.includes('back') ||
+    musclesLower.some((m) => m.includes('back') || m.includes('lat') || m.includes('bicep'));
+
+  const isLegs =
+    titleLower.includes('leg') ||
+    titleLower.includes('lower') ||
+    titleLower.includes('squat') ||
+    musclesLower.some((m) => m.includes('quad') || m.includes('hamstring') || m.includes('glute') || m.includes('calv'));
+
+  let stretches: DynamicStretch[] = [];
+
+  if (intensity === 'Light') {
+    if (isPush) {
+      stretches = [
+        MASTER_DYNAMIC_STRETCHES.armCirclesChestOpeners,
+        MASTER_DYNAMIC_STRETCHES.wristAndForearmRolls,
+        MASTER_DYNAMIC_STRETCHES.threadTheNeedleThoracic,
+        MASTER_DYNAMIC_STRETCHES.torsoRotationsHipSwivels,
+      ];
+    } else if (isPull) {
+      stretches = [
+        MASTER_DYNAMIC_STRETCHES.thoracicCatCowDownDog,
+        MASTER_DYNAMIC_STRETCHES.threadTheNeedleThoracic,
+        MASTER_DYNAMIC_STRETCHES.bandOrTowelOverheadPullThroughs,
+        MASTER_DYNAMIC_STRETCHES.torsoRotationsHipSwivels,
+      ];
+    } else if (isLegs) {
+      stretches = [
+        MASTER_DYNAMIC_STRETCHES.hipNinetyNinetyFlow,
+        MASTER_DYNAMIC_STRETCHES.torsoRotationsHipSwivels,
+        MASTER_DYNAMIC_STRETCHES.thoracicCatCowDownDog,
+        MASTER_DYNAMIC_STRETCHES.dynamicLegSwingsFrontLateral,
+      ];
+    } else {
+      stretches = [
+        MASTER_DYNAMIC_STRETCHES.armCirclesChestOpeners,
+        MASTER_DYNAMIC_STRETCHES.threadTheNeedleThoracic,
+        MASTER_DYNAMIC_STRETCHES.hipNinetyNinetyFlow,
+        MASTER_DYNAMIC_STRETCHES.wristAndForearmRolls,
+      ];
+    }
+  } else if (intensity === 'Moderate') {
+    if (isPush) {
+      stretches = [
+        MASTER_DYNAMIC_STRETCHES.armCirclesChestOpeners,
+        MASTER_DYNAMIC_STRETCHES.scapularPushupsPlank,
+        MASTER_DYNAMIC_STRETCHES.bandOrTowelOverheadPullThroughs,
+        MASTER_DYNAMIC_STRETCHES.wristAndForearmRolls,
+        MASTER_DYNAMIC_STRETCHES.inchwormToSpiderman,
+      ];
+    } else if (isPull) {
+      stretches = [
+        MASTER_DYNAMIC_STRETCHES.thoracicCatCowDownDog,
+        MASTER_DYNAMIC_STRETCHES.birdDogDynamicReach,
+        MASTER_DYNAMIC_STRETCHES.bandOrTowelOverheadPullThroughs,
+        MASTER_DYNAMIC_STRETCHES.worldsGreatestStretch,
+        MASTER_DYNAMIC_STRETCHES.armCirclesChestOpeners,
+      ];
+    } else if (isLegs) {
+      stretches = [
+        MASTER_DYNAMIC_STRETCHES.deepCossackSquatsSideShift,
+        MASTER_DYNAMIC_STRETCHES.gluteBridgeDynamicReach,
+        MASTER_DYNAMIC_STRETCHES.deepSquatPry,
+        MASTER_DYNAMIC_STRETCHES.dynamicLegSwingsFrontLateral,
+        MASTER_DYNAMIC_STRETCHES.worldsGreatestStretch,
+      ];
+    } else {
+      stretches = [
+        MASTER_DYNAMIC_STRETCHES.thoracicCatCowDownDog,
+        MASTER_DYNAMIC_STRETCHES.scapularPushupsPlank,
+        MASTER_DYNAMIC_STRETCHES.deepCossackSquatsSideShift,
+        MASTER_DYNAMIC_STRETCHES.birdDogDynamicReach,
+        MASTER_DYNAMIC_STRETCHES.gluteBridgeDynamicReach,
+      ];
+    }
+  } else if (intensity === 'High') {
+    if (isPush) {
+      stretches = [
+        MASTER_DYNAMIC_STRETCHES.scapularPushupsPlank,
+        MASTER_DYNAMIC_STRETCHES.bandOrTowelOverheadPullThroughs,
+        MASTER_DYNAMIC_STRETCHES.inchwormToSpiderman,
+        MASTER_DYNAMIC_STRETCHES.worldsGreatestStretch,
+        MASTER_DYNAMIC_STRETCHES.squatToOverheadReach,
+      ];
+    } else if (isPull) {
+      stretches = [
+        MASTER_DYNAMIC_STRETCHES.birdDogDynamicReach,
+        MASTER_DYNAMIC_STRETCHES.thoracicCatCowDownDog,
+        MASTER_DYNAMIC_STRETCHES.inchwormToSpiderman,
+        MASTER_DYNAMIC_STRETCHES.worldsGreatestStretch,
+        MASTER_DYNAMIC_STRETCHES.gluteBridgeDynamicReach,
+      ];
+    } else if (isLegs) {
+      stretches = [
+        MASTER_DYNAMIC_STRETCHES.deepSquatPry,
+        MASTER_DYNAMIC_STRETCHES.worldsGreatestStretch,
+        MASTER_DYNAMIC_STRETCHES.gluteBridgeDynamicReach,
+        MASTER_DYNAMIC_STRETCHES.dynamicLegSwingsFrontLateral,
+        MASTER_DYNAMIC_STRETCHES.squatToOverheadReach,
+      ];
+    } else {
+      stretches = [
+        MASTER_DYNAMIC_STRETCHES.worldsGreatestStretch,
+        MASTER_DYNAMIC_STRETCHES.inchwormToSpiderman,
+        MASTER_DYNAMIC_STRETCHES.gluteBridgeDynamicReach,
+        MASTER_DYNAMIC_STRETCHES.dynamicLegSwingsFrontLateral,
+        MASTER_DYNAMIC_STRETCHES.squatToOverheadReach,
+      ];
+    }
+  } else {
+    // Peak Intensity
+    stretches = [
+      MASTER_DYNAMIC_STRETCHES.lightJumpingJacksAnklePogo,
+      MASTER_DYNAMIC_STRETCHES.highKneesButtKicks,
+      MASTER_DYNAMIC_STRETCHES.worldsGreatestStretch,
+      MASTER_DYNAMIC_STRETCHES.dynamicLegSwingsFrontLateral,
+      MASTER_DYNAMIC_STRETCHES.squatToOverheadReach,
+    ];
+  }
+
+  return { config, stretches };
 }

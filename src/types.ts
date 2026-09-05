@@ -107,18 +107,24 @@ export interface WorkoutExerciseItem {
 export interface WeeklyScheduleDay {
   dayNumber: number;
   dayName: string;
+  dayNameHi?: string;
   focus: string;
+  focusHi?: string;
   restDay?: boolean;
   exerciseCount?: number;
   exercisesSummary?: string[];
   tips?: string;
+  tipsHi?: string;
 }
 
 export interface MonthlyWeekBlock {
   weekNumber: number;
   title: string;
+  titleHi?: string;
   goal: string;
+  goalHi?: string;
   focus: string;
+  focusHi?: string;
   intensity?: 'Low' | 'Moderate' | 'High' | 'Peak' | 'Deload';
   scheduleTips: string;
 }
@@ -126,18 +132,23 @@ export interface MonthlyWeekBlock {
 export interface WorkoutPlan {
   id: string;
   title: string;
+  titleHi?: string;
   splitType: string;
+  splitTypeHi?: string;
   level?: FitnessLevel;
   targetGender?: 'all' | 'female' | 'male';
   durationMinutes: number;
   daysPerWeek?: number;
   description: string;
+  descriptionHi?: string;
   exercises: WorkoutExerciseItem[];
   tags: string[];
   programType?: 'single' | '1-week' | '1-month' | 'daily';
   weeklySchedule?: WeeklyScheduleDay[];
   monthlySchedule?: MonthlyWeekBlock[];
 }
+
+export type WorkoutIntensity = 'Light' | 'Moderate' | 'High' | 'Peak';
 
 export interface ActiveWorkoutSession {
   id: string;
@@ -152,6 +163,7 @@ export interface ActiveWorkoutSession {
   completedSetsCount: number;
   activeExerciseIndex: number;
   activeSetIndex: number;
+  intensity?: WorkoutIntensity;
 }
 
 export interface CompletedWorkoutLog {
@@ -168,6 +180,7 @@ export interface CompletedWorkoutLog {
     completedSets: { weightKg: number; reps: number; isWarmup?: boolean }[];
   }[];
   rpeAverage?: number;
+  intensity?: WorkoutIntensity;
   notes?: string;
 }
 
@@ -314,6 +327,7 @@ export interface InAppReminderAlert {
 export interface PersonalDietPlan {
   id: string;
   title: string;
+  titleHi?: string;
   tagline: string;
   goal: FitnessGoal;
   targetGender?: 'all' | 'female' | 'male';
