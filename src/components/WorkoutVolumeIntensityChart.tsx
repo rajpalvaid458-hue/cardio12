@@ -123,7 +123,7 @@ const DEMO_BENCHMARK_LOGS: CompletedWorkoutLog[] = [
 ];
 
 export const WorkoutVolumeIntensityChart: React.FC<WorkoutVolumeIntensityChartProps> = ({
-  workoutLogs,
+  workoutLogs = [],
   weightUnit = 'kg',
 }) => {
   const { isHindi } = useLanguage();
@@ -131,11 +131,11 @@ export const WorkoutVolumeIntensityChart: React.FC<WorkoutVolumeIntensityChartPr
   // State
   const [viewMode, setViewMode] = useState<'both' | 'volume' | 'intensity'>('both');
   const [timeRange, setTimeRange] = useState<'all' | '7' | '14' | '30'>('all');
-  const [useBenchmarkData, setUseBenchmarkData] = useState<boolean>(workoutLogs.length < 2);
+  const [useBenchmarkData, setUseBenchmarkData] = useState<boolean>((workoutLogs?.length || 0) < 2);
 
   // Active logs based on real vs benchmark toggle
   const activeLogs = useMemo(() => {
-    if (useBenchmarkData || workoutLogs.length === 0) {
+    if (useBenchmarkData || (workoutLogs?.length || 0) === 0) {
       return DEMO_BENCHMARK_LOGS;
     }
     return workoutLogs;

@@ -89,6 +89,7 @@ interface FitnessContextType {
   cancelActiveWorkout: () => void;
   saveWorkoutPlan: (plan: WorkoutPlan) => void;
   deleteWorkoutPlan: (planId: string) => void;
+  addWorkoutLog: (log: CompletedWorkoutLog) => void;
 
   // Actions - Rest Timer
   startRestTimer: (seconds: number, exerciseName?: string) => void;
@@ -1325,6 +1326,15 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
     setRestTimer(null);
   }, []);
 
+  const addWorkoutLog = useCallback((log: CompletedWorkoutLog) => {
+    setWorkoutLogs((prev) => [log, ...prev]);
+    setUserProfileState((prev) => ({
+      ...prev,
+      streakDays: prev.streakDays + 1,
+      lastActiveDate: getTodayString(),
+    }));
+  }, []);
+
   const saveWorkoutPlan = useCallback((newPlan: WorkoutPlan) => {
     setPlans((prev) => {
       const idx = prev.findIndex((p) => p.id === newPlan.id);
@@ -1897,6 +1907,7 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
         cancelActiveWorkout,
         saveWorkoutPlan,
         deleteWorkoutPlan,
+        addWorkoutLog,
 
         startRestTimer,
         pauseResumeRestTimer,

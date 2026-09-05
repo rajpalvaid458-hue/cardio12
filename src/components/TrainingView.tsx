@@ -428,6 +428,9 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
             <WorkoutCalendar
               workoutLogs={workoutLogs}
               onStartNewWorkout={onOpenPlanCreator}
+              onSelectExerciseDetails={onSelectExerciseDetails}
+              onSelectWarmUpForPlan={handleSelectWarmUpForPlan}
+              onStartPlanWorkout={handleStartWorkout}
             />
           </motion.div>
         )}

@@ -16,16 +16,19 @@ import {
   Layers,
   Sparkles,
   Scale,
+  Activity,
+  Target,
 } from 'lucide-react';
 import { FlexibilityTracker } from './FlexibilityTracker';
 import { BodyProgressTracker } from './BodyProgressTracker';
 import { WorkoutVolumeIntensityChart } from './WorkoutVolumeIntensityChart';
+import { WeeklyConsistencyTrendsChart } from './WeeklyConsistencyTrendsChart';
 import { BmiCalculatorTool } from './BmiCalculatorTool';
 
 export const AnalyticsView: React.FC = () => {
   const { workoutLogs, userProfile, updateUserProfile } = useFitness();
   const { t, isHindi } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'body_progress' | 'metrics' | 'bmi' | 'flexibility'>('body_progress');
+  const [activeTab, setActiveTab] = useState<'trends' | 'body_progress' | 'metrics' | 'bmi' | 'flexibility'>('trends');
 
   const [prExercise, setPrExercise] = useState('Bench Press');
   const [prWeight, setPrWeight] = useState('');
@@ -55,8 +58,23 @@ export const AnalyticsView: React.FC = () => {
       {/* Analytics Main Navigation Tabs */}
       <div className="bg-white p-2 rounded-2xl border border-slate-200 shadow-xs flex flex-wrap items-center gap-1.5">
         <button
+          onClick={() => setActiveTab('trends')}
+          className={`flex-1 min-w-[150px] px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
+            activeTab === 'trends'
+              ? 'bg-slate-900 text-white shadow-sm'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+          }`}
+        >
+          <Activity className="w-4 h-4 text-emerald-400" />
+          <span>{isHindi ? 'साप्ताहिक निरंतरता' : 'Weekly Consistency'}</span>
+          <span className="hidden sm:inline text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+            {isHindi ? 'रुझान' : 'Trends'}
+          </span>
+        </button>
+
+        <button
           onClick={() => setActiveTab('body_progress')}
-          className={`flex-1 min-w-[140px] px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all ${
+          className={`flex-1 min-w-[140px] px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
             activeTab === 'body_progress'
               ? 'bg-slate-900 text-white shadow-sm'
               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
@@ -65,13 +83,13 @@ export const AnalyticsView: React.FC = () => {
           <Camera className="w-4 h-4 text-emerald-400" />
           <span>{isHindi ? 'शरीर की प्रगति' : 'Body Progress'}</span>
           <span className="hidden sm:inline text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-            {isHindi ? 'कैमरा व तस्वीरें' : 'Camera & Photos'}
+            {isHindi ? 'तस्वीरें' : 'Photos'}
           </span>
         </button>
 
         <button
           onClick={() => setActiveTab('metrics')}
-          className={`flex-1 min-w-[140px] px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all ${
+          className={`flex-1 min-w-[140px] px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
             activeTab === 'metrics'
               ? 'bg-slate-900 text-white shadow-sm'
               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
@@ -83,28 +101,39 @@ export const AnalyticsView: React.FC = () => {
 
         <button
           onClick={() => setActiveTab('bmi')}
-          className={`flex-1 min-w-[140px] px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all ${
+          className={`flex-1 min-w-[140px] px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
             activeTab === 'bmi'
               ? 'bg-slate-900 text-white shadow-sm'
               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
           }`}
         >
           <Scale className="w-4 h-4 text-emerald-400" />
-          <span>{isHindi ? 'बीएमआई कैलकुलेटर' : 'BMI Calculator'}</span>
+          <span>{isHindi ? 'बीएमआई' : 'BMI Calc'}</span>
         </button>
 
         <button
           onClick={() => setActiveTab('flexibility')}
-          className={`flex-1 min-w-[140px] px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all ${
+          className={`flex-1 min-w-[140px] px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
             activeTab === 'flexibility'
               ? 'bg-slate-900 text-white shadow-sm'
               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
           }`}
         >
           <Heart className="w-4 h-4 text-rose-400" />
-          <span>{isHindi ? 'लचीलापन व गतिशीलता' : 'Flexibility & Mobility'}</span>
+          <span>{isHindi ? 'लचीलापन' : 'Flexibility'}</span>
         </button>
       </div>
+
+      {/* ========================================================================= */}
+      {/* TAB 0: WEEKLY WORKOUT CONSISTENCY & PROGRESS TRENDS (RECHARTS ANIMATED)   */}
+      {/* ========================================================================= */}
+      {activeTab === 'trends' && (
+        <WeeklyConsistencyTrendsChart
+          workoutLogs={workoutLogs}
+          weeklyTargetSessions={4}
+          weightUnit={userProfile.weightUnit}
+        />
+      )}
 
       {/* ========================================================================= */}
       {/* TAB 1: BODY PROGRESS & CAMERA COMPARISON */}
@@ -178,8 +207,18 @@ export const AnalyticsView: React.FC = () => {
             </div>
           </div>
 
+          {/* Weekly Consistency & Progress Trends Visualization (Recharts) */}
+          <WeeklyConsistencyTrendsChart
+            workoutLogs={workoutLogs}
+            weeklyTargetSessions={4}
+            weightUnit={userProfile.weightUnit}
+          />
+
           {/* Workout Volume and Intensity Over Time (Recharts Line Chart) */}
-          <WorkoutVolumeIntensityChart />
+          <WorkoutVolumeIntensityChart
+            workoutLogs={workoutLogs}
+            weightUnit={userProfile.weightUnit}
+          />
 
           {/* BMI Calculator Tool directly inside Performance & Metrics */}
           <BmiCalculatorTool />
