@@ -43,6 +43,13 @@ interface AuthContextType {
 const LOCAL_ACCOUNTS_KEY = 'pulsefit_user_accounts';
 const LOCAL_ACTIVE_USER_KEY = 'pulsefit_active_user';
 
+export const DEFAULT_GUEST_USER: AppUser = {
+  uid: 'guest_pulsefit_athlete',
+  email: 'athlete@pulsefit.local',
+  displayName: 'PulseFit Athlete',
+  isLocal: true,
+};
+
 function getLocalAccounts(): LocalAccount[] {
   try {
     const raw = localStorage.getItem(LOCAL_ACCOUNTS_KEY);
@@ -63,7 +70,7 @@ function saveLocalAccounts(accounts: LocalAccount[]) {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState<User | AppUser | null>(() => {
+  const [currentUser, setCurrentUser] = useState<User | AppUser>(() => {
     try {
       const saved = localStorage.getItem(LOCAL_ACTIVE_USER_KEY);
       if (saved) {
@@ -72,49 +79,59 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     } catch {
       // fallback
     }
-    return null;
+    return DEFAULT_GUEST_USER;
   });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setCurrentUser(user);
-        try {
-          localStorage.setItem(
-            LOCAL_ACTIVE_USER_KEY,
-            JSON.stringify({
-              uid: user.uid,
-              email: user.email,
-              displayName: user.displayName,
-              photoURL: user.photoURL,
-              isLocal: false,
-            })
-          );
-        } catch {
-          // ignore
-        }
-      } else {
-        // If Firebase auth has no user, keep local account if one was active
-        try {
-          const saved = localStorage.getItem(LOCAL_ACTIVE_USER_KEY);
-          if (saved) {
-            const parsed = JSON.parse(saved);
-            if (parsed?.isLocal) {
-              setCurrentUser(parsed);
-              setLoading(false);
-              return;
-            }
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (user) => {
+        if (user) {
+          setCurrentUser(user);
+          try {
+            localStorage.setItem(
+              LOCAL_ACTIVE_USER_KEY,
+              JSON.stringify({
+                uid: user.uid,
+                email: user.email,
+                displayName: user.displayName,
+                photoURL: user.photoURL,
+                isLocal: false,
+              })
+            );
+          } catch {
+            // ignore
           }
-        } catch {
-          // ignore
+        } else {
+          // If Firebase auth has no user, keep local account if one was active, or guest
+          try {
+            const saved = localStorage.getItem(LOCAL_ACTIVE_USER_KEY);
+            if (saved) {
+              const parsed = JSON.parse(saved);
+              if (parsed?.isLocal) {
+                setCurrentUser(parsed);
+                setLoading(false);
+                return;
+              }
+            }
+          } catch {
+            // ignore
+          }
+          setCurrentUser(DEFAULT_GUEST_USER);
         }
-        setCurrentUser(null);
+        setLoading(false);
+      },
+      (error) => {
+        console.warn('Firebase Auth State listener error:', error);
+        setLoading(false);
       }
-      setLoading(false);
-    });
-    return () => unsubscribe();
+    );
+
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const loginWithGoogle = async () => {
@@ -308,7 +325,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     } catch {
       // ignore
     }
-    setCurrentUser(null);
+    setCurrentUser(DEFAULT_GUEST_USER);
   };
 
   return (

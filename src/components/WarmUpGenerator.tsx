@@ -48,6 +48,7 @@ interface WarmUpGeneratorProps {
   selectedPlanId?: string | null;
   onSelectPlan?: (plan: WorkoutPlan) => void;
   onStartWorkout?: (plan: WorkoutPlan) => void;
+  onOpenQuickWarmUp?: (plan: WorkoutPlan) => void;
   onClose?: () => void;
 }
 
@@ -101,6 +102,7 @@ export const WarmUpGenerator: React.FC<WarmUpGeneratorProps> = ({
   selectedPlanId,
   onSelectPlan,
   onStartWorkout,
+  onOpenQuickWarmUp,
   onClose,
 }) => {
   const { isHindi } = useLanguage();
@@ -305,6 +307,23 @@ export const WarmUpGenerator: React.FC<WarmUpGeneratorProps> = ({
           </div>
 
           <div className="flex items-center gap-2 self-start sm:self-center shrink-0">
+            {onOpenQuickWarmUp && (
+              <button
+                type="button"
+                onClick={() => {
+                  playClickFeedback();
+                  if (currentPlan || plans[0]) {
+                    onOpenQuickWarmUp(currentPlan || plans[0]);
+                  }
+                }}
+                className="px-3 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 text-xs font-black transition-all shadow-sm flex items-center gap-1.5 cursor-pointer hover:scale-102"
+                title="Generate tailored sequence with AI Coach"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-slate-950 fill-slate-950/20" />
+                <span>{isHindi ? 'AI क्विक वॉर्म-अप' : 'AI Quick Warm-up'}</span>
+              </button>
+            )}
+
             <button
               onClick={handleCopyRoutine}
               className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold transition-all border border-slate-700 flex items-center gap-1.5 cursor-pointer"

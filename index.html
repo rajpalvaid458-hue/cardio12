@@ -1,6 +1,119 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <script>
+      // Gracefully handle Vite HMR WebSocket in sandboxed Cloud Run / AI Studio preview
+      (function() {
+        if (typeof window !== 'undefined') {
+          if (window.WebSocket) {
+            const NativeWebSocket = window.WebSocket;
+            const InterceptedWebSocket = function(url, protocols) {
+              const urlStr = String(url || '');
+              const isVite = (
+                protocols === 'vite-hmr' || 
+                protocols === 'vite-ping' || 
+                (Array.isArray(protocols) && (protocols.includes('vite-hmr') || protocols.includes('vite-ping'))) ||
+                urlStr.includes('vite') || 
+                urlStr.includes('token=')
+              );
+              if (isVite) {
+                const target = new EventTarget();
+                const dummyWs = {
+                  url: urlStr,
+                  protocols: protocols,
+                  readyState: 1, // WebSocket.OPEN
+                  OPEN: 1,
+                  CONNECTING: 0,
+                  CLOSING: 2,
+                  CLOSED: 3,
+                  binaryType: 'blob',
+                  bufferedAmount: 0,
+                  extensions: '',
+                  onopen: null,
+                  onclose: null,
+                  onerror: null,
+                  onmessage: null,
+                  send: function() {},
+                  close: function() {
+                    this.readyState = 3;
+                    if (typeof this.onclose === 'function') this.onclose({ code: 1000, reason: 'Normal Closure', wasClean: true });
+                    target.dispatchEvent(new Event('close'));
+                  },
+                  addEventListener: function(type, listener, options) {
+                    target.addEventListener(type, listener, options);
+                  },
+                  removeEventListener: function(type, listener, options) {
+                    target.removeEventListener(type, listener, options);
+                  },
+                  dispatchEvent: function(event) {
+                    return target.dispatchEvent(event);
+                  }
+                };
+                setTimeout(function() {
+                  if (dummyWs.readyState === 1) {
+                    if (typeof dummyWs.onopen === 'function') dummyWs.onopen(new Event('open'));
+                    target.dispatchEvent(new Event('open'));
+                  }
+                }, 10);
+                return dummyWs;
+              }
+              return new NativeWebSocket(url, protocols);
+            };
+            InterceptedWebSocket.prototype = NativeWebSocket.prototype;
+            InterceptedWebSocket.CONNECTING = 0;
+            InterceptedWebSocket.OPEN = 1;
+            InterceptedWebSocket.CLOSING = 2;
+            InterceptedWebSocket.CLOSED = 3;
+            window.WebSocket = InterceptedWebSocket;
+          }
+
+          const origError = console.error;
+          const origWarn = console.warn;
+          const isViteMsg = function(args) {
+            if (!args || !args.length) return false;
+            const str = String(args[0] || '') + (args[1] ? String(args[1]) : '');
+            return str.includes('[vite]') || str.includes('failed to connect to websocket') || str.includes('WebSocket connection to');
+          };
+          console.error = function(...args) {
+            if (isViteMsg(args)) return;
+            origError.apply(console, args);
+          };
+          console.warn = function(...args) {
+            if (isViteMsg(args)) return;
+            origWarn.apply(console, args);
+          };
+          window.addEventListener('unhandledrejection', function(e) {
+            if (e && e.reason && String(e.reason).includes('[vite]')) {
+              e.preventDefault();
+              e.stopImmediatePropagation();
+            }
+          });
+          window.addEventListener('error', function(e) {
+            if (e && e.message && String(e.message).includes('[vite]')) {
+              e.preventDefault();
+              e.stopImmediatePropagation();
+            }
+          });
+        }
+      })();
+
+      // Instant anti-flash theme initialization
+      (function() {
+        try {
+          const stored = localStorage.getItem('pulsefit_theme');
+          const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (stored === 'dark' || (!stored && prefersDark)) {
+            document.documentElement.classList.add('dark');
+            document.documentElement.setAttribute('data-theme', 'dark');
+            document.documentElement.style.colorScheme = 'dark';
+          } else {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.setAttribute('data-theme', 'light');
+            document.documentElement.style.colorScheme = 'light';
+          }
+        } catch (e) {}
+      })();
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PulseFit - Training, Diet & Workout Routine</title>

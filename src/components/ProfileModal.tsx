@@ -3,6 +3,7 @@ import { useFitness } from '../context/FitnessContext';
 import { useAuth } from '../context/AuthContext';
 import { UserProfile } from '../types';
 import { MedicalComplianceModal } from './MedicalComplianceModal';
+import { GoalSettingModal } from './analytics/GoalSettingModal';
 import { 
   X, 
   User, 
@@ -25,13 +26,16 @@ import {
   Loader2,
   Stethoscope,
   Languages,
+  Users,
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { ThemeToggle } from './ThemeToggle';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface ProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpenAthleteProfiles?: () => void;
 }
 
 interface Milestone {
@@ -46,14 +50,15 @@ interface Milestone {
   formatValue?: (val: number) => string;
 }
 
-export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
-  const { userProfile, updateUserProfile, dailyDiet, setMacroGoals, workoutLogs, isCloudSyncing, syncToCloud } = useFitness();
+export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, onOpenAthleteProfiles }) => {
+  const { userProfile, updateUserProfile, dailyDiet, setMacroGoals, workoutLogs, isCloudSyncing, syncToCloud, activeProfile } = useFitness();
   const { currentUser, logout, openAuthModal } = useAuth();
   const { language, setLanguage, t, isHindi } = useLanguage();
 
   const [activeTab, setActiveTab] = useState<'profile' | 'milestones'>('profile');
   const [milestoneFilter, setMilestoneFilter] = useState<'all' | 'streak' | 'volume' | 'workouts'>('all');
   const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
+  const [isGoalSettingOpen, setIsGoalSettingOpen] = useState(false);
 
   const [name, setName] = useState(userProfile.name);
   const [weightKg, setWeightKg] = useState(userProfile.weightKg.toString());
@@ -342,6 +347,43 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
           </div>
         </div>
 
+        {/* Multi-User Separate Section Card ("सबका अलग सेक्शन") */}
+        <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-50 via-slate-50 to-emerald-50/40 border border-emerald-300/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500 text-slate-950 flex items-center justify-center font-bold shadow-sm">
+              <Users className="w-5 h-5 text-slate-950" />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-emerald-800 flex items-center gap-1.5">
+                <span>{isHindi ? 'अलग-अलग सेक्शन (Multi-User Section)' : 'Isolated Athlete Section'}</span>
+                <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-600 text-white font-mono font-black">
+                  ACTIVE
+                </span>
+              </div>
+              <div className="text-sm font-extrabold text-slate-900">
+                {activeProfile?.name || userProfile.name}
+              </div>
+              <div className="text-[11px] text-slate-500 font-medium">
+                {isHindi ? 'प्रत्येक व्यक्ति के लिए अलग वर्कआउट, डाइट और गोल सुरक्षित' : 'Individual workouts, diet, and goals isolated per person'}
+              </div>
+            </div>
+          </div>
+
+          {onOpenAthleteProfiles && (
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onOpenAthleteProfiles();
+              }}
+              className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm shadow-emerald-600/20 whitespace-nowrap"
+            >
+              <Users className="w-4 h-4" />
+              <span>{isHindi ? 'सेक्शन बदलें / नया जोड़ें' : 'Switch / Add Person'}</span>
+            </button>
+          )}
+        </div>
+
         {/* Tab Navigation */}
         <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-2xl border border-slate-200">
           <button
@@ -418,6 +460,9 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
               </div>
             </div>
 
+            {/* Global Theme Preference Card (Light / Dark Mode synced to Firestore) */}
+            <ThemeToggle variant="card" />
+
             <div className="space-y-1">
               <label className="text-xs text-slate-600 font-semibold">
                 {isHindi ? 'आपका नाम (Name)' : 'Your Name'}
@@ -462,6 +507,30 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
                   <option value="lbs">Pounds (lbs)</option>
                 </select>
               </div>
+            </div>
+
+            {/* Detailed Goals & Milestones Shortcut */}
+            <div className="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 flex items-center justify-between gap-3 shadow-2xs">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                  <Target className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-slate-900">
+                    {isHindi ? 'उन्नत लक्ष्य और मील के पत्थर' : 'Advanced Fitness Targets'}
+                  </div>
+                  <div className="text-[11px] text-slate-600">
+                    {isHindi ? 'वजन, मांसपेशी लाभ और कसरत आवृत्ति लक्ष्य' : 'Target weight, muscle gain, & activity frequency'}
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsGoalSettingOpen(true)}
+                className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all cursor-pointer whitespace-nowrap shadow-xs"
+              >
+                {isHindi ? 'लक्ष्य सेट करें' : 'Set Targets'}
+              </button>
             </div>
 
             {/* Macro Goals */}
@@ -702,6 +771,11 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
           isOpen={isLegalModalOpen}
           onClose={() => setIsLegalModalOpen(false)}
           defaultSection="medical"
+        />
+
+        <GoalSettingModal
+          isOpen={isGoalSettingOpen}
+          onClose={() => setIsGoalSettingOpen(false)}
         />
       </motion.div>
     </div>

@@ -1,7 +1,9 @@
 import { Exercise, WorkoutPlan, FoodItem, RoutineItem, DailyHabit, SupplementItem, PersonalDietPlan } from '../types';
 import { NORMAL_WORKOUT_PLANS } from './normalWorkoutPlans';
+import { WEIGHT_LOSS_EXERCISES, WEIGHT_LOSS_WORKOUT_PLANS } from './weightLossPresets';
 
 export const EXERCISE_DATABASE: Exercise[] = [
+  ...WEIGHT_LOSS_EXERCISES,
   // HOME EXERCISES (NO EQUIPMENT / BODYWEIGHT)
   {
     id: 'bodyweight-pushups',
@@ -1388,6 +1390,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
 ];
 
 export const PRESET_WORKOUT_PLANS: WorkoutPlan[] = [
+  ...WEIGHT_LOSS_WORKOUT_PLANS,
   ...NORMAL_WORKOUT_PLANS,
   {
     id: 'plan-home-no-equipment-fullbody',

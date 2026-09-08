@@ -21,6 +21,7 @@ export type MuscleGroup =
   | 'Core & Abs' 
   | 'Cardio & HIIT'
   | 'Cardio'
+  | 'Weight Loss & Fat Burn'
   | 'Zumba & Dance'
   | 'Swimming & Aquatics'
   | 'Calisthenics & Bodyweight'
@@ -33,6 +34,7 @@ export type MuscleGroup =
 export type TrainingDiscipline = 
   | 'All'
   | 'Weights & Strength'
+  | 'Weight Loss & Fat Burn'
   | 'Cardio & HIIT'
   | 'Zumba & Dance'
   | 'Swimming'
@@ -392,10 +394,68 @@ export interface DailyHabit {
   streakDays: number;
 }
 
+export type WeightGoalType = 'lose' | 'maintain' | 'gain';
+
+export interface UserGoalSettings {
+  // 1. Target Weight Goal
+  startingWeightKg: number;
+  targetWeightKg: number;
+  weightGoalType: WeightGoalType;
+  targetWeightDate?: string; // YYYY-MM-DD
+  weeklyRateKg?: number; // e.g. 0.4 kg/week
+
+  // 2. Muscle Gain Goal
+  targetMuscleGainKg: number; // e.g. 3.5 kg lean mass
+  startingMuscleMassKg?: number;
+  targetMuscleGroups: MuscleGroup[]; // e.g. ['Chest', 'Back', 'Quadriceps', 'Biceps']
+  targetMonthlyVolumeKg: number; // e.g. 45000 kg total volume/month
+  targetChestCm?: number;
+  targetArmsCm?: number;
+  targetThighsCm?: number;
+
+  // 3. Activity Frequency Goal
+  targetWorkoutsPerWeek: number; // e.g. 4 days/week
+  targetActiveMinutesPerWeek: number; // e.g. 200 min/week
+  preferredDays: string[]; // e.g. ['Mon', 'Tue', 'Wed', 'Fri']
+  targetMonthlyWorkouts: number; // e.g. 16 sessions/month
+
+  // Metadata & Motivation
+  motivationNotes?: string;
+  lastUpdated?: string;
+}
+
+export type ThemeMode = 'light' | 'dark';
+
 export interface UserProfile {
+  id?: string;
   name: string;
+  avatarColor?: string;
+  theme?: ThemeMode;
   age: number;
   gender: 'male' | 'female' | 'other';
+  heightCm: number;
+  weightKg: number;
+  targetWeightKg: number;
+  goal: FitnessGoal;
+  goals?: UserGoalSettings;
+  fitnessLevel: FitnessLevel;
+  activityLevel: 'sedentary' | 'lightly_active' | 'moderately_active' | 'very_active' | 'athlete';
+  dailyCalorieTarget: number;
+  dailyProteinTarget: number;
+  dailyCarbsTarget: number;
+  dailyFatsTarget: number;
+  dailyWaterTargetMl: number;
+  weightUnit: 'kg' | 'lbs';
+  streakDays: number;
+  lastActiveDate: string;
+}
+
+export interface AthleteProfile {
+  id: string;
+  name: string;
+  avatarColor: string; // e.g. 'emerald', 'amber', 'rose', 'sky', 'indigo', 'violet', 'cyan'
+  gender: 'male' | 'female' | 'other';
+  age: number;
   heightCm: number;
   weightKg: number;
   targetWeightKg: number;
@@ -410,6 +470,8 @@ export interface UserProfile {
   weightUnit: 'kg' | 'lbs';
   streakDays: number;
   lastActiveDate: string;
+  createdAt: number;
+  notes?: string;
 }
 
 export interface TimerSettings {

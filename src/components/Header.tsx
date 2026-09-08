@@ -19,8 +19,12 @@ import {
   Loader2,
   Bell,
   Languages,
+  LogOut,
+  Users,
+  Crown,
 } from 'lucide-react';
 import { PWAInstallButton } from './PWAInstallButton';
+import { ThemeToggle } from './ThemeToggle';
 
 export type TabType = 'training' | 'timers' | 'diet' | 'routine' | 'coach' | 'analytics';
 
@@ -31,6 +35,7 @@ interface HeaderProps {
   onOpenActiveWorkoutModal: () => void;
   onOpenComplianceModal: () => void;
   onOpenRemindersModal: () => void;
+  onOpenAthleteProfilesModal?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -40,9 +45,10 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenActiveWorkoutModal,
   onOpenComplianceModal,
   onOpenRemindersModal,
+  onOpenAthleteProfilesModal,
 }) => {
-  const { activeWorkout, userProfile, isCloudSyncing, activeInAppAlerts } = useFitness();
-  const { currentUser, openAuthModal } = useAuth();
+  const { activeWorkout, userProfile, isCloudSyncing, activeInAppAlerts, activeProfile } = useFitness();
+  const { currentUser, openAuthModal, logout } = useAuth();
   const { language, toggleLanguage, t, isHindi } = useLanguage();
 
   const formatElapsed = (sec: number) => {
@@ -61,20 +67,44 @@ export const Header: React.FC<HeaderProps> = ({
   ];
 
   return (
-    <header className="sticky top-0 z-40 bg-[#0F172A] text-white shadow-md border-b border-slate-800/80">
+    <header className="sticky top-0 z-40 backdrop-blur-2xl bg-slate-950/95 dark:bg-[#040813]/95 text-white shadow-2xl shadow-black/30 border-b border-white/[0.08] transition-colors">
+      {/* Top Ultra-Luxury Concierge Status Micro-Ticker */}
+      <div className="w-full bg-slate-950/90 text-[10px] text-slate-400 py-1 px-4 sm:px-8 border-b border-white/[0.06] flex items-center justify-between font-mono tracking-widest uppercase select-none">
+        <div className="flex items-center gap-2">
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="text-slate-300 font-semibold">PULSEFIT PRIVATE ATELIER</span>
+          <span className="text-slate-600 hidden sm:inline">•</span>
+          <span className="text-amber-400/90 font-medium hidden sm:inline flex items-center gap-1">
+            <Crown className="w-2.5 h-2.5 text-amber-400 inline" /> BLACK EDITION
+          </span>
+        </div>
+        <div className="flex items-center gap-3 text-slate-400 text-[9px] sm:text-[10px]">
+          <span className="hidden md:inline text-slate-500">BIOMETRICS SYNCED</span>
+          <span className="text-emerald-400 font-bold">READY 96%</span>
+        </div>
+      </div>
+
+      {/* Top micro ambient glow line */}
+      <div className="h-[2px] w-full bg-gradient-to-r from-transparent via-emerald-500/80 via-amber-400/50 to-transparent opacity-80" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Brand */}
-          <div className="flex items-center gap-3 cursor-pointer select-none" onClick={() => setActiveTab('training')}>
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-emerald-400 flex items-center justify-center shadow-md shadow-emerald-500/20">
-              <Dumbbell className="w-5 h-5 text-slate-950 stroke-[2.5]" />
+          <div className="flex items-center gap-3 cursor-pointer select-none group" onClick={() => setActiveTab('training')}>
+            <div className="relative">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-amber-400 p-[1.5px] shadow-lg shadow-emerald-500/25 group-hover:scale-105 group-hover:shadow-amber-500/30 transition-all duration-300">
+                <div className="w-full h-full rounded-[10px] bg-slate-950 flex items-center justify-center">
+                  <Dumbbell className="w-5 h-5 text-emerald-400 group-hover:text-amber-300 transition-colors stroke-[2.5]" />
+                </div>
+              </div>
+              <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-slate-950 animate-pulse" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-xl tracking-tight text-white">
+                <span className="font-black text-xl tracking-tight text-white group-hover:text-emerald-300 transition-colors">
                   PULSE<span className="text-emerald-400">FIT</span>
                 </span>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                <span className="text-[9px] uppercase font-black tracking-[0.2em] px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500/20 via-yellow-500/10 to-emerald-500/20 text-amber-300 border border-amber-500/40 shadow-xs flex items-center gap-1">
+                  <Crown className="w-2.5 h-2.5 text-amber-400" />
                   PRO
                 </span>
               </div>
@@ -85,7 +115,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           {/* Center Navigation for Desktop */}
-          <nav className="hidden lg:flex items-center gap-1 bg-slate-800/80 p-1 rounded-xl border border-slate-700/60 shadow-inner">
+          <nav className="hidden lg:flex items-center gap-1 bg-slate-900/80 p-1.5 rounded-2xl border border-slate-800/90 shadow-inner backdrop-blur-md">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
@@ -93,10 +123,10 @@ export const Header: React.FC<HeaderProps> = ({
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
-                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
                     isActive
-                      ? 'bg-emerald-500 text-slate-950 shadow-sm font-bold'
-                      : 'text-slate-300 hover:text-white hover:bg-slate-700/60'
+                      ? 'bg-gradient-to-r from-emerald-500 to-emerald-400 text-slate-950 shadow-md shadow-emerald-500/25 font-black scale-102'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-800/80'
                   }`}
                 >
                   <Icon className={`w-4 h-4 ${isActive ? 'stroke-[2.5]' : ''}`} />
@@ -130,6 +160,27 @@ export const Header: React.FC<HeaderProps> = ({
               <Flame className="w-4 h-4 fill-amber-400 text-amber-400" />
               <span className="text-xs font-bold font-mono">{userProfile.streakDays}{t('streak_suffix')}</span>
             </div>
+
+            {/* Athlete Profiles / Separate Section Button ("सबका अलग सेक्शन") */}
+            {onOpenAthleteProfilesModal && (
+              <button
+                onClick={onOpenAthleteProfilesModal}
+                className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 transition-all shadow-xs group"
+                title={isHindi ? "अलग-अलग सेक्शन (दूसरों के लिए) / सेक्शन बदलें या नया जोड़ें" : "Switch Person Section / Add Profile"}
+              >
+                <div className="w-5 h-5 rounded-lg bg-emerald-500/30 flex items-center justify-center text-emerald-300">
+                  <Users className="w-3.5 h-3.5" />
+                </div>
+                <div className="text-left leading-none hidden sm:block">
+                  <div className="text-[9px] uppercase font-black tracking-wider text-emerald-400">
+                    {isHindi ? 'अलग सेक्शन' : 'Section'}
+                  </div>
+                  <div className="text-xs font-bold text-white max-w-[85px] truncate">
+                    {activeProfile?.name || userProfile.name}
+                  </div>
+                </div>
+              </button>
+            )}
 
             {/* Cloud Sync Status Indicator */}
             {currentUser && (
@@ -165,18 +216,30 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             </button>
 
-            {/* Auth Button */}
+            {/* Global Theme Switcher (Light / Dark Mode) */}
+            <ThemeToggle variant="compact" />
+
+            {/* Auth Button & Quick Signout */}
             {currentUser ? (
-              <button
-                onClick={onOpenProfile}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20 text-xs font-semibold transition"
-                title={`Signed in as ${currentUser.email}`}
-              >
-                <UserCheck className="w-3.5 h-3.5" />
-                <span className="max-w-[90px] truncate hidden sm:inline">
-                  {currentUser.displayName || currentUser.email?.split('@')[0]}
-                </span>
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={onOpenProfile}
+                  className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20 text-xs font-semibold transition"
+                  title={`Signed in as ${currentUser.email || currentUser.displayName}`}
+                >
+                  <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="max-w-[70px] sm:max-w-[100px] truncate">
+                    {currentUser.displayName || currentUser.email?.split('@')[0]}
+                  </span>
+                </button>
+                <button
+                  onClick={logout}
+                  className="p-1.5 rounded-xl bg-slate-800 hover:bg-rose-950/60 border border-slate-700 hover:border-rose-700/60 text-slate-400 hover:text-rose-300 transition"
+                  title={isHindi ? 'लॉग आउट करें' : 'Sign out'}
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                </button>
+              </div>
             ) : (
               <button
                 onClick={openAuthModal}
@@ -224,7 +287,7 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Mobile Sub-Navigation Bar */}
-      <div className="lg:hidden border-t border-slate-800 bg-[#0F172A] overflow-x-auto no-scrollbar px-3 py-2 flex items-center gap-1.5">
+      <div className="lg:hidden border-t border-slate-800/80 bg-slate-950/95 dark:bg-[#070B14]/95 backdrop-blur-md overflow-x-auto no-scrollbar px-3 py-2 flex items-center gap-1.5">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
@@ -232,10 +295,10 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs whitespace-nowrap font-medium transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs whitespace-nowrap font-bold transition-all cursor-pointer ${
                 isActive
-                  ? 'bg-emerald-500 text-slate-950 font-bold shadow-sm'
-                  : 'text-slate-300 hover:text-white bg-slate-800/60'
+                  ? 'bg-gradient-to-r from-emerald-500 to-emerald-400 text-slate-950 font-black shadow-sm shadow-emerald-500/30'
+                  : 'text-slate-300 hover:text-white bg-slate-900/80 border border-slate-800/60'
               }`}
             >
               <Icon className="w-3.5 h-3.5" />
@@ -252,6 +315,8 @@ export const Header: React.FC<HeaderProps> = ({
           <Languages className="w-3 h-3" />
           <span>{isHindi ? 'English' : 'हिंदी'}</span>
         </button>
+
+        <ThemeToggle variant="compact" className="shrink-0" />
       </div>
     </header>
   );

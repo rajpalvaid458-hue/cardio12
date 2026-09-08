@@ -155,6 +155,7 @@ export const PlanCreatorModal: React.FC<PlanCreatorModalProps> = ({ isOpen, onCl
                 onChange={(e) => setSplitType(e.target.value)}
                 className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 shadow-xs focus:outline-none focus:border-emerald-600"
               >
+                <option value="Weight Loss & Fat Burn">Weight Loss & Fat Burn (फैट लॉस)</option>
                 <option value="Push / Pull / Legs">Push / Pull / Legs (Weights)</option>
                 <option value="Upper / Lower">Upper / Lower (Strength)</option>
                 <option value="Full Body">Full Body Weights</option>

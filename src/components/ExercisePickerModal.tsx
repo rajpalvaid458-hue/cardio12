@@ -11,6 +11,8 @@ interface ExercisePickerModalProps {
 
 const CATEGORY_CHIPS = [
   'All',
+  'Weight Loss & Fat Burn',
+  'Cardio & HIIT',
   'Chest',
   'Back',
   'Shoulders',
@@ -18,7 +20,6 @@ const CATEGORY_CHIPS = [
   'Biceps',
   'Triceps',
   'Core & Abs',
-  'Cardio & HIIT',
   'Zumba & Dance',
   'Swimming & Aquatics',
   'Calisthenics & Bodyweight',

@@ -553,6 +553,549 @@ Respond with expert, encouraging, and clear fitness/training/diet/routine advice
   }
 });
 
+// Fallback generator for 5-minute dynamic warm-up
+function generateFallbackWarmUp(workout: any, userContext?: any) {
+  const workoutTitle = workout?.title || "Workout Session";
+  const exercises = Array.isArray(workout?.exercises) ? workout.exercises : [];
+  const exerciseNames = exercises.map((e: any) => (typeof e === "string" ? e : e.name || "")).filter(Boolean);
+  const targetMuscles = exercises.map((e: any) => (typeof e === "object" ? e.targetMuscle || "" : "")).filter(Boolean);
+
+  const titleLower = workoutTitle.toLowerCase();
+  const isPush =
+    titleLower.includes("push") ||
+    titleLower.includes("chest") ||
+    titleLower.includes("shoulder") ||
+    targetMuscles.some((m: string) => m.toLowerCase().includes("chest") || m.toLowerCase().includes("shoulder"));
+  const isPull =
+    titleLower.includes("pull") ||
+    titleLower.includes("back") ||
+    titleLower.includes("bicep") ||
+    targetMuscles.some((m: string) => m.toLowerCase().includes("back") || m.toLowerCase().includes("lat"));
+  const isLegs =
+    titleLower.includes("leg") ||
+    titleLower.includes("squat") ||
+    titleLower.includes("lower") ||
+    targetMuscles.some((m: string) => m.toLowerCase().includes("quad") || m.toLowerCase().includes("hamstring") || m.toLowerCase().includes("glute"));
+
+  let focus = "Full-body mobility & core activation";
+  let rationale = `Customized 5-minute dynamic warm-up sequence tailored for ${workoutTitle}. Systematically increases core body temperature, secretes joint-lubricating synovial fluid, and neuro-muscularly activates the key stabilizers required for ${
+    exerciseNames.slice(0, 3).join(", ") || "this workout"
+  }.`;
+
+  let drills = [];
+  if (isPush) {
+    focus = "Glenohumeral capsule mobility, scapular glide & rotator cuff activation";
+    rationale = `Customized for pressing movements in ${workoutTitle}: Prepares anterior deltoids, pecs, and triceps while establishing scapular protraction and wrist resilience before loading.`;
+    drills = [
+      {
+        id: "drill-1",
+        name: "Light Ankle Pogo & Arm Sweeps",
+        nameHi: "एंकेल पोगो व आर्म स्वीप्स",
+        category: "Full Body & Cardio",
+        durationSeconds: 50,
+        targetJoints: ["Ankles", "Glenohumeral"],
+        targetMuscles: ["Calves", "Shoulders", "Upper Back"],
+        cadence: "25s light rhythmic bouncing with 25s sweeping arm rotations",
+        description: "Bounce gently on balls of feet while opening and crossing arms rhythmically to elevate heart rate.",
+        formCues: ["Keep core braced", "Land with soft knees", "Breathe smoothly through nose"],
+        whyItMatters: "Elevates core body temperature to 38°C and primes cardiac output.",
+        intensity: "Gentle",
+      },
+      {
+        id: "drill-2",
+        name: "Dynamic Arm Circles & Chest Hug Openers",
+        nameHi: "आर्म सर्कल्स व चेस्ट हग्स",
+        category: "Upper Body",
+        durationSeconds: 50,
+        targetJoints: ["Shoulder Girdle", "Sternoclavicular"],
+        targetMuscles: ["Pectoralis Major", "Anterior Deltoids", "Rhomboids"],
+        cadence: "15s small circles, 15s large circles, 20s cross-body hugs",
+        description: "Gradually increase circle radius forwards and backwards, then swing arms wide across the chest.",
+        formCues: ["Do not arch lower back", "Alternate top arm on hugs", "Smooth controlled tempo"],
+        whyItMatters: "Increases synovial fluid in the shoulder capsule to prevent impingement during benching.",
+        intensity: "Moderate",
+      },
+      {
+        id: "drill-3",
+        name: "Scapular Push-ups & Protraction Slides",
+        nameHi: "स्कैपुलर पुश-अप्स व एक्टिवेशन",
+        category: "Upper Body",
+        durationSeconds: 50,
+        targetJoints: ["Scapulothoracic Joint"],
+        targetMuscles: ["Serratus Anterior", "Lower Trapezius"],
+        cadence: "12-15 controlled repetitions with 1s squeeze at top",
+        description: "In a high plank or wall support, pinch shoulder blades together without bending elbows, then press through the floor to spread them wide.",
+        formCues: ["Keep elbows locked straight", "Move purely from shoulder blades", "Neck in neutral alignment"],
+        whyItMatters: "Primes the serratus anterior to secure heavy pressing bars safely.",
+        intensity: "Moderate",
+      },
+      {
+        id: "drill-4",
+        name: "Band or Towel Overhead Pull-Throughs & Dislocates",
+        nameHi: "ओवरहेड शोल्डर डिसलोकेट्स",
+        category: "Upper Body",
+        durationSeconds: 50,
+        targetJoints: ["Glenohumeral", "Acromioclavicular"],
+        targetMuscles: ["Rotator Cuffs (Infraspinatus, Supraspinatus)", "Subscapularis"],
+        cadence: "10-12 smooth full-range sweeps from hips to lower back",
+        description: "Hold a band or towel with a wide grip, sweep arms overhead and back behind the hips with straight arms.",
+        formCues: ["Widen grip if shoulders feel tight", "Do not shrug traps into ears", "Move smoothly without jerking"],
+        whyItMatters: "Restores full end-range internal and external shoulder rotation.",
+        intensity: "Moderate",
+      },
+      {
+        id: "drill-5",
+        name: "Wrist Flexor/Extensor Waves & Quadruped Rockers",
+        nameHi: "रिस्ट व फोरआर्म मोबिलिटी",
+        category: "Upper Body",
+        durationSeconds: 50,
+        targetJoints: ["Radiocarpal (Wrist)", "Elbows"],
+        targetMuscles: ["Forearm Flexors", "Forearm Extensors"],
+        cadence: "25s fingers forward rock, 25s fingers backward rock",
+        description: "On all fours, place palms down with fingers pointing forwards, gently rock shoulders past fingertips; then turn fingers toward knees.",
+        formCues: ["Apply gradual gentle bodyweight pressure", "Keep palms flat on floor", "Stop before any sharp pain"],
+        whyItMatters: "Prepares wrists for barbell and dumbbell heavy loads without strain.",
+        intensity: "Gentle",
+      },
+      {
+        id: "drill-6",
+        name: "Inchworm Walkouts to Spiderman Lunge & Reach",
+        nameHi: "इंचवर्म व स्पाइडरमैन रीच",
+        category: "Full Body & Cardio",
+        durationSeconds: 50,
+        targetJoints: ["Hips", "Thoracic Spine", "Ankles"],
+        targetMuscles: ["Hamstrings", "Hip Flexors", "Thoracic Extensors", "Core"],
+        cadence: "4-5 deliberate walkouts with alternating thoracic reach",
+        description: "Hinge at hips, walk hands out to a plank, step right foot to right hand and reach right arm up to ceiling, walk back up.",
+        formCues: ["Squeeze back glute in lunge", "Follow hand with your eyes as you rotate", "Push ground away actively"],
+        whyItMatters: "Integrates kinetic chain from feet to fingers and completes the metabolic warm-up.",
+        intensity: "Dynamic",
+      },
+    ];
+  } else if (isPull) {
+    focus = "Thoracic spine extension, lat elongation & posterior chain activation";
+    rationale = `Customized for pulling in ${workoutTitle}: Mobilizes the thoracic spine, elongates the lats, and activates the hamstrings and lower traps for rows, deadlifts, and pull-ups.`;
+    drills = [
+      {
+        id: "drill-1",
+        name: "Light Ankle Pogo & Torso Twists",
+        nameHi: "एंकेल पोगो व टोर्सो ट्विस्ट",
+        category: "Full Body & Cardio",
+        durationSeconds: 50,
+        targetJoints: ["Ankles", "Thoracic Spine"],
+        targetMuscles: ["Calves", "Obliques", "Spinal Erectors"],
+        cadence: "25s light pogo hops, 25s rhythmic torso swivels",
+        description: "Bounce on balls of feet to activate calves, then add gentle torso rotations to mobilize the spine.",
+        formCues: ["Let back heel peel off floor during turns", "Breathe smoothly", "Keep arms loose"],
+        whyItMatters: "Raises body temperature and warms spinal facet joints.",
+        intensity: "Gentle",
+      },
+      {
+        id: "drill-2",
+        name: "Cat-Cow to Extended Child's Pose Lat Stretch",
+        nameHi: "कैट-काउ व लैट्स स्ट्रेच",
+        category: "Spine & Core",
+        durationSeconds: 50,
+        targetJoints: ["Thoracolumbar Spine", "Glenohumeral"],
+        targetMuscles: ["Latissimus Dorsi", "Erector Spinae", "Abdominals"],
+        cadence: "8 slow cat-cow cycles, followed by side-reaching child's pose",
+        description: "Alternate spinal flexion and extension, then sit back into hips while walking fingertips diagonally to stretch lats.",
+        formCues: ["Inhale on cow (arch), exhale on cat (round)", "Drive through finger pads to feel lat stretch"],
+        whyItMatters: "Decompresses spinal discs and releases tightness in lat insertion points.",
+        intensity: "Gentle",
+      },
+      {
+        id: "drill-3",
+        name: "Bird-Dog Contralateral Core Reach",
+        nameHi: "बर्ड-डॉग स्पाइनल रीच",
+        category: "Spine & Core",
+        durationSeconds: 50,
+        targetJoints: ["Spine", "Hips", "Shoulders"],
+        targetMuscles: ["Multifidus", "Gluteus Maximus", "Posterior Deltoids"],
+        cadence: "Alternating sides, 3s isometric hold at full extension",
+        description: "From hands and knees, reach opposite arm forward and opposite leg straight back in line with spine.",
+        formCues: ["Do not let hips tilt or lower back sag", "Flex back foot and squeeze glute", "Keep neck long"],
+        whyItMatters: "Activates deep spinal stabilizers essential for heavy row and deadlift safety.",
+        intensity: "Moderate",
+      },
+      {
+        id: "drill-4",
+        name: "Dynamic Band / Towel Lat & Rear Delt Pull-Aparts",
+        nameHi: "बैंड पुल-अपार्ट्स व रियर डेल्ट्स",
+        category: "Upper Body",
+        durationSeconds: 50,
+        targetJoints: ["Scapula", "Shoulder"],
+        targetMuscles: ["Rear Deltoids", "Rhomboids", "Middle Trapezius"],
+        cadence: "15-20 smooth controlled repetitions",
+        description: "Hold a band or light resistance at chest level with straight arms, pull out wide until band touches chest.",
+        formCues: ["Squeeze shoulder blades together", "Do not shrug neck", "Pause for 1 count at peak contraction"],
+        whyItMatters: "Fires up the upper back and rear deltoid sling before heavy pulling sets.",
+        intensity: "Moderate",
+      },
+      {
+        id: "drill-5",
+        name: "Bodyweight Good Mornings & Hamstring Sweeps",
+        nameHi: "गुड मॉर्निंग्स व हैमस्ट्रिंग स्वीप्स",
+        category: "Lower Body",
+        durationSeconds: 50,
+        targetJoints: ["Hips (Coxofemoral)", "Lumbar Spine"],
+        targetMuscles: ["Hamstrings", "Gluteus Maximus", "Erector Spinae"],
+        cadence: "10 hinge reps, followed by alternating heel sweeps",
+        description: "Fingertips behind head, push hips back with a soft knee bend until a deep hamstring stretch is felt, then stand tall.",
+        formCues: ["Flat spine at all times", "Weight back in heels", "Drive hips forward to finish"],
+        whyItMatters: "Greases the hip hinge pattern crucial for deadlifts and bent-over rows.",
+        intensity: "Moderate",
+      },
+      {
+        id: "drill-6",
+        name: "World's Greatest Stretch & Thoracic Rotation",
+        nameHi: "वर्ल्ड्स ग्रेटेस्ट स्ट्रेच",
+        category: "Full Body & Cardio",
+        durationSeconds: 50,
+        targetJoints: ["Hips", "Thoracic Spine", "Ankles"],
+        targetMuscles: ["Hip Flexors", "Hamstrings", "Thoracic Rotators"],
+        cadence: "Alternating legs every 25s with 3 arm rotations per side",
+        description: "Deep lunge with both hands inside front foot; drop inside elbow toward floor, then sweep arm up to ceiling.",
+        formCues: ["Keep back knee off ground for hip flexor activation", "Breathe out as arm rotates up", "Drive through front heel"],
+        whyItMatters: "Unlocks the thoracic cage and hips simultaneously, priming complete kinetic coordination.",
+        intensity: "Dynamic",
+      },
+    ];
+  } else if (isLegs) {
+    focus = "Hip capsule depth, ankle dorsiflexion, adductors & glute activation";
+    rationale = `Customized for lower-body power in ${workoutTitle}: Enhances deep squat depth, lubricates knee and ankle joints, and wakes up dormant glute fibers for stable knee tracking.`;
+    drills = [
+      {
+        id: "drill-1",
+        name: "Light Pogo Hops to High Knees",
+        nameHi: "पोगो हॉप्स व हाई नीज",
+        category: "Full Body & Cardio",
+        durationSeconds: 50,
+        targetJoints: ["Ankles (Talocrural)", "Knees"],
+        targetMuscles: ["Gastrocnemius", "Soleus", "Quadriceps"],
+        cadence: "25s light double-leg pogos, 25s rhythmic marching high knees",
+        description: "Spring off the balls of feet with stiff ankles, transitioning to smooth high knee drives.",
+        formCues: ["Stay light and quiet on feet", "Chest tall", "Swing arms in rhythm"],
+        whyItMatters: "Conditions the Achilles tendon and elevates blood flow to lower extremities.",
+        intensity: "Gentle",
+      },
+      {
+        id: "drill-2",
+        name: "Dynamic Leg Swings (Front-to-Back & Lateral)",
+        nameHi: "डायनेमिक लेग स्विंग्स",
+        category: "Lower Body",
+        durationSeconds: 50,
+        targetJoints: ["Hip Joint (Acetabulofemoral)"],
+        targetMuscles: ["Hamstrings", "Hip Flexors", "Adductors", "Abductors"],
+        cadence: "12 front-to-back swings per leg, 10 lateral swings per leg",
+        description: "Hold a wall or post for balance; swing leg smoothly through full comfortable range of motion.",
+        formCues: ["Do not tilt or twist pelvis excessively", "Keep standing knee soft", "Increase amplitude gradually"],
+        whyItMatters: "Dynamically stretches hamstrings and adductors without decreasing muscle power.",
+        intensity: "Moderate",
+      },
+      {
+        id: "drill-3",
+        name: "Deep Cossack Squats & Lateral Hip Shifts",
+        nameHi: "कोसैक स्क्वाट्स व हिप शिफ्ट्स",
+        category: "Hips & Glutes",
+        durationSeconds: 50,
+        targetJoints: ["Hips", "Knees", "Ankles"],
+        targetMuscles: ["Adductor Magnus", "Gluteus Medius", "Hamstrings"],
+        cadence: "Slow alternating side-to-side shifts, 2-3s hold at bottom",
+        description: "Take a wide stance, squat down onto one leg while keeping other leg straight with toes turned up.",
+        formCues: ["Keep heel of working leg flat on ground", "Chest up", "Only descend as far as comfortable"],
+        whyItMatters: "Opens tight groin and adductor tissue to ensure knees don't cave on squats.",
+        intensity: "Moderate",
+      },
+      {
+        id: "drill-4",
+        name: "Glute Bridge with 2-Second Peak Squeeze",
+        nameHi: "ग्लूट ब्रिज व पीक स्क्वीज",
+        category: "Hips & Glutes",
+        durationSeconds: 50,
+        targetJoints: ["Hips"],
+        targetMuscles: ["Gluteus Maximus", "Gluteus Medius", "Hamstrings"],
+        cadence: "15 reps with a strict 2-second hold at the top of each rep",
+        description: "Lie on back with knees bent and feet flat; drive hips upward through heels until thighs and torso align.",
+        formCues: ["Squeeze glutes hard at the top", "Do not hyperextend lower back", "Keep knees tracking over toes"],
+        whyItMatters: "Overcomes reciprocal inhibition from sitting and wakes up glutes for squats and deadlifts.",
+        intensity: "Moderate",
+      },
+      {
+        id: "drill-5",
+        name: "Ankle Dorsiflexion Knee-to-Wall Mobilizers",
+        nameHi: "एंकेल डॉर्सीफ्लेक्शन मोबिलाइजर",
+        category: "Lower Body",
+        durationSeconds: 50,
+        targetJoints: ["Talocrural (Ankle) Joint"],
+        targetMuscles: ["Soleus", "Tibialis Anterior"],
+        cadence: "25s on left ankle, 25s on right ankle",
+        description: "Place foot 3-4 inches from wall, drive knee forward over pinky toe without letting heel lift off floor.",
+        formCues: ["Heel remains glued to floor", "Push knee tracking over second toe", "Hold for 2s at end range"],
+        whyItMatters: "Restores ankle dorsiflexion, the #1 limitation for upright squat depth and knee health.",
+        intensity: "Gentle",
+      },
+      {
+        id: "drill-6",
+        name: "Deep Bodyweight Squat to Overhead Reach",
+        nameHi: "डीप स्क्वाट व ओवरहेड रीच",
+        category: "Full Body & Cardio",
+        durationSeconds: 50,
+        targetJoints: ["Hips", "Knees", "Ankles", "Thoracic Spine"],
+        targetMuscles: ["Quadriceps", "Glutes", "Thoracic Extensors"],
+        cadence: "8-10 slow reps: squat deep, reach arms overhead, stand tall",
+        description: "Squat into deepest comfortable position with chest up; reach one arm then both arms overhead before standing.",
+        formCues: ["Elbows inside knees to pry hips open", "Weight balanced across entire foot", "Exhale as you stand"],
+        whyItMatters: "Integrates the entire squat motor pattern with thoracic upright posture.",
+        intensity: "Dynamic",
+      },
+    ];
+  } else {
+    // Universal / Cardio / Mixed
+    focus = "Full-body metabolic elevation, spinal fluidity & multi-planar mobility";
+    rationale = `Customized 5-minute dynamic warm-up sequence for ${workoutTitle}: Elevates cardiac rate, optimizes neuromuscular coordination, and prepares joints for multi-planar athletic movement.`;
+    drills = [
+      {
+        id: "drill-1",
+        name: "Light Jumping Jacks & Ankle Pogos",
+        nameHi: "जंपिंग जैक्स व एंकेल पोगोज",
+        category: "Full Body & Cardio",
+        durationSeconds: 50,
+        targetJoints: ["Ankles", "Shoulders"],
+        targetMuscles: ["Calves", "Deltoids", "Core"],
+        cadence: "Rhythmic continuous jumping jacks with soft landings",
+        description: "Start feet together, hop out while clapping hands overhead, return softly to center.",
+        formCues: ["Stay on balls of feet", "Keep core engaged", "Maintain rhythmic breathing"],
+        whyItMatters: "Gradually increases core temperature and stimulates sympathetic nervous system.",
+        intensity: "Gentle",
+      },
+      {
+        id: "drill-2",
+        name: "Torso Rotations & Hip Swivels",
+        nameHi: "टोर्सो रोटेशन व हिप स्विवल्स",
+        category: "Spine & Core",
+        durationSeconds: 50,
+        targetJoints: ["Thoracic Spine", "Hips"],
+        targetMuscles: ["Obliques", "Spinal Erectors", "Gluteals"],
+        cadence: "Smooth alternating rotations, peeling back heel with each twist",
+        description: "Stand with feet shoulder-width, sweep arms across body while turning shoulders and hips smoothly.",
+        formCues: ["Pivot on back foot to protect knees", "Keep shoulders relaxed", "Fluid continuous movement"],
+        whyItMatters: "Mobilizes the 12 thoracic vertebrae and frees up hip rotational freedom.",
+        intensity: "Gentle",
+      },
+      {
+        id: "drill-3",
+        name: "Dynamic Leg Swings & Hamstring Sweeps",
+        nameHi: "डायनेमिक लेग स्विंग्स व स्वीप्स",
+        category: "Lower Body",
+        durationSeconds: 50,
+        targetJoints: ["Hips", "Hamstrings"],
+        targetMuscles: ["Hamstrings", "Hip Flexors", "Calves"],
+        cadence: "10 forward/back swings per leg, followed by walking heel sweeps",
+        description: "Swing leg forward and back with a straight knee, then walk forward reaching down to scoop toes.",
+        formCues: ["Support torso with core", "Do not hyperextend lumbar spine", "Smooth elastic swing"],
+        whyItMatters: "Prevents hamstring pulls during explosive movements and agility.",
+        intensity: "Moderate",
+      },
+      {
+        id: "drill-4",
+        name: "Inchworm Walkouts to Plank Hold",
+        nameHi: "इंचवर्म वॉकआउट्स",
+        category: "Full Body & Cardio",
+        durationSeconds: 50,
+        targetJoints: ["Wrists", "Shoulders", "Hips"],
+        targetMuscles: ["Core", "Hamstrings", "Serratus Anterior"],
+        cadence: "5-6 deliberate reps with a 2-second plank pause",
+        description: "Bend forward, walk hands out into a solid high plank, hold for 2s, then walk hands back to feet.",
+        formCues: ["Keep legs as straight as comfortable", "No sagging hips in plank", "Push through floor"],
+        whyItMatters: "Builds anterior core stability and dynamic hamstring flexibility.",
+        intensity: "Moderate",
+      },
+      {
+        id: "drill-5",
+        name: "World's Greatest Stretch & Thoracic Opener",
+        nameHi: "वर्ल्ड्स ग्रेटेस्ट स्ट्रेच",
+        category: "Full Body & Cardio",
+        durationSeconds: 50,
+        targetJoints: ["Hips", "Thoracic Spine", "Ankles"],
+        targetMuscles: ["Hip Flexors", "Pecs", "Thoracic Rotators"],
+        cadence: "25s on left side, 25s on right side",
+        description: "Deep lunge position with hands on floor; rotate torso and reach top hand up toward ceiling.",
+        formCues: ["Front heel flat", "Squeeze back glute", "Rotate from upper back"],
+        whyItMatters: "The gold-standard exercise science drill for full-body joint mobility.",
+        intensity: "Dynamic",
+      },
+      {
+        id: "drill-6",
+        name: "Bodyweight Squat to Lateral Lunge & Reach",
+        nameHi: "स्क्वाट व लेटरल लंज फ्लो",
+        category: "Full Body & Cardio",
+        durationSeconds: 50,
+        targetJoints: ["Knees", "Hips", "Ankles"],
+        targetMuscles: ["Quadriceps", "Glutes", "Adductors"],
+        cadence: "1 squat, 1 lateral lunge left, 1 squat, 1 lateral lunge right",
+        description: "Perform a clean squat, step wide into a lateral lunge reaching arms forward, return to center.",
+        formCues: ["Keep chest proud", "Hips back in lateral lunge", "Breathe out as you drive up"],
+        whyItMatters: "Reaches full multi-planar readiness for immediate workout execution.",
+        intensity: "Dynamic",
+      },
+    ];
+  }
+
+  return {
+    id: `ai-warmup-${Date.now()}`,
+    title: `AI Coach 5-Min Dynamic Warm-Up`,
+    titleHi: `AI कोच 5-मिनट डायनेमिक वॉर्म-अप`,
+    subtitle: `Customized for ${workoutTitle}`,
+    subtitleHi: `${workoutTitle} के लिए विशेष वॉर्म-अप`,
+    targetFocus: focus,
+    totalDurationSeconds: 300,
+    matchedWorkoutTitle: workoutTitle,
+    rationale,
+    stretches: drills,
+  };
+}
+
+// AI Coach 5-Minute Dynamic Warm-Up Sequence Generator
+app.post("/api/ai/quick-warmup", async (req, res) => {
+  try {
+    const { workout, userContext } = req.body;
+    if (!workout || !workout.title) {
+      return res.status(400).json({ success: false, error: "Workout details are required" });
+    }
+
+    const ai = getAiClient();
+    if (!ai) {
+      const fallbackRoutine = generateFallbackWarmUp(workout, userContext);
+      return res.json({ success: true, warmUpRoutine: fallbackRoutine });
+    }
+
+    const exercisesSummary = Array.isArray(workout.exercises)
+      ? workout.exercises
+          .map((ex: any) => `${ex.name || ex} (${ex.targetMuscle || "Primary mover"})`)
+          .slice(0, 10)
+          .join(", ")
+      : "Full-body compound exercises";
+
+    const prompt = `You are 'PulseCoach', a world-class CSCS strength & conditioning coach and sports physiotherapist.
+Generate a tailored 5-minute dynamic warm-up sequence specifically engineered to prime the athlete for this upcoming workout:
+
+Selected Workout Details:
+- Title: "${workout.title}"
+- Split / Category: "${workout.splitType || workout.category || "General Strength"}"
+- Target Disciplines / Muscles: "${workout.targetMuscle || workout.tags?.join(", ") || "Full Body"}"
+- Key Exercises in Session: ${exercisesSummary}
+- Athlete Level: "${userContext?.experienceLevel || workout.level || "Intermediate"}"
+- Session Duration: ${workout.durationMinutes || 45} minutes
+
+Scientific Requirements:
+1. Provide exactly 5 or 6 dynamic mobility drills/stretches that total EXACTLY 300 seconds (5 minutes). For 5 drills, make each 60s. For 6 drills, make each 50s.
+2. The sequence must specifically unlock the joint capsule mobility and activate the key stabilizers and prime movers needed for the exercises in this workout (e.g. rotator cuffs and scapular glide for bench/presses; hip capsule depth, ankle dorsiflexion, and glute bridges for squats; thoracic rotation and lat elongation for rows/deadlifts).
+3. Include clear execution cues, target joints, target muscles, cadence, and an explicit biomechanical 'whyItMatters' explanation for each drill.
+4. Provide a clear 2-3 sentence overall physiological rationale explaining how this sequence prevents injury and optimizes nervous system readiness for ${workout.title}.
+5. Return strictly valid JSON conforming to the schema.`;
+
+    const response = await callGeminiWithFallback(ai, {
+      contents: prompt,
+      config: {
+        systemInstruction:
+          "You are PulseCoach, a certified CSCS strength coach. Design a scientifically rigorous 5-minute (300 seconds total) dynamic warm-up routine tailored to the selected workout. Output valid JSON matching the schema.",
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            title: { type: Type.STRING },
+            subtitle: { type: Type.STRING },
+            targetFocus: { type: Type.STRING },
+            rationale: { type: Type.STRING },
+            totalDurationSeconds: { type: Type.NUMBER },
+            stretches: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  id: { type: Type.STRING },
+                  name: { type: Type.STRING },
+                  category: {
+                    type: Type.STRING,
+                    enum: [
+                      "Upper Body",
+                      "Lower Body",
+                      "Spine & Core",
+                      "Full Body & Cardio",
+                      "Hips & Glutes",
+                    ],
+                  },
+                  durationSeconds: { type: Type.NUMBER },
+                  targetJoints: {
+                    type: Type.ARRAY,
+                    items: { type: Type.STRING },
+                  },
+                  targetMuscles: {
+                    type: Type.ARRAY,
+                    items: { type: Type.STRING },
+                  },
+                  cadence: { type: Type.STRING },
+                  description: { type: Type.STRING },
+                  formCues: {
+                    type: Type.ARRAY,
+                    items: { type: Type.STRING },
+                  },
+                  whyItMatters: { type: Type.STRING },
+                  intensity: {
+                    type: Type.STRING,
+                    enum: ["Gentle", "Moderate", "Dynamic"],
+                  },
+                },
+                required: [
+                  "name",
+                  "category",
+                  "durationSeconds",
+                  "description",
+                  "formCues",
+                  "whyItMatters",
+                ],
+              },
+            },
+          },
+          required: ["title", "targetFocus", "rationale", "stretches"],
+        },
+      },
+    });
+
+    const parsed = JSON.parse(response.text || "{}");
+
+    // Guarantee duration consistency (sum = 300 seconds)
+    if (Array.isArray(parsed.stretches) && parsed.stretches.length > 0) {
+      const stretchCount = parsed.stretches.length;
+      const normalizedDuration = Math.floor(300 / stretchCount);
+      let remainder = 300 - normalizedDuration * stretchCount;
+
+      parsed.stretches = parsed.stretches.map((s: any, idx: number) => ({
+        ...s,
+        id: s.id || `ai-stretch-${idx + 1}-${Date.now()}`,
+        durationSeconds: normalizedDuration + (idx === 0 ? remainder : 0),
+        intensity: s.intensity || (idx < 2 ? "Gentle" : idx < 4 ? "Moderate" : "Dynamic"),
+        targetJoints: Array.isArray(s.targetJoints) ? s.targetJoints : ["Primary Joints"],
+        targetMuscles: Array.isArray(s.targetMuscles) ? s.targetMuscles : ["Prime Movers"],
+        formCues: Array.isArray(s.formCues) && s.formCues.length > 0 ? s.formCues : ["Keep core braced", "Smooth controlled tempo"],
+      }));
+    } else {
+      parsed.stretches = generateFallbackWarmUp(workout, userContext).stretches;
+    }
+
+    parsed.id = `ai-warmup-${Date.now()}`;
+    parsed.totalDurationSeconds = 300;
+    parsed.matchedWorkoutTitle = workout.title;
+
+    return res.json({ success: true, warmUpRoutine: parsed });
+  } catch (error: any) {
+    console.warn("AI Quick Warm-Up fallback engaged:", error?.message || error);
+    const fallbackRoutine = generateFallbackWarmUp(req.body?.workout, req.body?.userContext);
+    return res.json({ success: true, warmUpRoutine: fallbackRoutine });
+  }
+});
+
 // AI Meal Macro Estimator & Calories Checker
 app.post("/api/ai/estimate-meal", async (req, res) => {
   try {
@@ -1136,8 +1679,55 @@ Available Equipment: ${availableEquipment || "Full gym equipment"}`;
 // Vite middleware & Static serving
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {
+    // Provide a lightweight, clean stub for /@vite/client in Cloud Run sandboxed preview
+    // to completely prevent unroutable HMR WebSocket connection failures and console errors
+    app.get("/@vite/client", (_req, res) => {
+      res.setHeader("Content-Type", "application/javascript; charset=utf-8");
+      res.send(`
+const sheetsMap = new Map();
+export function updateStyle(id, content) {
+  let style = sheetsMap.get(id);
+  if (!style) {
+    style = document.createElement('style');
+    style.setAttribute('type', 'text/css');
+    style.setAttribute('data-vite-dev-id', id);
+    document.head.appendChild(style);
+    sheetsMap.set(id, style);
+  }
+  style.textContent = content;
+}
+export function removeStyle(id) {
+  const style = sheetsMap.get(id);
+  if (style) {
+    document.head.removeChild(style);
+    sheetsMap.delete(id);
+  }
+}
+export function createHotContext(ownerPath) {
+  return {
+    accept(deps, cb) {},
+    prune(cb) {},
+    dispose(cb) {},
+    decline() {},
+    invalidate(msg) {},
+    on(event, cb) {},
+    off(event, cb) {},
+    send(event, data) {},
+    data: {}
+  };
+}
+export function injectQuery(url, queryToInject) {
+  return url;
+}
+export class ErrorOverlay extends HTMLElement {}
+`);
+    });
+
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        hmr: false,
+      },
       appType: "spa",
     });
     app.use(vite.middlewares);

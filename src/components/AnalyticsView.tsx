@@ -24,11 +24,16 @@ import { BodyProgressTracker } from './BodyProgressTracker';
 import { WorkoutVolumeIntensityChart } from './WorkoutVolumeIntensityChart';
 import { WeeklyConsistencyTrendsChart } from './WeeklyConsistencyTrendsChart';
 import { BmiCalculatorTool } from './BmiCalculatorTool';
+import { D3WeightTrendsChart } from './analytics/D3WeightTrendsChart';
+import { D3WorkoutFrequencyChart } from './analytics/D3WorkoutFrequencyChart';
+import { GoalProgressDashboard } from './analytics/GoalProgressDashboard';
+import { GoalSettingModal } from './analytics/GoalSettingModal';
 
 export const AnalyticsView: React.FC = () => {
   const { workoutLogs, userProfile, updateUserProfile } = useFitness();
   const { t, isHindi } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'trends' | 'body_progress' | 'metrics' | 'bmi' | 'flexibility'>('trends');
+  const [activeTab, setActiveTab] = useState<'goals' | 'trends' | 'body_progress' | 'metrics' | 'bmi' | 'flexibility'>('goals');
+  const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
 
   const [prExercise, setPrExercise] = useState('Bench Press');
   const [prWeight, setPrWeight] = useState('');
@@ -57,6 +62,21 @@ export const AnalyticsView: React.FC = () => {
     <div className="space-y-6 pb-12">
       {/* Analytics Main Navigation Tabs */}
       <div className="bg-white p-2 rounded-2xl border border-slate-200 shadow-xs flex flex-wrap items-center gap-1.5">
+        <button
+          onClick={() => setActiveTab('goals')}
+          className={`flex-1 min-w-[150px] px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
+            activeTab === 'goals'
+              ? 'bg-slate-900 text-white shadow-sm'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+          }`}
+        >
+          <Target className="w-4 h-4 text-emerald-400" />
+          <span>{isHindi ? 'लक्ष्य और मील के पत्थर' : 'Goals & Targets'}</span>
+          <span className="hidden sm:inline text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+            {isHindi ? 'सक्रिय' : 'Live'}
+          </span>
+        </button>
+
         <button
           onClick={() => setActiveTab('trends')}
           className={`flex-1 min-w-[150px] px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
@@ -125,14 +145,68 @@ export const AnalyticsView: React.FC = () => {
       </div>
 
       {/* ========================================================================= */}
-      {/* TAB 0: WEEKLY WORKOUT CONSISTENCY & PROGRESS TRENDS (RECHARTS ANIMATED)   */}
+      {/* TAB: GOALS & TARGETS DASHBOARD                                            */}
+      {/* ========================================================================= */}
+      {activeTab === 'goals' && <GoalProgressDashboard />}
+
+      {/* ========================================================================= */}
+      {/* TAB 0: WEIGHT TRENDS & WORKOUT FREQUENCY (D3.JS CHARTS)                   */}
       {/* ========================================================================= */}
       {activeTab === 'trends' && (
-        <WeeklyConsistencyTrendsChart
-          workoutLogs={workoutLogs}
-          weeklyTargetSessions={4}
-          weightUnit={userProfile.weightUnit}
-        />
+        <div className="space-y-6">
+          {/* Quick Goals Summary Bar */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600">
+                <Target className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-xs font-bold text-slate-900">
+                  {isHindi ? 'सक्रिय फिटनेस लक्ष्य' : 'Active Goal Targets'}
+                </div>
+                <div className="text-xs text-slate-500">
+                  {isHindi ? 'लक्षित वजन:' : 'Target Weight:'}{' '}
+                  <span className="font-bold text-slate-800">
+                    {userProfile.targetWeightKg || userProfile.goals?.targetWeightKg || userProfile.weightKg} {userProfile.weightUnit}
+                  </span>
+                  {' '}• {isHindi ? 'साप्ताहिक कसरत:' : 'Target Workouts:'}{' '}
+                  <span className="font-bold text-slate-800">
+                    {userProfile.goals?.targetWorkoutsPerWeek || 4} d/wk
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setActiveTab('goals')}
+              className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer self-start sm:self-auto"
+            >
+              <span>{isHindi ? 'पूर्ण लक्ष्य डैशबोर्ड' : 'View Goals Dashboard'}</span>
+              <Target className="w-3.5 h-3.5 text-emerald-400" />
+            </button>
+          </div>
+
+          {/* D3 Weight Trends Chart */}
+          <D3WeightTrendsChart
+            currentWeightKg={userProfile.weightKg}
+            targetWeightKg={userProfile.targetWeightKg}
+            weightUnit={userProfile.weightUnit}
+            onUpdateWeight={(newW) => updateUserProfile({ weightKg: newW })}
+          />
+
+          {/* D3 Workout Frequency Chart */}
+          <D3WorkoutFrequencyChart
+            workoutLogs={workoutLogs}
+            weeklyGoalSessions={userProfile.goals?.targetWorkoutsPerWeek || 4}
+          />
+
+          {/* Recharts Volume and Consistency Trends */}
+          <WeeklyConsistencyTrendsChart
+            workoutLogs={workoutLogs}
+            weeklyTargetSessions={userProfile.goals?.targetWorkoutsPerWeek || 4}
+            weightUnit={userProfile.weightUnit}
+          />
+        </div>
       )}
 
       {/* ========================================================================= */}
@@ -266,22 +340,33 @@ export const AnalyticsView: React.FC = () => {
                 <p className="text-xs text-slate-500">Current weight vs target goal</p>
               </div>
 
-              <form onSubmit={handleAddWeightLog} className="flex items-center gap-2">
-                <input
-                  type="number"
-                  step="0.1"
-                  placeholder={`Update weight (${userProfile.weightUnit})`}
-                  value={newBodyWeight}
-                  onChange={(e) => setNewBodyWeight(e.target.value)}
-                  className="bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 placeholder-slate-400 font-mono w-44 focus:outline-none focus:border-emerald-600"
-                />
+              <div className="flex items-center gap-2">
                 <button
-                  type="submit"
-                  className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-sm transition-all"
+                  type="button"
+                  onClick={() => setIsGoalModalOpen(true)}
+                  className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
                 >
-                  Update
+                  <Target className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>{isHindi ? 'लक्ष्य कॉन्फ़िगर करें' : 'Configure Goals'}</span>
                 </button>
-              </form>
+
+                <form onSubmit={handleAddWeightLog} className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    step="0.1"
+                    placeholder={`Update weight (${userProfile.weightUnit})`}
+                    value={newBodyWeight}
+                    onChange={(e) => setNewBodyWeight(e.target.value)}
+                    className="bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 placeholder-slate-400 font-mono w-44 focus:outline-none focus:border-emerald-600"
+                  />
+                  <button
+                    type="submit"
+                    className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-sm transition-all cursor-pointer"
+                  >
+                    Update
+                  </button>
+                </form>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -305,6 +390,14 @@ export const AnalyticsView: React.FC = () => {
               </div>
             </div>
           </section>
+
+          {/* D3 Weight Trends Interactive Chart */}
+          <D3WeightTrendsChart
+            currentWeightKg={userProfile.weightKg}
+            targetWeightKg={userProfile.targetWeightKg}
+            weightUnit={userProfile.weightUnit}
+            onUpdateWeight={(newW) => updateUserProfile({ weightKg: newW })}
+          />
         </div>
       )}
 
@@ -321,6 +414,12 @@ export const AnalyticsView: React.FC = () => {
       {/* TAB 4: FLEXIBILITY & MOBILITY ASSESSMENTS */}
       {/* ========================================================================= */}
       {activeTab === 'flexibility' && <FlexibilityTracker />}
+
+      {/* Goal Setting Modal */}
+      <GoalSettingModal
+        isOpen={isGoalModalOpen}
+        onClose={() => setIsGoalModalOpen(false)}
+      />
     </div>
   );
 };

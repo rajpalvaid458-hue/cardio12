@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useRef, useMemo } from 'react';
 import {
   WorkoutPlan,
   ActiveWorkoutSession,
@@ -9,6 +9,7 @@ import {
   RoutineItem,
   DailyHabit,
   UserProfile,
+  AthleteProfile,
   Exercise,
   SupplementItem,
   WaterReminderSettings,
@@ -17,6 +18,7 @@ import {
   WorkoutReminderSettings,
   MealReminderItem,
   InAppReminderAlert,
+  UserGoalSettings,
 } from '../types';
 import {
   PRESET_WORKOUT_PLANS,
@@ -46,7 +48,7 @@ import {
 } from '../utils/notifications';
 import confetti from 'canvas-confetti';
 import { useAuth } from './AuthContext';
-import { auth, db, doc, getDoc, setDoc } from '../lib/firebase';
+import { auth, db, doc, getDoc, setDoc, handleFirestoreError, OperationType } from '../lib/firebase';
 
 interface RestTimerState {
   active: boolean;
@@ -58,6 +60,9 @@ interface RestTimerState {
 
 interface FitnessContextType {
   // State
+  profiles: AthleteProfile[];
+  activeProfileId: string;
+  activeProfile: AthleteProfile;
   plans: WorkoutPlan[];
   exercises: Exercise[];
   activeWorkout: ActiveWorkoutSession | null;
@@ -76,6 +81,12 @@ interface FitnessContextType {
   restTimer: RestTimerState | null;
   selectedDate: string;
   isCloudSyncing: boolean;
+
+  // Actions - Athlete Profiles & Sections ("सबका अलग सेक्शन")
+  switchProfile: (profileId: string) => void;
+  addProfile: (newProfile: Omit<AthleteProfile, 'id' | 'createdAt'>) => string;
+  updateProfileItem: (profileId: string, updates: Partial<AthleteProfile>) => void;
+  deleteProfile: (profileId: string) => void;
 
   // Actions - Workout
   startWorkout: (plan: WorkoutPlan) => void;
@@ -141,6 +152,7 @@ interface FitnessContextType {
 
   // Actions - Profile & Sync
   updateUserProfile: (profile: Partial<UserProfile>) => void;
+  updateGoals: (goals: Partial<UserGoalSettings>) => void;
   setSelectedDate: (date: string) => void;
   resetAllData: () => void;
   importUserData: (jsonData: string) => boolean;
@@ -151,6 +163,9 @@ interface FitnessContextType {
 const FitnessContext = createContext<FitnessContextType | undefined>(undefined);
 
 const STORAGE_KEYS = {
+  PROFILES_LIST: 'pulsefit_athlete_profiles_v1',
+  ACTIVE_PROFILE_ID: 'pulsefit_active_profile_id_v1',
+  PROFILE_DATA_PREFIX: 'pulsefit_userdata_',
   PLANS: 'pulsefit_plans_v1',
   LOGS: 'pulsefit_logs_v1',
   DIET: 'pulsefit_diet_v1',
@@ -167,6 +182,55 @@ const STORAGE_KEYS = {
   ACTIVE_WORKOUT: 'pulsefit_active_workout_v1',
   REST_TIMER: 'pulsefit_rest_timer_v1',
 };
+
+export const DEFAULT_INITIAL_PROFILES: AthleteProfile[] = [
+  {
+    id: 'prof_main',
+    name: 'Rajpal Vaid',
+    avatarColor: 'emerald',
+    gender: 'male',
+    age: 25,
+    heightCm: 178,
+    weightKg: 78,
+    targetWeightKg: 82,
+    goal: 'muscle_gain',
+    fitnessLevel: 'intermediate',
+    activityLevel: 'moderately_active',
+    dailyCalorieTarget: 2650,
+    dailyProteinTarget: 165,
+    dailyCarbsTarget: 290,
+    dailyFatsTarget: 70,
+    dailyWaterTargetMl: 3000,
+    weightUnit: 'kg',
+    streakDays: 5,
+    lastActiveDate: '2026-03-29',
+    createdAt: 1711700000000,
+    notes: 'Primary Athlete Section',
+  },
+  {
+    id: 'prof_member_2',
+    name: 'Rohit Sharma',
+    avatarColor: 'amber',
+    gender: 'male',
+    age: 26,
+    heightCm: 175,
+    weightKg: 72,
+    targetWeightKg: 70,
+    goal: 'fat_loss',
+    fitnessLevel: 'beginner',
+    activityLevel: 'lightly_active',
+    dailyCalorieTarget: 2100,
+    dailyProteinTarget: 140,
+    dailyCarbsTarget: 220,
+    dailyFatsTarget: 55,
+    dailyWaterTargetMl: 3200,
+    weightUnit: 'kg',
+    streakDays: 2,
+    lastActiveDate: '2026-03-29',
+    createdAt: 1711700000000,
+    notes: 'Member Section 2',
+  },
+];
 
 const DEFAULT_WORKOUT_REMINDER: WorkoutReminderSettings = {
   enabled: true,
@@ -269,14 +333,40 @@ const DEFAULT_WATER_REMINDER: WaterReminderSettings = {
 
 const getTodayString = () => new Date().toISOString().split('T')[0];
 
+export const DEFAULT_GOAL_SETTINGS: UserGoalSettings = {
+  startingWeightKg: 75.0,
+  targetWeightKg: 82.0,
+  weightGoalType: 'gain',
+  targetWeightDate: new Date(Date.now() + 75 * 86400000).toISOString().split('T')[0],
+  weeklyRateKg: 0.35,
+
+  targetMuscleGainKg: 3.5,
+  startingMuscleMassKg: 33.5,
+  targetMuscleGroups: ['Chest', 'Back', 'Quadriceps', 'Biceps', 'Triceps'],
+  targetMonthlyVolumeKg: 45000,
+  targetChestCm: 105,
+  targetArmsCm: 39.5,
+  targetThighsCm: 61,
+
+  targetWorkoutsPerWeek: 4,
+  targetActiveMinutesPerWeek: 200,
+  preferredDays: ['Mon', 'Tue', 'Thu', 'Fri'],
+  targetMonthlyWorkouts: 16,
+  motivationNotes: 'Focus on progressive overload, high protein intake, and consistent weekly frequency.',
+  lastUpdated: getTodayString(),
+};
+
 const INITIAL_PROFILE: UserProfile = {
-  name: 'Alex Hunter',
-  age: 26,
+  id: 'prof_main',
+  name: 'Rajpal Vaid',
+  avatarColor: 'emerald',
+  age: 25,
   gender: 'male',
   heightCm: 178,
   weightKg: 78,
   targetWeightKg: 82,
   goal: 'muscle_gain',
+  goals: DEFAULT_GOAL_SETTINGS,
   fitnessLevel: 'intermediate',
   activityLevel: 'moderately_active',
   dailyCalorieTarget: 2650,
@@ -287,6 +377,7 @@ const INITIAL_PROFILE: UserProfile = {
   weightUnit: 'kg',
   streakDays: 5,
   lastActiveDate: getTodayString(),
+  theme: 'light',
 };
 
 const getInitialDiet = (profile: UserProfile): DailyDietLog => ({
@@ -387,11 +478,43 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
   const { currentUser } = useAuth();
   const [isCloudSyncing, setIsCloudSyncing] = useState(false);
 
+  // 0. Athlete Profiles State ("सबका अलग सेक्शन")
+  const [profiles, setProfiles] = useState<AthleteProfile[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.PROFILES_LIST);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+      return DEFAULT_INITIAL_PROFILES;
+    } catch {
+      return DEFAULT_INITIAL_PROFILES;
+    }
+  });
+
+  const [activeProfileId, setActiveProfileId] = useState<string>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.ACTIVE_PROFILE_ID);
+      if (saved) return saved;
+      return 'prof_main';
+    } catch {
+      return 'prof_main';
+    }
+  });
+
   // 1. User Profile
   const [userProfile, setUserProfileState] = useState<UserProfile>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.PROFILE);
-      return saved ? JSON.parse(saved) : INITIAL_PROFILE;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return {
+          ...INITIAL_PROFILE,
+          ...parsed,
+          goals: parsed.goals ? { ...DEFAULT_GOAL_SETTINGS, ...parsed.goals } : DEFAULT_GOAL_SETTINGS,
+        };
+      }
+      return INITIAL_PROFILE;
     } catch {
       return INITIAL_PROFILE;
     }
@@ -747,13 +870,54 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
   });
   const [selectedDate, setSelectedDate] = useState<string>(getTodayString());
 
-  // Cloud Sync: Fetch user cloud data when logged in
+  const activeProfile = useMemo(() => {
+    return profiles.find((p) => p.id === activeProfileId) || profiles[0] || DEFAULT_INITIAL_PROFILES[0];
+  }, [profiles, activeProfileId]);
+
+  // Cloud & Local User Sync: Fetch user data when logged in
   useEffect(() => {
     if (!currentUser) return;
+
     if ((currentUser as any).isLocal || !auth.currentUser) {
       setIsCloudSyncing(false);
+      try {
+        const userKey = `pulsefit_u_${currentUser.uid}_`;
+        const savedProfile = localStorage.getItem(userKey + 'profile');
+        if (savedProfile) {
+          setUserProfileState(JSON.parse(savedProfile));
+        } else if (currentUser.displayName) {
+          setUserProfileState((prev) => ({
+            ...prev,
+            name: currentUser.displayName || prev.name,
+          }));
+        }
+
+        const savedPlans = localStorage.getItem(userKey + 'plans');
+        if (savedPlans) setPlans(JSON.parse(savedPlans));
+
+        const savedLogs = localStorage.getItem(userKey + 'logs');
+        if (savedLogs) setWorkoutLogs(JSON.parse(savedLogs));
+
+        const savedDiet = localStorage.getItem(userKey + 'diet');
+        if (savedDiet) {
+          const parsed = JSON.parse(savedDiet);
+          if (parsed.date === getTodayString()) setDailyDiet(parsed);
+        }
+
+        const savedRoutine = localStorage.getItem(userKey + 'routine');
+        if (savedRoutine) setRoutineItems(JSON.parse(savedRoutine));
+
+        const savedHabits = localStorage.getItem(userKey + 'habits');
+        if (savedHabits) setHabits(JSON.parse(savedHabits));
+
+        const savedSupplements = localStorage.getItem(userKey + 'supplements');
+        if (savedSupplements) setSupplements(JSON.parse(savedSupplements));
+      } catch (e) {
+        console.warn('Could not load user-scoped local storage:', e);
+      }
       return;
     }
+
     const fetchUserData = async () => {
       setIsCloudSyncing(true);
       try {
@@ -797,7 +961,7 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
           });
         }
       } catch (err) {
-        console.error('Error loading Firestore data:', err);
+        handleFirestoreError(err, OperationType.GET, `users/${currentUser.uid}`);
       } finally {
         setIsCloudSyncing(false);
       }
@@ -807,12 +971,57 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
 
   // Save changes to localStorage & Cloud
   useEffect(() => {
+    if (!activeProfileId) return;
+    try {
+      const snapshot = {
+        userProfile,
+        plans,
+        workoutLogs,
+        dailyDiet,
+        routineItems,
+        habits,
+        supplements,
+        waterReminder,
+        workoutReminder,
+        mealReminders,
+        savedDietPlans,
+        activeDietPlan,
+        activeWorkout,
+      };
+      localStorage.setItem(`${STORAGE_KEYS.PROFILE_DATA_PREFIX}${activeProfileId}`, JSON.stringify(snapshot));
+    } catch (e) {
+      // ignore
+    }
+  }, [
+    activeProfileId,
+    userProfile,
+    plans,
+    workoutLogs,
+    dailyDiet,
+    routineItems,
+    habits,
+    supplements,
+    waterReminder,
+    workoutReminder,
+    mealReminders,
+    savedDietPlans,
+    activeDietPlan,
+    activeWorkout,
+  ]);
+
+  useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(userProfile));
-  }, [userProfile]);
+    if (currentUser?.uid) {
+      localStorage.setItem(`pulsefit_u_${currentUser.uid}_profile`, JSON.stringify(userProfile));
+    }
+  }, [userProfile, currentUser?.uid]);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.PLANS, JSON.stringify(plans));
-  }, [plans]);
+    if (currentUser?.uid) {
+      localStorage.setItem(`pulsefit_u_${currentUser.uid}_plans`, JSON.stringify(plans));
+    }
+  }, [plans, currentUser?.uid]);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.ACTIVE_WORKOUT, JSON.stringify(activeWorkout));
@@ -820,23 +1029,38 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.LOGS, JSON.stringify(workoutLogs));
-  }, [workoutLogs]);
+    if (currentUser?.uid) {
+      localStorage.setItem(`pulsefit_u_${currentUser.uid}_logs`, JSON.stringify(workoutLogs));
+    }
+  }, [workoutLogs, currentUser?.uid]);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.DIET, JSON.stringify(dailyDiet));
-  }, [dailyDiet]);
+    if (currentUser?.uid) {
+      localStorage.setItem(`pulsefit_u_${currentUser.uid}_diet`, JSON.stringify(dailyDiet));
+    }
+  }, [dailyDiet, currentUser?.uid]);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.ROUTINE, JSON.stringify(routineItems));
-  }, [routineItems]);
+    if (currentUser?.uid) {
+      localStorage.setItem(`pulsefit_u_${currentUser.uid}_routine`, JSON.stringify(routineItems));
+    }
+  }, [routineItems, currentUser?.uid]);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.HABITS, JSON.stringify(habits));
-  }, [habits]);
+    if (currentUser?.uid) {
+      localStorage.setItem(`pulsefit_u_${currentUser.uid}_habits`, JSON.stringify(habits));
+    }
+  }, [habits, currentUser?.uid]);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.SUPPLEMENTS, JSON.stringify(supplements));
-  }, [supplements]);
+    if (currentUser?.uid) {
+      localStorage.setItem(`pulsefit_u_${currentUser.uid}_supplements`, JSON.stringify(supplements));
+    }
+  }, [supplements, currentUser?.uid]);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.WATER_REMINDER, JSON.stringify(waterReminder));
@@ -1088,7 +1312,7 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
         { merge: true }
       );
     } catch (err) {
-      console.error('Error auto-syncing to Firestore:', err);
+      handleFirestoreError(err, OperationType.WRITE, `users/${currentUser.uid}`);
     } finally {
       setIsCloudSyncing(false);
     }
@@ -1860,8 +2084,228 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
     );
   }, []);
 
+  // Actions - Athlete Profiles & Sections ("सबका अलग सेक्शन")
+  const switchProfile = useCallback((profileId: string) => {
+    playClickFeedback();
+    const target = profiles.find((p) => p.id === profileId);
+    if (!target) return;
+
+    // 1. Snapshot current active profile state into localStorage
+    const currentSnapshot = {
+      userProfile,
+      plans,
+      workoutLogs,
+      dailyDiet,
+      routineItems,
+      habits,
+      supplements,
+      waterReminder,
+      workoutReminder,
+      mealReminders,
+      savedDietPlans,
+      activeDietPlan,
+      activeWorkout,
+    };
+    try {
+      localStorage.setItem(`${STORAGE_KEYS.PROFILE_DATA_PREFIX}${activeProfileId}`, JSON.stringify(currentSnapshot));
+    } catch (e) {
+      console.warn('Could not save current profile snapshot:', e);
+    }
+
+    // 2. Read target profile snapshot
+    let targetData: any = null;
+    try {
+      const raw = localStorage.getItem(`${STORAGE_KEYS.PROFILE_DATA_PREFIX}${profileId}`);
+      if (raw) targetData = JSON.parse(raw);
+    } catch (e) {
+      console.warn('Could not read target profile snapshot:', e);
+    }
+
+    if (targetData) {
+      if (targetData.userProfile) setUserProfileState(targetData.userProfile);
+      if (targetData.plans) setPlans(targetData.plans);
+      if (targetData.workoutLogs) setWorkoutLogs(targetData.workoutLogs);
+      if (targetData.dailyDiet) setDailyDiet(targetData.dailyDiet);
+      if (targetData.routineItems) setRoutineItems(targetData.routineItems);
+      if (targetData.habits) setHabits(targetData.habits);
+      if (targetData.supplements) setSupplements(targetData.supplements);
+      if (targetData.waterReminder) setWaterReminder(targetData.waterReminder);
+      if (targetData.workoutReminder) setWorkoutReminder(targetData.workoutReminder);
+      if (targetData.mealReminders) setMealReminders(targetData.mealReminders);
+      if (targetData.savedDietPlans) setSavedDietPlans(targetData.savedDietPlans);
+      if (targetData.activeDietPlan !== undefined) setActiveDietPlanState(targetData.activeDietPlan);
+      if (targetData.activeWorkout !== undefined) setActiveWorkout(targetData.activeWorkout);
+    } else {
+      // Initialize fresh isolated section for this new profile
+      const freshUserProf: UserProfile = {
+        id: target.id,
+        name: target.name,
+        avatarColor: target.avatarColor,
+        age: target.age,
+        gender: target.gender,
+        heightCm: target.heightCm,
+        weightKg: target.weightKg,
+        targetWeightKg: target.targetWeightKg,
+        goal: target.goal,
+        goals: {
+          ...DEFAULT_GOAL_SETTINGS,
+          targetWeightKg: target.targetWeightKg,
+          startingWeightKg: target.weightKg,
+        },
+        fitnessLevel: target.fitnessLevel,
+        activityLevel: target.activityLevel,
+        dailyCalorieTarget: target.dailyCalorieTarget,
+        dailyProteinTarget: target.dailyProteinTarget,
+        dailyCarbsTarget: target.dailyCarbsTarget,
+        dailyFatsTarget: target.dailyFatsTarget,
+        dailyWaterTargetMl: target.dailyWaterTargetMl,
+        weightUnit: target.weightUnit,
+        streakDays: target.streakDays || 1,
+        lastActiveDate: getTodayString(),
+      };
+      setUserProfileState(freshUserProf);
+      setPlans(PRESET_WORKOUT_PLANS);
+      setWorkoutLogs([]);
+      setDailyDiet(getInitialDiet(freshUserProf));
+      setRoutineItems(DEFAULT_DAILY_ROUTINE);
+      setHabits(DEFAULT_HABITS);
+      setSupplements(DEFAULT_SUPPLEMENTS);
+      setActiveWorkout(null);
+    }
+
+    setActiveProfileId(profileId);
+    try {
+      localStorage.setItem(STORAGE_KEYS.ACTIVE_PROFILE_ID, profileId);
+    } catch {
+      // ignore
+    }
+  }, [activeProfileId, profiles, userProfile, plans, workoutLogs, dailyDiet, routineItems, habits, supplements, waterReminder, workoutReminder, mealReminders, savedDietPlans, activeDietPlan, activeWorkout]);
+
+  // Add a new athlete profile / section
+  const addProfile = useCallback((newProfileData: Omit<AthleteProfile, 'id' | 'createdAt'>): string => {
+    playClickFeedback();
+    const newId = `prof_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+    const createdProfile: AthleteProfile = {
+      ...newProfileData,
+      id: newId,
+      createdAt: Date.now(),
+    };
+    const updatedProfiles = [...profiles, createdProfile];
+    setProfiles(updatedProfiles);
+    try {
+      localStorage.setItem(STORAGE_KEYS.PROFILES_LIST, JSON.stringify(updatedProfiles));
+    } catch {
+      // ignore
+    }
+
+    // Immediately switch to the newly created section
+    setTimeout(() => {
+      switchProfile(newId);
+    }, 50);
+
+    return newId;
+  }, [profiles, switchProfile]);
+
+  // Update profile item in profiles list
+  const updateProfileItem = useCallback((profileId: string, updates: Partial<AthleteProfile>) => {
+    playClickFeedback();
+    setProfiles((prev) => {
+      const next = prev.map((p) => (p.id === profileId ? { ...p, ...updates } : p));
+      try {
+        localStorage.setItem(STORAGE_KEYS.PROFILES_LIST, JSON.stringify(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+
+    if (activeProfileId === profileId) {
+      setUserProfileState((prev) => ({
+        ...prev,
+        name: updates.name || prev.name,
+        avatarColor: updates.avatarColor || prev.avatarColor,
+        weightKg: updates.weightKg !== undefined ? updates.weightKg : prev.weightKg,
+        targetWeightKg: updates.targetWeightKg !== undefined ? updates.targetWeightKg : prev.targetWeightKg,
+        heightCm: updates.heightCm !== undefined ? updates.heightCm : prev.heightCm,
+        goal: updates.goal || prev.goal,
+        dailyCalorieTarget: updates.dailyCalorieTarget !== undefined ? updates.dailyCalorieTarget : prev.dailyCalorieTarget,
+        dailyProteinTarget: updates.dailyProteinTarget !== undefined ? updates.dailyProteinTarget : prev.dailyProteinTarget,
+        dailyCarbsTarget: updates.dailyCarbsTarget !== undefined ? updates.dailyCarbsTarget : prev.dailyCarbsTarget,
+        dailyFatsTarget: updates.dailyFatsTarget !== undefined ? updates.dailyFatsTarget : prev.dailyFatsTarget,
+        dailyWaterTargetMl: updates.dailyWaterTargetMl !== undefined ? updates.dailyWaterTargetMl : prev.dailyWaterTargetMl,
+      }));
+    }
+  }, [activeProfileId]);
+
+  // Delete profile
+  const deleteProfile = useCallback((profileId: string) => {
+    playClickFeedback();
+    if (profiles.length <= 1) return;
+    const remaining = profiles.filter((p) => p.id !== profileId);
+    setProfiles(remaining);
+    try {
+      localStorage.setItem(STORAGE_KEYS.PROFILES_LIST, JSON.stringify(remaining));
+      localStorage.removeItem(`${STORAGE_KEYS.PROFILE_DATA_PREFIX}${profileId}`);
+    } catch {
+      // ignore
+    }
+    if (activeProfileId === profileId) {
+      switchProfile(remaining[0].id);
+    }
+  }, [profiles, activeProfileId, switchProfile]);
+
   const updateUserProfile = useCallback((profileUpdates: Partial<UserProfile>) => {
-    setUserProfileState((prev) => ({ ...prev, ...profileUpdates }));
+    setUserProfileState((prev) => {
+      const updated = { ...prev, ...profileUpdates };
+      if (profileUpdates.targetWeightKg !== undefined) {
+        const currentGoals = updated.goals || DEFAULT_GOAL_SETTINGS;
+        updated.goals = {
+          ...currentGoals,
+          targetWeightKg: profileUpdates.targetWeightKg,
+        };
+      }
+      return updated;
+    });
+
+    setProfiles((prev) => {
+      const next = prev.map((p) => {
+        if (p.id === activeProfileId) {
+          return {
+            ...p,
+            name: profileUpdates.name || p.name,
+            avatarColor: profileUpdates.avatarColor || p.avatarColor,
+            weightKg: profileUpdates.weightKg !== undefined ? profileUpdates.weightKg : p.weightKg,
+            targetWeightKg: profileUpdates.targetWeightKg !== undefined ? profileUpdates.targetWeightKg : p.targetWeightKg,
+            goal: profileUpdates.goal || p.goal,
+            streakDays: profileUpdates.streakDays !== undefined ? profileUpdates.streakDays : p.streakDays,
+          };
+        }
+        return p;
+      });
+      try {
+        localStorage.setItem(STORAGE_KEYS.PROFILES_LIST, JSON.stringify(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  }, [activeProfileId]);
+
+  const updateGoals = useCallback((goalsUpdates: Partial<UserGoalSettings>) => {
+    playClickFeedback();
+    setUserProfileState((prev) => {
+      const currentGoals = prev.goals || DEFAULT_GOAL_SETTINGS;
+      const mergedGoals: UserGoalSettings = {
+        ...currentGoals,
+        ...goalsUpdates,
+        lastUpdated: getTodayString(),
+      };
+      return {
+        ...prev,
+        targetWeightKg: goalsUpdates.targetWeightKg !== undefined ? goalsUpdates.targetWeightKg : prev.targetWeightKg,
+        goals: mergedGoals,
+      };
+    });
   }, []);
 
   const resetAllData = useCallback(() => {
@@ -1927,6 +2371,9 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
   return (
     <FitnessContext.Provider
       value={{
+        profiles,
+        activeProfileId,
+        activeProfile,
         plans,
         exercises: EXERCISE_DATABASE,
         activeWorkout,
@@ -1945,6 +2392,11 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
         restTimer,
         selectedDate,
         isCloudSyncing,
+
+        switchProfile,
+        addProfile,
+        updateProfileItem,
+        deleteProfile,
 
         startWorkout,
         updateActiveWorkout,
@@ -2001,6 +2453,7 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
         updateHabitProgress,
 
         updateUserProfile,
+        updateGoals,
         setSelectedDate,
         resetAllData,
         importUserData,
