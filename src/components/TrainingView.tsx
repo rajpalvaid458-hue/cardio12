@@ -23,6 +23,10 @@ import {
   Calendar as CalendarIcon,
   Download,
   Crown,
+  HelpCircle,
+  SlidersHorizontal,
+  RotateCcw,
+  FileText,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { WorkoutCalendar } from './WorkoutCalendar';
@@ -30,12 +34,15 @@ import { ProgramScheduleModal } from './ProgramScheduleModal';
 import { BodyweightChallenge } from './BodyweightChallenge';
 import { WarmUpGenerator } from './WarmUpGenerator';
 import { QuickWarmUpModal } from './QuickWarmUpModal';
+import { WorkoutPlanPdfModal } from './WorkoutPlanPdfModal';
+import { ReadinessRecoveryHub } from './ReadinessRecoveryHub';
 
 interface TrainingViewProps {
   onOpenPlanCreator: () => void;
   onOpenAiGenerator: () => void;
   onSelectExerciseDetails: (exercise: Exercise) => void;
   onOpenActiveWorkout: () => void;
+  onOpenHowToUse?: () => void;
 }
 
 const DISCIPLINE_TABS: { id: TrainingDiscipline; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
@@ -77,6 +84,7 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
   onOpenAiGenerator,
   onSelectExerciseDetails,
   onOpenActiveWorkout,
+  onOpenHowToUse,
 }) => {
   const { plans, exercises, workoutLogs, activeWorkout, startWorkout, deleteWorkoutPlan } = useFitness();
   const { t, isHindi } = useLanguage();
@@ -89,12 +97,34 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
   const [yogaSubFilter, setYogaSubFilter] = useState<'all' | 'yoga' | 'stretching' | 'posture'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedPlanId, setExpandedPlanId] = useState<string | null>(null);
-  const [showCalendar, setShowCalendar] = useState<boolean>(true);
-  const [showChallengeSection, setShowChallengeSection] = useState<boolean>(true);
-  const [showWarmUpSection, setShowWarmUpSection] = useState<boolean>(true);
+  const [showCalendar, setShowCalendar] = useState<boolean>(false);
+  const [showChallengeSection, setShowChallengeSection] = useState<boolean>(false);
+  const [showWarmUpSection, setShowWarmUpSection] = useState<boolean>(false);
+  const [showBeginnerBanner, setShowBeginnerBanner] = useState<boolean>(true);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState<boolean>(false);
   const [warmUpSelectedPlanId, setWarmUpSelectedPlanId] = useState<string | null>(null);
   const [quickWarmUpModalOpen, setQuickWarmUpModalOpen] = useState<boolean>(false);
   const [quickWarmUpSelectedPlan, setQuickWarmUpSelectedPlan] = useState<WorkoutPlan | null>(null);
+  const [pdfExportModalOpen, setPdfExportModalOpen] = useState<boolean>(false);
+  const [pdfExportPlan, setPdfExportPlan] = useState<WorkoutPlan | null>(null);
+
+  const activeFilterCount =
+    (selectedProgramType !== 'all' ? 1 : 0) +
+    (selectedGender !== 'all' ? 1 : 0) +
+    (selectedLevel !== 'all' ? 1 : 0);
+
+  const handleResetFilters = () => {
+    setSelectedProgramType('all');
+    setSelectedGender('all');
+    setSelectedLevel('all');
+  };
+
+  const handleOpenPdfExport = (plan?: WorkoutPlan | null) => {
+    const targetPlan = plan || plans[0] || null;
+    if (!targetPlan) return;
+    setPdfExportPlan(targetPlan);
+    setPdfExportModalOpen(true);
+  };
 
   const handleOpenQuickWarmUp = (plan?: WorkoutPlan | null) => {
     const targetPlan = plan || plans[0] || null;
@@ -315,141 +345,98 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
   };
 
   return (
-    <div className="space-y-8 pb-12">
-      {/* Top Banner / Ultra-Luxury Atelier Hero */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#050A18] via-[#080E22] to-[#040711] text-white border border-white/[0.09] p-6 md:p-8 shadow-2xl shadow-black/40 ring-1 ring-white/10">
-        {/* Ambient luxury lighting aura */}
-        <div className="absolute top-0 right-0 -mt-16 -mr-16 w-96 h-96 bg-gradient-to-br from-amber-500/15 via-emerald-500/15 to-transparent rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-1/4 -mb-16 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-amber-400/40 via-emerald-400/40 to-transparent" />
-
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-3">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-emerald-500/15 border border-amber-500/30 text-amber-300 text-xs font-black uppercase tracking-[0.2em] backdrop-blur-xl shadow-xs">
-              <Crown className="w-3.5 h-3.5 text-amber-400" />
-              <span>{isHindi ? 'पल्सफिट प्राइवेट ट्रेनिंग एटेलियर' : 'PULSEFIT ATELIER PROTOCOLS'}</span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight">
-              {isHindi ? 'वेट ट्रेनिंग, कार्डियो, योग और समग्र फिटनेस' : 'Weight Training, Cardio, Stretching, Yoga & Elite Fitness'}
+    <div className="space-y-6 pb-12">
+      {/* Sleek, Clean Training Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80 dark:border-white/[0.08]">
+        <div>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+              {isHindi ? 'वर्कआउट रूटीन और गाइड्स' : 'Workouts & Training'}
             </h1>
-            <p className="text-slate-300 text-sm max-w-xl leading-relaxed font-normal">
-              {isHindi 
-                ? 'जिम लिफ्टिंग, एचआईआईटी कार्डियो, योग, डीप स्ट्रेचिंग, ज़ुम्बा, तैराकी और बॉक्सिंग को सटीक रेस्ट टाइमर और फॉर्म गाइडेंस के साथ ट्रैक करें।' 
-                : 'Scientific lifting protocols, HIIT conditioning, mobility flows, dynamic stretching, and martial fitness engineered with precision rest timers and bio-feedback.'}
-            </p>
+            <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold">
+              {filteredPlans.length} {isHindi ? 'प्लान' : 'plans'}
+            </span>
           </div>
-
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              onClick={onOpenAiGenerator}
-              className="relative overflow-hidden group flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-500/25 transition-all hover:scale-102 cursor-pointer"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-              <Sparkles className="w-4 h-4 fill-slate-950" />
-              <span>{t('ai_smart_plan')}</span>
-            </button>
-            <button
-              onClick={() => handleOpenQuickWarmUp(quickWarmUpSelectedPlan || plans[0] || null)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg shadow-orange-500/25 transition-all hover:scale-102 cursor-pointer"
-              title={isHindi ? 'AI कोच से 5-मिनट डायनेमिक वॉर्म-अप रूटीन बनाएं' : 'Use AI Coach to generate a 5-minute dynamic warm-up sequence based on the selected workout'}
-            >
-              <Sparkles className="w-4 h-4 text-slate-950 fill-slate-950/20" />
-              <span>{isHindi ? 'क्विक वॉर्म-अप' : 'Quick Warm-up'}</span>
-            </button>
-            <button
-              onClick={() => setShowChallengeSection((prev) => !prev)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
-                showChallengeSection
-                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-xs'
-                  : 'bg-slate-900/90 hover:bg-slate-800 border-white/[0.08] text-slate-200'
-              }`}
-              title="Toggle 30-Day Calisthenics Challenge"
-            >
-              <Flame className="w-4 h-4 text-amber-400 fill-amber-500/30" />
-              <span>{isHindi ? '30-दिन चैलेंज' : '30-Day Challenge'}</span>
-            </button>
-            <button
-              onClick={() => setShowWarmUpSection((prev) => !prev)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
-                showWarmUpSection
-                  ? 'bg-orange-500/20 text-orange-300 border-orange-500/40 shadow-xs'
-                  : 'bg-slate-900/90 hover:bg-slate-800 border-white/[0.08] text-slate-200'
-              }`}
-              title="Toggle 5-Minute Dynamic Warm-Up Routine Generator"
-            >
-              <Flame className="w-4 h-4 text-orange-400 fill-orange-500/30" />
-              <span>{isHindi ? '5-मिनट वॉर्म-अप' : 'Warm-up Routine'}</span>
-            </button>
-            <button
-              onClick={() => setShowCalendar((prev) => !prev)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
-                showCalendar
-                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 shadow-xs'
-                  : 'bg-slate-900/90 hover:bg-slate-800 border-white/[0.08] text-slate-200'
-              }`}
-              title="Toggle Consistency Calendar & CSV Download"
-            >
-              <CalendarIcon className="w-4 h-4 text-emerald-400" />
-              <span>{isHindi ? 'वर्कआउट कैलेंडर' : 'Calendar'}</span>
-            </button>
-            <button
-              onClick={onOpenPlanCreator}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/[0.12] text-white font-black text-xs uppercase tracking-wider transition-all shadow-xs cursor-pointer backdrop-blur-md"
-            >
-              <Plus className="w-4 h-4" />
-              <span>{t('create_custom_plan')}</span>
-            </button>
-          </div>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            {isHindi
+              ? 'आज का वर्कआउट 1-क्लिक में शुरू करें या नीचे अपनी पसंद का प्लान चुनें'
+              : 'Start today\'s session in 1 tap or explore routines below'}
+          </p>
         </div>
 
-        {/* Quick Luxury Chronograph Stats Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 mt-6 pt-6 border-t border-white/[0.08]">
-          <div className="bg-slate-950/70 backdrop-blur-xl rounded-2xl p-4 border border-white/[0.08] hover:border-emerald-500/40 transition-all duration-300 group shadow-md">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-wider">
-                <Dumbbell className="w-3.5 h-3.5 text-emerald-400" /> Total Workouts
-              </div>
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/80" />
-            </div>
-            <div className="text-2xl sm:text-3xl font-black text-white mt-1.5 font-mono tracking-tight group-hover:text-emerald-400 transition-colors">
-              {workoutLogs.length}
-            </div>
-          </div>
-          <div className="bg-slate-950/70 backdrop-blur-xl rounded-2xl p-4 border border-white/[0.08] hover:border-amber-500/40 transition-all duration-300 group shadow-md">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-wider">
-                <Flame className="w-3.5 h-3.5 text-amber-400" /> Tonnage Lifted
-              </div>
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400/80" />
-            </div>
-            <div className="text-2xl sm:text-3xl font-black text-white mt-1.5 font-mono tracking-tight group-hover:text-amber-400 transition-colors">
-              {totalVolumeAllTime > 1000 ? `${(totalVolumeAllTime / 1000).toFixed(1)}t` : `${totalVolumeAllTime}kg`}
-            </div>
-          </div>
-          <div className="bg-slate-950/70 backdrop-blur-xl rounded-2xl p-4 border border-white/[0.08] hover:border-blue-500/40 transition-all duration-300 group shadow-md">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-wider">
-                <Clock className="w-3.5 h-3.5 text-blue-400" /> Avg Session
-              </div>
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-400/80" />
-            </div>
-            <div className="text-2xl sm:text-3xl font-black text-white mt-1.5 font-mono tracking-tight group-hover:text-blue-400 transition-colors">
-              42m
-            </div>
-          </div>
-          <div className="bg-slate-950/70 backdrop-blur-xl rounded-2xl p-4 border border-white/[0.08] hover:border-emerald-500/40 transition-all duration-300 group shadow-md">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-wider">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Active Plan
-              </div>
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/80 animate-pulse" />
-            </div>
-            <div className="text-sm font-bold text-emerald-400 mt-2 truncate">
-              {plans[0]?.title || 'Standard Split'}
-            </div>
-          </div>
+        {/* Quick Tools */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={onOpenPlanCreator}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs border border-slate-200/80 dark:border-white/[0.08] transition-colors cursor-pointer"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>{t('create_custom_plan')}</span>
+          </button>
+
+          <button
+            onClick={onOpenAiGenerator}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs border border-slate-200/80 dark:border-white/[0.08] transition-colors cursor-pointer"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
+            <span>{isHindi ? 'AI प्लान' : 'AI Plan'}</span>
+          </button>
+
+          <button
+            onClick={() => handleOpenPdfExport(plans[0] || null)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs border border-slate-200/80 dark:border-white/[0.08] transition-colors cursor-pointer"
+            title={isHindi ? 'वर्कआउट रूटीन को PDF में एक्सपोर्ट करें' : 'Export current workout routine as a formatted PDF'}
+          >
+            <FileText className="w-3.5 h-3.5 text-emerald-500" />
+            <span>{isHindi ? 'PDF' : 'PDF'}</span>
+          </button>
+
+          <button
+            onClick={() => setShowCalendar((prev) => !prev)}
+            className={`p-2 rounded-xl transition-colors cursor-pointer text-xs ${
+              showCalendar
+                ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/40'
+                : 'text-slate-500 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800'
+            }`}
+            title={isHindi ? 'वर्कआउट कैलेंडर' : 'Workout Calendar'}
+          >
+            <CalendarIcon className="w-4 h-4" />
+          </button>
         </div>
       </div>
+
+      {/* Today's Workout Hero Focus (Clear, Unmissable, 1-Click to Train) */}
+      {!activeWorkout && plans.length > 0 && (
+        <div className="rounded-3xl bg-gradient-to-br from-slate-900 via-slate-950 to-emerald-950 text-white p-5 sm:p-6 border border-emerald-500/30 shadow-md relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-[10px] font-black uppercase tracking-wider">
+                  {isHindi ? 'आज का सेशन' : "Today's Workout"}
+                </span>
+                <span className="text-xs text-slate-400 font-mono">
+                  {plans[0].durationMinutes} min • {plans[0].exercises.length} {isHindi ? 'एक्सरसाइज' : 'exercises'}
+                </span>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                {plans[0].title}
+              </h2>
+              <p className="text-xs text-slate-300 line-clamp-1 max-w-lg">
+                {plans[0].description}
+              </p>
+            </div>
+
+            <button
+              onClick={() => handleStartWorkout(plans[0])}
+              className="flex items-center justify-center gap-2.5 px-6 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm shadow-md transition-all hover:scale-[1.02] cursor-pointer shrink-0"
+            >
+              <Play className="w-4 h-4 fill-current" />
+              <span>{isHindi ? 'वर्कआउट शुरू करें' : 'Start Workout'}</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Active Workout Resume Card (if one is currently active) */}
       {activeWorkout && (
@@ -481,6 +468,11 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
           </button>
         </motion.div>
       )}
+
+      {/* Daily Athlete Readiness & Muscle Recovery Radar (Whoop / Apple Benchmark) */}
+      <ReadinessRecoveryHub
+        onStartRecommendedWorkout={() => plans.length > 0 && handleStartWorkout(plans[0])}
+      />
 
       {/* Interactive Workout Calendar & Consistency Tracker with CSV Export */}
       <AnimatePresence>
@@ -540,11 +532,11 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
       {/* Discipline Category Switcher Pills */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-            Training Discipline & Activity Type
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            {isHindi ? 'कैटेगरी चुनें' : 'Category'}
           </span>
-          <span className="text-xs text-slate-500 font-medium">
-            {filteredPlans.length} plans • {filteredExercises.length} exercises
+          <span className="text-xs text-slate-500 dark:text-slate-400 font-medium font-mono">
+            {filteredPlans.length} {isHindi ? 'प्लान' : 'plans'}
           </span>
         </div>
         <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
@@ -558,13 +550,13 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
                   setSelectedDiscipline(tab.id);
                   setSelectedMuscle('All');
                 }}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-xs cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all shadow-xs cursor-pointer ${
                   isSelected
-                    ? 'bg-slate-900 dark:bg-emerald-500 text-white dark:text-slate-950 shadow-md shadow-emerald-500/20 font-black'
-                    : 'bg-white dark:bg-[#0A1020] text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-white/[0.08] hover:border-slate-300 dark:hover:border-white/20'
+                    ? 'bg-slate-900 dark:bg-emerald-500 text-white dark:text-slate-950 font-bold shadow-sm'
+                    : 'bg-white dark:bg-slate-900/80 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200/80 dark:border-white/[0.06]'
                 }`}
               >
-                <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-emerald-400' : 'text-slate-400'}`} />
+                <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-emerald-400 dark:text-slate-950' : 'text-slate-400'}`} />
                 <span>{tab.id === 'Weight Loss & Fat Burn' && isHindi ? 'वेट लॉस व फैट बर्न' : tab.label}</span>
               </button>
             );
@@ -574,226 +566,191 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
 
       {/* Section: Workout Plans & Splits */}
       <section className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <h2 className="text-xl font-bold text-slate-900">
-              {isHindi ? 'वर्कआउट रूटीन और स्प्लिट्स' : 'Workout Splits & Routines'}
-            </h2>
-            <p className="text-xs text-slate-500">
-              {isHindi ? 'महिला / पुरुष और अनुभव स्तर के अनुसार चुनें' : 'Filter by Gender focus (Female / Male) and Experience level'}
-            </p>
-          </div>
-          <span className="text-xs text-slate-500 font-mono bg-white px-2.5 py-1 rounded-lg border border-slate-200 shadow-xs self-start sm:self-auto">
-            {filteredPlans.length} {isHindi ? 'प्लान उपलब्ध' : 'plans available'}
-          </span>
-        </div>
-
         {/* Dedicated Yoga & Stretching Focus Filter */}
         {selectedDiscipline === 'Yoga & Mobility' && (
-          <div className="flex flex-wrap items-center gap-2 p-3 bg-purple-50/90 rounded-2xl border border-purple-200">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-purple-800 mr-1 flex items-center gap-1.5">
-              <Heart className="w-3.5 h-3.5 text-purple-600" /> Focus:
+          <div className="flex flex-wrap items-center gap-2 p-2.5 bg-purple-500/10 dark:bg-purple-950/30 rounded-2xl border border-purple-500/20">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-purple-700 dark:text-purple-300 mr-1 flex items-center gap-1">
+              <Heart className="w-3.5 h-3.5 text-purple-500" /> Focus:
             </span>
             <button
               onClick={() => setYogaSubFilter('all')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs ${
+              className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 yogaSubFilter === 'all'
-                  ? 'bg-purple-950 text-white shadow-sm'
-                  : 'bg-white text-purple-700 hover:bg-purple-100 border border-purple-200'
+                  ? 'bg-purple-900 text-white shadow-xs'
+                  : 'bg-white dark:bg-slate-800 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
               }`}
             >
-              🧘 All (Yoga & Stretches)
+              🧘 {isHindi ? 'सभी योग' : 'All (Yoga & Stretches)'}
             </button>
             <button
               onClick={() => setYogaSubFilter('yoga')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs ${
+              className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 yogaSubFilter === 'yoga'
-                  ? 'bg-purple-700 text-white shadow-sm'
-                  : 'bg-white text-purple-700 hover:bg-purple-100 border border-purple-200'
+                  ? 'bg-purple-900 text-white shadow-xs'
+                  : 'bg-white dark:bg-slate-800 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
               }`}
             >
-              🕉️ Yoga Flows (Vinyasa & Yin)
+              🕉️ {isHindi ? 'योग फ्लोज़' : 'Yoga Flows'}
             </button>
             <button
               onClick={() => setYogaSubFilter('stretching')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs ${
+              className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 yogaSubFilter === 'stretching'
-                  ? 'bg-purple-700 text-white shadow-sm'
-                  : 'bg-white text-purple-700 hover:bg-purple-100 border border-purple-200'
+                  ? 'bg-purple-900 text-white shadow-xs'
+                  : 'bg-white dark:bg-slate-800 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
               }`}
             >
-              🤸 Deep Stretching & Mobility
+              🤸 {isHindi ? 'स्ट्रेचिंग' : 'Stretching'}
             </button>
             <button
               onClick={() => setYogaSubFilter('posture')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs ${
+              className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 yogaSubFilter === 'posture'
-                  ? 'bg-purple-700 text-white shadow-sm'
-                  : 'bg-white text-purple-700 hover:bg-purple-100 border border-purple-200'
+                  ? 'bg-purple-900 text-white shadow-xs'
+                  : 'bg-white dark:bg-slate-800 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
               }`}
             >
-              🪑 Desk & Posture Reset
+              🪑 {isHindi ? 'पोस्चर रीसेट' : 'Posture Reset'}
             </button>
           </div>
         )}
 
-        {/* Normal Workouts & Routine Duration Bar */}
-        <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-950 via-slate-900 to-slate-900 text-white shadow-sm border border-emerald-500/30 space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div>
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[11px] font-bold uppercase tracking-wider border border-emerald-500/30">
-                <Sparkles className="w-3 h-3" />
-                {isHindi ? 'नॉर्मल वर्कआउट व रूटीन शेड्यूल' : 'Normal Workouts & Routine Schedules'}
+        {/* Clean Filter Header & Expandable Settings */}
+        <div className="flex items-center justify-between gap-3 pt-1">
+          <div className="flex items-center gap-2">
+            <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+              {isHindi ? 'वर्कआउट प्लान्स' : 'Workout Plans'}
+            </h2>
+            <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-semibold">
+              {filteredPlans.length}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {activeFilterCount > 0 && (
+              <button
+                onClick={handleResetFilters}
+                className="flex items-center gap-1 text-xs text-rose-500 hover:text-rose-600 font-medium px-2 py-1 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
+                title={isHindi ? 'सभी फिल्टर हटाएं' : 'Reset all filters'}
+              >
+                <RotateCcw className="w-3 h-3" />
+                <span>{isHindi ? 'रीसेट' : 'Reset'}</span>
+              </button>
+            )}
+
+            <button
+              onClick={() => setShowAdvancedFilters((prev) => !prev)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer border ${
+                showAdvancedFilters || activeFilterCount > 0
+                  ? 'bg-slate-900 dark:bg-emerald-500 text-white dark:text-slate-950 border-slate-900 dark:border-emerald-500 shadow-xs'
+                  : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border-slate-200 dark:border-white/[0.08]'
+              }`}
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5" />
+              <span>{isHindi ? 'फ़िल्टर' : 'Filter Plans'}</span>
+              {activeFilterCount > 0 && (
+                <span className="w-4 h-4 rounded-full bg-emerald-500 dark:bg-slate-950 text-slate-950 dark:text-emerald-400 text-[10px] font-black flex items-center justify-center">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Expandable Filter Panel (Neat, clean, and tucks away clutter) */}
+        <AnimatePresence>
+          {showAdvancedFilters && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden"
+            >
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200/80 dark:border-white/[0.08] space-y-3 shadow-xs">
+                {/* Duration */}
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 w-24 shrink-0">
+                    {isHindi ? 'शेड्यूल:' : 'Duration:'}
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[
+                      { id: 'all', label: isHindi ? 'सभी' : 'All' },
+                      { id: 'normal', label: isHindi ? 'सामान्य वर्कआउट' : 'Normal Splits' },
+                      { id: '1-week', label: isHindi ? '1-सप्ताह (7-Day)' : '1-Week Split' },
+                      { id: '1-month', label: isHindi ? '1-महीना (4-Week)' : '1-Month Program' },
+                      { id: 'daily', label: isHindi ? 'दैनिक 30-मिनट' : 'Daily 30-Min' },
+                    ].map((dur) => (
+                      <button
+                        key={dur.id}
+                        onClick={() => setSelectedProgramType(dur.id as any)}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                          selectedProgramType === dur.id
+                            ? 'bg-emerald-500 text-slate-950 font-bold'
+                            : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/80 dark:border-white/[0.08]'
+                        }`}
+                      >
+                        {dur.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Gender Focus */}
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 w-24 shrink-0">
+                    {isHindi ? 'जेंडर फोकस:' : 'Gender:'}
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[
+                      { id: 'all', label: isHindi ? 'सभी' : 'All' },
+                      { id: 'female', label: isHindi ? 'महिला फोकस (ग्लो & टोनिंग)' : 'Female Focus' },
+                      { id: 'male', label: isHindi ? 'पुरुष / सामान्य' : 'Male / General' },
+                    ].map((gen) => (
+                      <button
+                        key={gen.id}
+                        onClick={() => setSelectedGender(gen.id as any)}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                          selectedGender === gen.id
+                            ? 'bg-pink-600 text-white font-bold'
+                            : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/80 dark:border-white/[0.08]'
+                        }`}
+                      >
+                        {gen.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Level */}
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 w-24 shrink-0">
+                    {isHindi ? 'लेवल:' : 'Level:'}
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[
+                      { id: 'all', label: isHindi ? 'सभी' : 'All' },
+                      { id: 'beginner', label: isHindi ? '🟢 शुरुआती (Beginner)' : '🟢 Beginner' },
+                      { id: 'intermediate', label: isHindi ? '🟡 मध्यम (Intermediate)' : '🟡 Intermediate' },
+                      { id: 'athlete', label: isHindi ? '🔴 प्रो (Athlete)' : '🔴 Athlete' },
+                    ].map((lvl) => (
+                      <button
+                        key={lvl.id}
+                        onClick={() => setSelectedLevel(lvl.id as any)}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                          selectedLevel === lvl.id
+                            ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-950 font-bold'
+                            : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/80 dark:border-white/[0.08]'
+                        }`}
+                      >
+                        {lvl.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
-              <h3 className="text-sm sm:text-base font-extrabold text-white mt-1">
-                {isHindi ? '1-सप्ताह, 1-महीना और सामान्य दैनिक वर्कआउट्स' : '1-Week, 1-Month & Everyday Normal Fitness Splits'}
-              </h3>
-              <p className="text-xs text-slate-300">
-                {isHindi
-                  ? 'दैनिक जीवन के लिए संतुलित व सुरक्षित वर्कआउट - 7-दिन का शेड्यूल व 4-सप्ताह का प्रोग्रेसिव ओवरलोड रोडमैप।'
-                  : 'Balanced, sustainable training programs with day-by-day 7-day schedules and 4-week progressive roadmaps.'}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-slate-800">
-            <button
-              onClick={() => setSelectedProgramType('all')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                selectedProgramType === 'all'
-                  ? 'bg-emerald-500 text-slate-950 shadow-xs'
-                  : 'bg-slate-800/90 text-slate-300 hover:text-white border border-slate-700'
-              }`}
-            >
-              🌐 {isHindi ? 'सभी वर्कआउट्स' : 'All Workouts'}
-            </button>
-            <button
-              onClick={() => setSelectedProgramType('normal')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                selectedProgramType === 'normal'
-                  ? 'bg-emerald-500 text-slate-950 shadow-xs'
-                  : 'bg-slate-800/90 text-slate-300 hover:text-white border border-slate-700'
-              }`}
-            >
-              🌟 {isHindi ? 'सामान्य वर्कआउट्स' : 'Normal Workouts'}
-            </button>
-            <button
-              onClick={() => setSelectedProgramType('1-week')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                selectedProgramType === '1-week'
-                  ? 'bg-emerald-500 text-slate-950 shadow-xs'
-                  : 'bg-slate-800/90 text-slate-300 hover:text-white border border-slate-700'
-              }`}
-            >
-              📅 {isHindi ? '1-सप्ताह का शेड्यूल' : '1-Week Routine (7-Day)'}
-            </button>
-            <button
-              onClick={() => setSelectedProgramType('1-month')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                selectedProgramType === '1-month'
-                  ? 'bg-emerald-500 text-slate-950 shadow-xs'
-                  : 'bg-slate-800/90 text-slate-300 hover:text-white border border-slate-700'
-              }`}
-            >
-              🗓️ {isHindi ? '1-महीने का प्लान' : '1-Month Program (4-Week)'}
-            </button>
-            <button
-              onClick={() => setSelectedProgramType('daily')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                selectedProgramType === 'daily'
-                  ? 'bg-emerald-500 text-slate-950 shadow-xs'
-                  : 'bg-slate-800/90 text-slate-300 hover:text-white border border-slate-700'
-              }`}
-            >
-              ⚡ {isHindi ? 'दैनिक 30-मिनट' : 'Daily 30-Min Maintenance'}
-            </button>
-          </div>
-        </div>
-
-        {/* Dual Sub-Filters: Gender & Level Switchers */}
-        <div className="flex flex-wrap items-center gap-3 p-3 bg-slate-50/80 rounded-2xl border border-slate-200">
-          {/* Gender Filter */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mr-1">Gender:</span>
-            <button
-              onClick={() => setSelectedGender('all')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs ${
-                selectedGender === 'all'
-                  ? 'bg-slate-900 text-white'
-                  : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200'
-              }`}
-            >
-              🌟 All
-            </button>
-            <button
-              onClick={() => setSelectedGender('female')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs ${
-                selectedGender === 'female'
-                  ? 'bg-pink-600 text-white shadow-sm'
-                  : 'bg-white text-pink-700 hover:bg-pink-50 border border-pink-200'
-              }`}
-            >
-              👩 Female Focus (Glute & Toning)
-            </button>
-            <button
-              onClick={() => setSelectedGender('male')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs ${
-                selectedGender === 'male'
-                  ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'bg-white text-indigo-700 hover:bg-indigo-50 border border-indigo-200'
-              }`}
-            >
-              👨 Male / General
-            </button>
-          </div>
-
-          <div className="hidden md:block w-px h-6 bg-slate-200 mx-1" />
-
-          {/* Level Filter */}
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mr-1">Level:</span>
-            <button
-              onClick={() => setSelectedLevel('all')}
-              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs ${
-                selectedLevel === 'all'
-                  ? 'bg-slate-900 text-white'
-                  : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200'
-              }`}
-            >
-              ⚡ All
-            </button>
-            <button
-              onClick={() => setSelectedLevel('beginner')}
-              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs ${
-                selectedLevel === 'beginner'
-                  ? 'bg-emerald-600 text-white shadow-sm'
-                  : 'bg-white text-emerald-700 hover:bg-emerald-50 border border-emerald-200'
-              }`}
-            >
-              🟢 Beginner
-            </button>
-            <button
-              onClick={() => setSelectedLevel('intermediate')}
-              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs ${
-                selectedLevel === 'intermediate'
-                  ? 'bg-amber-600 text-white shadow-sm'
-                  : 'bg-white text-amber-700 hover:bg-amber-50 border border-amber-200'
-              }`}
-            >
-              🟡 Intermediate
-            </button>
-            <button
-              onClick={() => setSelectedLevel('athlete')}
-              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs ${
-                selectedLevel === 'athlete'
-                  ? 'bg-rose-600 text-white shadow-sm'
-                  : 'bg-white text-rose-700 hover:bg-rose-50 border border-rose-200'
-              }`}
-            >
-              🔴 Pro Athlete
-            </button>
-          </div>
-        </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredPlans.map((plan) => {
@@ -953,10 +910,10 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
                   </button>
                 )}
 
-                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center gap-2">
+                <div className="mt-4 pt-3 border-t border-slate-100 dark:border-white/[0.06] flex items-center gap-2">
                   <button
                     onClick={() => handleStartWorkout(plan)}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition-all shadow-sm cursor-pointer"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all shadow-sm hover:shadow cursor-pointer"
                   >
                     <Play className="w-3.5 h-3.5 fill-current" />
                     <span>{t('start_plan_now')}</span>
@@ -964,12 +921,11 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
 
                   <button
                     type="button"
-                    onClick={() => handleOpenQuickWarmUp(plan)}
-                    className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 hover:text-amber-950 font-bold text-xs border border-amber-300 transition-all cursor-pointer shrink-0 shadow-xs"
-                    title={isHindi ? `${plan.title} के लिए AI कोच से 5-मिनट वॉर्म-अप रूटीन बनाएं` : `Use AI Coach to generate 5-min dynamic warm-up for ${plan.title}`}
+                    onClick={() => handleOpenPdfExport(plan)}
+                    className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold transition-all cursor-pointer border border-slate-200/80 dark:border-white/10"
+                    title={isHindi ? `${plan.title} को PDF में एक्सपोर्ट करें` : `Export ${plan.title} as PDF`}
                   >
-                    <Sparkles className="w-3.5 h-3.5 text-amber-600 fill-amber-500/30" />
-                    <span>{isHindi ? 'क्विक वॉर्म-अप' : 'Quick Warm-up'}</span>
+                    <FileText className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   </button>
 
                   {plan.id.startsWith('custom-') && (
@@ -1162,6 +1118,18 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
         onStartWorkout={handleStartWorkout}
         isHindi={isHindi}
       />
+
+      {/* Formatted Printable PDF Summary & Share Modal */}
+      {pdfExportModalOpen && pdfExportPlan && (
+        <WorkoutPlanPdfModal
+          plan={pdfExportPlan}
+          onClose={() => {
+            setPdfExportModalOpen(false);
+            setPdfExportPlan(null);
+          }}
+          onStartWorkout={handleStartWorkout}
+        />
+      )}
     </div>
   );
 };

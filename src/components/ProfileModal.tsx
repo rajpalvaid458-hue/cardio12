@@ -27,6 +27,7 @@ import {
   Stethoscope,
   Languages,
   Users,
+  RotateCcw,
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { ThemeToggle } from './ThemeToggle';
@@ -51,7 +52,7 @@ interface Milestone {
 }
 
 export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, onOpenAthleteProfiles }) => {
-  const { userProfile, updateUserProfile, dailyDiet, setMacroGoals, workoutLogs, isCloudSyncing, syncToCloud, activeProfile } = useFitness();
+  const { userProfile, updateUserProfile, dailyDiet, setMacroGoals, workoutLogs, isCloudSyncing, syncToCloud, activeProfile, resetAllData } = useFitness();
   const { currentUser, logout, openAuthModal } = useAuth();
   const { language, setLanguage, t, isHindi } = useLanguage();
 
@@ -606,6 +607,38 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, onO
                 className="px-3 py-1.5 rounded-xl bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-xs transition"
               >
                 View Details
+              </button>
+            </div>
+
+            {/* Start Fresh / Reset All Data */}
+            <div className="p-3.5 rounded-2xl bg-rose-50/70 border border-rose-200 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-rose-100 flex items-center justify-center text-rose-600">
+                  <RotateCcw className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-rose-900">
+                    {isHindi ? 'नया शुरुआत / डेटा रीसेट करें' : 'Start Fresh / Reset All Data'}
+                  </div>
+                  <div className="text-[11px] text-rose-600">
+                    {isHindi ? 'सभी वर्कआउट लॉग्स और प्रगति साफ करके नए सिरे से शुरू करें' : 'Wipe stored workout history and start with clean Day 1 slate'}
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  const confirmMsg = isHindi
+                    ? 'क्या आप सचमुच सब कुछ रीसेट करके नए सिरे से शुरू करना चाहते हैं?'
+                    : 'Are you sure you want to reset all stored data and start completely fresh?';
+                  if (window.confirm(confirmMsg)) {
+                    resetAllData();
+                    onClose();
+                  }
+                }}
+                className="px-3 py-1.5 rounded-xl bg-white border border-rose-300 hover:bg-rose-100 text-rose-700 text-xs font-bold shadow-xs transition"
+              >
+                {isHindi ? 'नया शुरू करें' : 'Start Fresh'}
               </button>
             </div>
 

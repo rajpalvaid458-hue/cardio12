@@ -22,6 +22,7 @@ import {
   LogOut,
   Users,
   Crown,
+  HelpCircle,
 } from 'lucide-react';
 import { PWAInstallButton } from './PWAInstallButton';
 import { ThemeToggle } from './ThemeToggle';
@@ -36,6 +37,7 @@ interface HeaderProps {
   onOpenComplianceModal: () => void;
   onOpenRemindersModal: () => void;
   onOpenAthleteProfilesModal?: () => void;
+  onOpenHowToUse?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -46,6 +48,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenComplianceModal,
   onOpenRemindersModal,
   onOpenAthleteProfilesModal,
+  onOpenHowToUse,
 }) => {
   const { activeWorkout, userProfile, isCloudSyncing, activeInAppAlerts, activeProfile } = useFitness();
   const { currentUser, openAuthModal, logout } = useAuth();
@@ -67,48 +70,26 @@ export const Header: React.FC<HeaderProps> = ({
   ];
 
   return (
-    <header className="sticky top-0 z-40 backdrop-blur-2xl bg-slate-950/95 dark:bg-[#040813]/95 text-white shadow-2xl shadow-black/30 border-b border-white/[0.08] transition-colors">
-      {/* Top Ultra-Luxury Concierge Status Micro-Ticker */}
-      <div className="w-full bg-slate-950/90 text-[10px] text-slate-400 py-1 px-4 sm:px-8 border-b border-white/[0.06] flex items-center justify-between font-mono tracking-widest uppercase select-none">
-        <div className="flex items-center gap-2">
-          <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="text-slate-300 font-semibold">PULSEFIT PRIVATE ATELIER</span>
-          <span className="text-slate-600 hidden sm:inline">•</span>
-          <span className="text-amber-400/90 font-medium hidden sm:inline flex items-center gap-1">
-            <Crown className="w-2.5 h-2.5 text-amber-400 inline" /> BLACK EDITION
-          </span>
-        </div>
-        <div className="flex items-center gap-3 text-slate-400 text-[9px] sm:text-[10px]">
-          <span className="hidden md:inline text-slate-500">BIOMETRICS SYNCED</span>
-          <span className="text-emerald-400 font-bold">READY 96%</span>
-        </div>
-      </div>
-
-      {/* Top micro ambient glow line */}
-      <div className="h-[2px] w-full bg-gradient-to-r from-transparent via-emerald-500/80 via-amber-400/50 to-transparent opacity-80" />
+    <header className="sticky top-0 z-40 backdrop-blur-xl bg-slate-950/90 dark:bg-[#040813]/90 text-white shadow-md border-b border-white/[0.08] transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Brand */}
           <div className="flex items-center gap-3 cursor-pointer select-none group" onClick={() => setActiveTab('training')}>
             <div className="relative">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-amber-400 p-[1.5px] shadow-lg shadow-emerald-500/25 group-hover:scale-105 group-hover:shadow-amber-500/30 transition-all duration-300">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 p-[1.5px] shadow-sm group-hover:scale-105 transition-all duration-300">
                 <div className="w-full h-full rounded-[10px] bg-slate-950 flex items-center justify-center">
-                  <Dumbbell className="w-5 h-5 text-emerald-400 group-hover:text-amber-300 transition-colors stroke-[2.5]" />
+                  <Dumbbell className="w-5 h-5 text-emerald-400 group-hover:text-emerald-300 transition-colors stroke-[2.2]" />
                 </div>
               </div>
-              <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-slate-950 animate-pulse" />
+              <div className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-slate-950" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-black text-xl tracking-tight text-white group-hover:text-emerald-300 transition-colors">
                   PULSE<span className="text-emerald-400">FIT</span>
                 </span>
-                <span className="text-[9px] uppercase font-black tracking-[0.2em] px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500/20 via-yellow-500/10 to-emerald-500/20 text-amber-300 border border-amber-500/40 shadow-xs flex items-center gap-1">
-                  <Crown className="w-2.5 h-2.5 text-amber-400" />
-                  PRO
-                </span>
               </div>
-              <p className="text-[11px] text-slate-400 font-medium hidden sm:block">
+              <p className="text-[10px] text-slate-400 font-medium hidden sm:block">
                 {t('app_subtitle')}
               </p>
             </div>
@@ -201,6 +182,18 @@ export const Header: React.FC<HeaderProps> = ({
 
             {/* In-App PWA Install Button */}
             <PWAInstallButton />
+
+            {/* Guide / Help for New Users Button */}
+            {onOpenHowToUse && (
+              <button
+                onClick={onOpenHowToUse}
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 text-xs font-bold transition-all shadow-xs cursor-pointer group"
+                title={isHindi ? "कैसे इस्तेमाल करें? (आसान गाइड)" : "How to Use PulseFit"}
+              >
+                <HelpCircle className="w-3.5 h-3.5 text-emerald-400 group-hover:scale-110 transition-transform" />
+                <span className="hidden sm:inline font-black">{isHindi ? 'गाइड' : 'Guide'}</span>
+              </button>
+            )}
 
             {/* Language Switcher Button (English / हिंदी) */}
             <button

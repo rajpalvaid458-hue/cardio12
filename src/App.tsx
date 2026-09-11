@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
-import { FitnessProvider } from './context/FitnessContext';
+import { FitnessProvider, useFitness } from './context/FitnessContext';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { Header, TabType } from './components/Header';
 import { TrainingView } from './components/TrainingView';
@@ -19,6 +19,7 @@ import { AthleteProfilesModal } from './components/AthleteProfilesModal';
 import { MedicalComplianceModal } from './components/MedicalComplianceModal';
 import { RemindersModal } from './components/reminders/RemindersModal';
 import { AthleteTopBar } from './components/AthleteTopBar';
+import { HowToUseModal } from './components/HowToUseModal';
 import { RestTimerBanner } from './components/RestTimerBanner';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { AuthModal } from './components/AuthModal';
@@ -28,6 +29,7 @@ import { ShieldAlert, Stethoscope, Award, Lock, FileText, CheckCircle2, Dumbbell
 function FitnessAppContent() {
   const { currentUser, loading } = useAuth();
   const { t } = useLanguage();
+  const { plans, startWorkout } = useFitness();
   const [activeTab, setActiveTab] = useState<TabType>('training');
 
   // Modals state
@@ -38,8 +40,17 @@ function FitnessAppContent() {
   const [isAthleteProfilesModalOpen, setIsAthleteProfilesModalOpen] = useState(false);
   const [isComplianceModalOpen, setIsComplianceModalOpen] = useState(false);
   const [isRemindersModalOpen, setIsRemindersModalOpen] = useState(false);
+  const [isHowToUseModalOpen, setIsHowToUseModalOpen] = useState(false);
   const [complianceSection, setComplianceSection] = useState<'medical' | 'trainer' | 'privacy' | 'terms'>('medical');
   const [selectedExerciseForDetail, setSelectedExerciseForDetail] = useState<Exercise | null>(null);
+
+  const handleStartQuickWorkout = () => {
+    if (plans && plans.length > 0) {
+      startWorkout(plans[0]);
+      setActiveTab('training');
+      setIsActiveWorkoutOpen(true);
+    }
+  };
 
   const handleOpenAiGenerator = () => {
     setActiveTab('coach');
@@ -71,6 +82,7 @@ function FitnessAppContent() {
         onOpenComplianceModal={() => openCompliance('medical')}
         onOpenRemindersModal={() => setIsRemindersModalOpen(true)}
         onOpenAthleteProfilesModal={() => setIsAthleteProfilesModalOpen(true)}
+        onOpenHowToUse={() => setIsHowToUseModalOpen(true)}
       />
 
       {/* Main Viewport Container */}
@@ -81,6 +93,7 @@ function FitnessAppContent() {
           onOpenPlanCreator={() => setIsPlanCreatorOpen(true)}
           onOpenActiveWorkout={() => setIsActiveWorkoutOpen(true)}
           onOpenAthleteProfiles={() => setIsAthleteProfilesModalOpen(true)}
+          onOpenHowToUse={() => setIsHowToUseModalOpen(true)}
         />
         {activeTab === 'training' && (
           <TrainingView
@@ -88,6 +101,7 @@ function FitnessAppContent() {
             onOpenAiGenerator={handleOpenAiGenerator}
             onSelectExerciseDetails={(ex) => setSelectedExerciseForDetail(ex)}
             onOpenActiveWorkout={() => setIsActiveWorkoutOpen(true)}
+            onOpenHowToUse={() => setIsHowToUseModalOpen(true)}
           />
         )}
 
@@ -205,6 +219,20 @@ function FitnessAppContent() {
         isOpen={isRemindersModalOpen}
         onClose={() => setIsRemindersModalOpen(false)}
         onNavigateTab={(tab) => setActiveTab(tab)}
+      />
+
+      <HowToUseModal
+        isOpen={isHowToUseModalOpen}
+        onClose={() => setIsHowToUseModalOpen(false)}
+        onStartQuickWorkout={handleStartQuickWorkout}
+        onGoToDiet={() => {
+          setActiveTab('diet');
+          setIsHowToUseModalOpen(false);
+        }}
+        onGoToCoach={() => {
+          setActiveTab('coach');
+          setIsHowToUseModalOpen(false);
+        }}
       />
 
       {/* Connectivity & Offline Status Indicator */}

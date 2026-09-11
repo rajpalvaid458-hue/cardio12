@@ -46,7 +46,7 @@ const LOCAL_ACTIVE_USER_KEY = 'pulsefit_active_user';
 export const DEFAULT_GUEST_USER: AppUser = {
   uid: 'guest_pulsefit_athlete',
   email: 'athlete@pulsefit.local',
-  displayName: 'PulseFit Athlete',
+  displayName: 'Athlete',
   isLocal: true,
 };
 
@@ -70,16 +70,23 @@ function saveLocalAccounts(accounts: LocalAccount[]) {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState<User | AppUser>(() => {
+  const [currentUser, setCurrentUser] = useState<User | AppUser | null>(() => {
     try {
       const saved = localStorage.getItem(LOCAL_ACTIVE_USER_KEY);
       if (saved) {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        // If it was the legacy auto-guest account, clear it so fresh sessions start clean
+        if (parsed?.uid === 'guest_pulsefit_athlete') {
+          localStorage.removeItem(LOCAL_ACTIVE_USER_KEY);
+          return null;
+        }
+        return parsed;
       }
     } catch {
       // fallback
     }
-    return DEFAULT_GUEST_USER;
+    // Default to unauthenticated (null) so new visitors start completely fresh
+    return null;
   });
   const [loading, setLoading] = useState<boolean>(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -105,12 +112,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             // ignore
           }
         } else {
-          // If Firebase auth has no user, keep local account if one was active, or guest
+          // If Firebase auth has no user, keep local account only if explicitly logged in
           try {
             const saved = localStorage.getItem(LOCAL_ACTIVE_USER_KEY);
             if (saved) {
               const parsed = JSON.parse(saved);
-              if (parsed?.isLocal) {
+              if (parsed?.isLocal && parsed?.uid !== 'guest_pulsefit_athlete') {
                 setCurrentUser(parsed);
                 setLoading(false);
                 return;
@@ -119,7 +126,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           } catch {
             // ignore
           }
-          setCurrentUser(DEFAULT_GUEST_USER);
+          // No user is logged in
+          setCurrentUser(null);
         }
         setLoading(false);
       },
@@ -325,7 +333,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     } catch {
       // ignore
     }
-    setCurrentUser(DEFAULT_GUEST_USER);
+    setCurrentUser(null);
   };
 
   return (

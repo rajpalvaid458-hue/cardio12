@@ -1,6 +1,8 @@
 import React from 'react';
 import { WorkoutPlan } from '../types';
 import { useLanguage } from '../context/LanguageContext';
+import { useFitness } from '../context/FitnessContext';
+import { exportWorkoutPlanToPdf } from '../utils/pdfExport';
 import {
   X,
   Calendar,
@@ -13,6 +15,7 @@ import {
   ArrowRight,
   ShieldAlert,
   Zap,
+  FileText,
 } from 'lucide-react';
 
 interface ProgramScheduleModalProps {
@@ -27,6 +30,7 @@ export const ProgramScheduleModal: React.FC<ProgramScheduleModalProps> = ({
   onStartWorkout,
 }) => {
   const { isHindi } = useLanguage();
+  const { userProfile } = useFitness();
 
   if (!plan) return null;
 
@@ -269,14 +273,33 @@ export const ProgramScheduleModal: React.FC<ProgramScheduleModalProps> = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="p-4 sm:p-6 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-3">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs transition"
-          >
-            {isHindi ? 'बंद करें' : 'Close'}
-          </button>
+        <div className="p-4 sm:p-6 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs transition cursor-pointer"
+            >
+              {isHindi ? 'बंद करें' : 'Close'}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                exportWorkoutPlanToPdf(plan, {
+                  athleteName: userProfile?.name || 'PulseFit Athlete',
+                  includeWarmUp: true,
+                  includeRecovery: true,
+                  includeCoachingTips: true,
+                });
+              }}
+              className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 font-bold text-xs transition cursor-pointer shadow-xs"
+              title={isHindi ? 'पूरे शेड्यूल को PDF में एक्सपोर्ट करें' : 'Export complete program roadmap as PDF summary'}
+            >
+              <FileText className="w-4 h-4 text-emerald-600" />
+              <span>{isHindi ? 'PDF एक्सपोर्ट' : 'Export Program PDF'}</span>
+            </button>
+          </div>
 
           <button
             type="button"

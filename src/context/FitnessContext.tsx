@@ -183,52 +183,31 @@ const STORAGE_KEYS = {
   REST_TIMER: 'pulsefit_rest_timer_v1',
 };
 
+const getTodayString = () => new Date().toISOString().split('T')[0];
+
 export const DEFAULT_INITIAL_PROFILES: AthleteProfile[] = [
   {
     id: 'prof_main',
-    name: 'Rajpal Vaid',
+    name: 'Athlete',
     avatarColor: 'emerald',
     gender: 'male',
-    age: 25,
-    heightCm: 178,
-    weightKg: 78,
-    targetWeightKg: 82,
+    age: 24,
+    heightCm: 175,
+    weightKg: 70,
+    targetWeightKg: 75,
     goal: 'muscle_gain',
-    fitnessLevel: 'intermediate',
+    fitnessLevel: 'beginner',
     activityLevel: 'moderately_active',
-    dailyCalorieTarget: 2650,
-    dailyProteinTarget: 165,
-    dailyCarbsTarget: 290,
-    dailyFatsTarget: 70,
+    dailyCalorieTarget: 2200,
+    dailyProteinTarget: 140,
+    dailyCarbsTarget: 250,
+    dailyFatsTarget: 60,
     dailyWaterTargetMl: 3000,
     weightUnit: 'kg',
-    streakDays: 5,
-    lastActiveDate: '2026-03-29',
-    createdAt: 1711700000000,
-    notes: 'Primary Athlete Section',
-  },
-  {
-    id: 'prof_member_2',
-    name: 'Rohit Sharma',
-    avatarColor: 'amber',
-    gender: 'male',
-    age: 26,
-    heightCm: 175,
-    weightKg: 72,
-    targetWeightKg: 70,
-    goal: 'fat_loss',
-    fitnessLevel: 'beginner',
-    activityLevel: 'lightly_active',
-    dailyCalorieTarget: 2100,
-    dailyProteinTarget: 140,
-    dailyCarbsTarget: 220,
-    dailyFatsTarget: 55,
-    dailyWaterTargetMl: 3200,
-    weightUnit: 'kg',
-    streakDays: 2,
-    lastActiveDate: '2026-03-29',
-    createdAt: 1711700000000,
-    notes: 'Member Section 2',
+    streakDays: 0,
+    lastActiveDate: getTodayString(),
+    createdAt: Date.now(),
+    notes: 'Primary Training Section',
   },
 ];
 
@@ -331,8 +310,6 @@ const DEFAULT_WATER_REMINDER: WaterReminderSettings = {
   remindBetweenEnd: '10:00 PM',
 };
 
-const getTodayString = () => new Date().toISOString().split('T')[0];
-
 export const DEFAULT_GOAL_SETTINGS: UserGoalSettings = {
   startingWeightKg: 75.0,
   targetWeightKg: 82.0,
@@ -358,120 +335,38 @@ export const DEFAULT_GOAL_SETTINGS: UserGoalSettings = {
 
 const INITIAL_PROFILE: UserProfile = {
   id: 'prof_main',
-  name: 'Rajpal Vaid',
+  name: 'Athlete',
   avatarColor: 'emerald',
-  age: 25,
+  age: 24,
   gender: 'male',
-  heightCm: 178,
-  weightKg: 78,
-  targetWeightKg: 82,
+  heightCm: 175,
+  weightKg: 70,
+  targetWeightKg: 75,
   goal: 'muscle_gain',
   goals: DEFAULT_GOAL_SETTINGS,
-  fitnessLevel: 'intermediate',
+  fitnessLevel: 'beginner',
   activityLevel: 'moderately_active',
-  dailyCalorieTarget: 2650,
-  dailyProteinTarget: 165,
-  dailyCarbsTarget: 290,
-  dailyFatsTarget: 70,
+  dailyCalorieTarget: 2200,
+  dailyProteinTarget: 140,
+  dailyCarbsTarget: 250,
+  dailyFatsTarget: 60,
   dailyWaterTargetMl: 3000,
   weightUnit: 'kg',
-  streakDays: 5,
+  streakDays: 0,
   lastActiveDate: getTodayString(),
   theme: 'light',
 };
 
 const getInitialDiet = (profile: UserProfile): DailyDietLog => ({
   date: getTodayString(),
-  meals: [
-    {
-      id: 'm-breakfast',
-      mealType: 'breakfast',
-      time: '08:00 AM',
-      items: [
-        POPULAR_FOODS_DATABASE[1], // Eggs
-        POPULAR_FOODS_DATABASE[5], // Oats
-        POPULAR_FOODS_DATABASE[11], // Banana
-      ],
-      totalCalories: 481,
-      totalProtein: 21.9,
-      totalCarbs: 67.7,
-      totalFats: 14.0,
-    },
-    {
-      id: 'm-lunch',
-      mealType: 'lunch',
-      time: '01:00 PM',
-      items: [
-        POPULAR_FOODS_DATABASE[0], // Chicken Breast
-        POPULAR_FOODS_DATABASE[6], // Brown rice
-        POPULAR_FOODS_DATABASE[14], // Broccoli
-      ],
-      totalCalories: 493,
-      totalProtein: 55.2,
-      totalCarbs: 51.0,
-      totalFats: 7.5,
-    },
-    {
-      id: 'm-postworkout',
-      mealType: 'post_workout',
-      time: '06:15 PM',
-      items: [
-        POPULAR_FOODS_DATABASE[4], // Whey Protein
-      ],
-      totalCalories: 120,
-      totalProtein: 25.0,
-      totalCarbs: 2.0,
-      totalFats: 1.0,
-    },
-  ],
-  waterMl: 2250,
+  meals: [],
+  waterMl: 0,
   waterGoalMl: profile.dailyWaterTargetMl || 3000,
-  waterLogs: [
-    {
-      id: 'wlog-init-1',
-      timestamp: Date.now() - 8 * 3600 * 1000,
-      timeString: '07:30 AM',
-      amountMl: 500,
-      containerType: 'bottle',
-      containerLabel: 'Morning Hydration Bottle',
-    },
-    {
-      id: 'wlog-init-2',
-      timestamp: Date.now() - 5.5 * 3600 * 1000,
-      timeString: '10:00 AM',
-      amountMl: 250,
-      containerType: 'glass',
-      containerLabel: 'Standard Glass',
-    },
-    {
-      id: 'wlog-init-3',
-      timestamp: Date.now() - 3.5 * 3600 * 1000,
-      timeString: '12:30 PM',
-      amountMl: 500,
-      containerType: 'shaker',
-      containerLabel: 'Gym Shaker Bottle',
-    },
-    {
-      id: 'wlog-init-4',
-      timestamp: Date.now() - 2 * 3600 * 1000,
-      timeString: '02:45 PM',
-      amountMl: 250,
-      containerType: 'glass',
-      containerLabel: 'Standard Glass',
-    },
-    {
-      id: 'wlog-init-5',
-      timestamp: Date.now() - 0.75 * 3600 * 1000,
-      timeString: '04:15 PM',
-      amountMl: 750,
-      containerType: 'bottle',
-      containerLabel: 'Sports Bottle',
-    },
-  ],
-  calorieGoal: profile.dailyCalorieTarget || 2650,
-  proteinGoalGrams: profile.dailyProteinTarget || 165,
-  carbsGoalGrams: profile.dailyCarbsTarget || 290,
-  fatsGoalGrams: profile.dailyFatsTarget || 70,
+  waterLogs: [],
+  calorieGoal: profile.dailyCalorieTarget || 2200,
+  proteinGoalGrams: profile.dailyProteinTarget || 140,
+  carbsGoalGrams: profile.dailyCarbsTarget || 250,
+  fatsGoalGrams: profile.dailyFatsTarget || 60,
 });
 
 export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -484,7 +379,15 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
       const saved = localStorage.getItem(STORAGE_KEYS.PROFILES_LIST);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // If legacy hardcoded dummy profile names exist, clear and reset
+          const hasLegacy = parsed.some((p) => p.name === 'Rajpal Vaid' || p.name === 'Rohit Sharma');
+          if (hasLegacy) {
+            localStorage.removeItem(STORAGE_KEYS.PROFILES_LIST);
+            return DEFAULT_INITIAL_PROFILES;
+          }
+          return parsed;
+        }
       }
       return DEFAULT_INITIAL_PROFILES;
     } catch {
@@ -508,6 +411,11 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
       const saved = localStorage.getItem(STORAGE_KEYS.PROFILE);
       if (saved) {
         const parsed = JSON.parse(saved);
+        // Clear legacy user name
+        if (parsed?.name === 'Rajpal Vaid') {
+          localStorage.removeItem(STORAGE_KEYS.PROFILE);
+          return INITIAL_PROFILE;
+        }
         return {
           ...INITIAL_PROFILE,
           ...parsed,
@@ -553,192 +461,46 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
   });
 
-  // 4. Workout Logs
+  // 4. Workout Logs - Start completely fresh with no mock history
   const [workoutLogs, setWorkoutLogs] = useState<CompletedWorkoutLog[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.LOGS);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed)) {
+          // Clear legacy mock logs
+          const hasLegacy = parsed.some((l) => l.id === 'log-yesterday' || l.id === 'log-3days');
+          if (hasLegacy) {
+            localStorage.removeItem(STORAGE_KEYS.LOGS);
+            return [];
+          }
+          return parsed;
+        }
       }
-      const now = Date.now();
-      const dayMs = 86400000;
-      return [
-        {
-          id: 'log-yesterday',
-          title: 'Push Power & Hypertrophy',
-          date: new Date(now - dayMs).toISOString(),
-          durationSeconds: 3120,
-          totalVolumeKg: 6540,
-          completedSetsCount: 16,
-          caloriesBurned: 420,
-          rpeAverage: 8.5,
-          exercises: [
-            {
-              name: 'Barbell Flat Bench Press',
-              targetMuscle: 'Chest',
-              completedSets: [
-                { weightKg: 60, reps: 8, isWarmup: true },
-                { weightKg: 80, reps: 6 },
-                { weightKg: 80, reps: 6 },
-                { weightKg: 80, reps: 5 },
-              ],
-            },
-            {
-              name: 'Incline Dumbbell Press',
-              targetMuscle: 'Upper Chest',
-              completedSets: [
-                { weightKg: 28, reps: 10 },
-                { weightKg: 28, reps: 10 },
-                { weightKg: 28, reps: 8 },
-              ],
-            },
-          ],
-        },
-        {
-          id: 'log-3days',
-          title: 'Pull Hypertrophy & V-Taper',
-          date: new Date(now - dayMs * 3).toISOString(),
-          durationSeconds: 2940,
-          totalVolumeKg: 6080,
-          completedSetsCount: 15,
-          caloriesBurned: 390,
-          rpeAverage: 8.0,
-          exercises: [
-            {
-              name: 'Pull-Ups',
-              targetMuscle: 'Lats',
-              completedSets: [{ weightKg: 0, reps: 10 }, { weightKg: 0, reps: 8 }, { weightKg: 0, reps: 8 }],
-            },
-            {
-              name: 'Barbell Bent-Over Row',
-              targetMuscle: 'Mid-Back',
-              completedSets: [{ weightKg: 65, reps: 10 }, { weightKg: 65, reps: 8 }, { weightKg: 65, reps: 8 }],
-            },
-          ],
-        },
-        {
-          id: 'log-6days',
-          title: 'Leg Day & Quad Hypertrophy',
-          date: new Date(now - dayMs * 6).toISOString(),
-          durationSeconds: 3400,
-          totalVolumeKg: 7420,
-          completedSetsCount: 17,
-          caloriesBurned: 480,
-          rpeAverage: 9.0,
-          exercises: [
-            {
-              name: 'Barbell Back Squat',
-              targetMuscle: 'Quads',
-              completedSets: [
-                { weightKg: 70, reps: 8, isWarmup: true },
-                { weightKg: 100, reps: 8 },
-                { weightKg: 105, reps: 6 },
-                { weightKg: 105, reps: 6 },
-              ],
-            },
-            {
-              name: 'Romanian Deadlift',
-              targetMuscle: 'Hamstrings',
-              completedSets: [
-                { weightKg: 80, reps: 10 },
-                { weightKg: 85, reps: 8 },
-                { weightKg: 85, reps: 8 },
-              ],
-            },
-          ],
-        },
-        {
-          id: 'log-9days',
-          title: 'Upper Body Strength Overload',
-          date: new Date(now - dayMs * 9).toISOString(),
-          durationSeconds: 3000,
-          totalVolumeKg: 6180,
-          completedSetsCount: 15,
-          caloriesBurned: 405,
-          rpeAverage: 8.5,
-          exercises: [
-            {
-              name: 'Overhead Press',
-              targetMuscle: 'Shoulders',
-              completedSets: [
-                { weightKg: 45, reps: 8 },
-                { weightKg: 50, reps: 6 },
-                { weightKg: 50, reps: 6 },
-              ],
-            },
-            {
-              name: 'Close-Grip Bench Press',
-              targetMuscle: 'Triceps',
-              completedSets: [
-                { weightKg: 60, reps: 10 },
-                { weightKg: 65, reps: 8 },
-                { weightKg: 65, reps: 8 },
-              ],
-            },
-          ],
-        },
-        {
-          id: 'log-12days',
-          title: 'Lower Body & Posterior Chain',
-          date: new Date(now - dayMs * 12).toISOString(),
-          durationSeconds: 3180,
-          totalVolumeKg: 6900,
-          completedSetsCount: 16,
-          caloriesBurned: 460,
-          rpeAverage: 8.5,
-          exercises: [
-            {
-              name: 'Conventional Deadlift',
-              targetMuscle: 'Lower Back & Glutes',
-              completedSets: [
-                { weightKg: 100, reps: 6 },
-                { weightKg: 120, reps: 5 },
-                { weightKg: 120, reps: 5 },
-              ],
-            },
-          ],
-        },
-        {
-          id: 'log-16days',
-          title: 'Push Hypertrophy Baseline',
-          date: new Date(now - dayMs * 16).toISOString(),
-          durationSeconds: 2880,
-          totalVolumeKg: 5420,
-          completedSetsCount: 14,
-          caloriesBurned: 370,
-          rpeAverage: 7.5,
-          exercises: [
-            {
-              name: 'Barbell Flat Bench Press',
-              targetMuscle: 'Chest',
-              completedSets: [
-                { weightKg: 70, reps: 8 },
-                { weightKg: 72.5, reps: 6 },
-                { weightKg: 72.5, reps: 6 },
-              ],
-            },
-          ],
-        },
-      ];
+      return [];
     } catch {
       return [];
     }
   });
 
-  // 5. Daily Diet
+  // 5. Daily Diet - Start completely fresh with 0 kcal and 0 ml water for today
   const [dailyDiet, setDailyDiet] = useState<DailyDietLog>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.DIET);
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed.date === getTodayString()) {
+          const hasLegacyMeals = parsed.meals?.some((m: any) => m.id === 'm-breakfast' && m.totalCalories === 481);
+          if (hasLegacyMeals) {
+            localStorage.removeItem(STORAGE_KEYS.DIET);
+            return getInitialDiet(INITIAL_PROFILE);
+          }
           return parsed;
         }
       }
-      return getInitialDiet(userProfile);
+      return getInitialDiet(INITIAL_PROFILE);
     } catch {
-      return getInitialDiet(userProfile);
+      return getInitialDiet(INITIAL_PROFILE);
     }
   });
 
@@ -1085,6 +847,64 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.ACTIVE_DIET_PLAN, JSON.stringify(activeDietPlan));
   }, [activeDietPlan]);
+
+  // Load or initialize user profile when authentication state changes
+  useEffect(() => {
+    if (!currentUser) {
+      return;
+    }
+
+    const loadUserData = async () => {
+      // 1. Try local cache for this specific user
+      const userKey = `pulsefit_u_${currentUser.uid}_profile`;
+      const cached = localStorage.getItem(userKey);
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          setUserProfileState(parsed);
+          setProfiles((prev) =>
+            prev.map((p) => (p.id === 'prof_main' ? { ...p, name: parsed.name || p.name } : p))
+          );
+          return;
+        } catch {
+          // ignore
+        }
+      }
+
+      // 2. If Firebase user, try Firestore
+      if (!(currentUser as any).isLocal && auth.currentUser) {
+        try {
+          const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+          if (userDoc.exists()) {
+            const data = userDoc.data();
+            if (data.userProfile) setUserProfileState(data.userProfile);
+            if (data.plans) setPlans(data.plans);
+            if (data.workoutLogs) setWorkoutLogs(data.workoutLogs);
+            if (data.dailyDiet) setDailyDiet(data.dailyDiet);
+            if (data.routineItems) setRoutineItems(data.routineItems);
+            if (data.habits) setHabits(data.habits);
+            if (data.supplements) setSupplements(data.supplements);
+            return;
+          }
+        } catch (err) {
+          console.warn('Could not fetch cloud data:', err);
+        }
+      }
+
+      // 3. New user without existing cloud/local data:
+      // Set their profile name from their account and start fresh
+      const displayName = currentUser.displayName || (currentUser.email ? currentUser.email.split('@')[0] : 'Athlete');
+      setUserProfileState((prev) => ({
+        ...prev,
+        name: displayName,
+      }));
+      setProfiles((prev) =>
+        prev.map((p) => (p.id === 'prof_main' ? { ...p, name: displayName } : p))
+      );
+    };
+
+    loadUserData();
+  }, [currentUser?.uid]);
 
   // Persist Rest Timer across reloads & offline drops
   useEffect(() => {
@@ -2310,6 +2130,8 @@ export const FitnessProvider: React.FC<{ children: ReactNode }> = ({ children })
 
   const resetAllData = useCallback(() => {
     localStorage.clear();
+    setProfiles(DEFAULT_INITIAL_PROFILES);
+    setActiveProfileId('prof_main');
     setPlans(PRESET_WORKOUT_PLANS);
     setWorkoutLogs([]);
     setDailyDiet(getInitialDiet(INITIAL_PROFILE));

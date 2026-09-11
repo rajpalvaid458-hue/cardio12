@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useFitness } from '../context/FitnessContext';
 import { useLanguage } from '../context/LanguageContext';
-import { Exercise, WorkoutIntensity } from '../types';
+import { Exercise, WorkoutIntensity, WorkoutPlan, SetType } from '../types';
+import { exportWorkoutPlanToPdf } from '../utils/pdfExport';
 import { ActiveWorkoutWarmUp } from './ActiveWorkoutWarmUp';
+import { PlateCalculatorModal } from './PlateCalculatorModal';
 import {
   Play,
   Pause,
@@ -17,6 +19,10 @@ import {
   ChevronUp,
   Info,
   Activity,
+  FileText,
+  Calculator,
+  Flame,
+  Zap,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -45,13 +51,58 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
     cancelActiveWorkout,
     startRestTimer,
     userProfile,
+    workoutLogs,
+    restTimer,
+    adjustRestTimer,
+    stopRestTimer,
   } = useFitness();
   const { t, isHindi } = useLanguage();
 
   const [expandedExerciseIndex, setExpandedExerciseIndex] = useState<number | null>(null);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [plateCalcTarget, setPlateCalcTarget] = useState<{ exIndex: number; setIndex: number; initialWeight: number } | null>(null);
 
   if (!isOpen || !activeWorkout) return null;
+
+  // Retrieve previous session performance benchmark for progressive overload (Hevy benchmark)
+  const getPreviousPerformance = (exerciseName: string, setIndex: number) => {
+    const normName = exerciseName.toLowerCase().trim();
+    for (const log of workoutLogs) {
+      const matchedEx = log.exercises?.find((e) => e.name.toLowerCase().trim() === normName);
+      if (matchedEx && matchedEx.completedSets && matchedEx.completedSets[setIndex]) {
+        const prevSet = matchedEx.completedSets[setIndex];
+        return `${prevSet.weightKg}${userProfile.weightUnit} × ${prevSet.reps}`;
+      }
+    }
+    return null;
+  };
+
+  // Cycle set type: Normal -> Warmup (W) -> Drop Set (D) -> Failure (F)
+  const cycleSetType = (exIndex: number, setIndex: number) => {
+    updateActiveWorkout((prev) => {
+      if (!prev) return null;
+      const updatedExercises = [...prev.exercises];
+      const targetEx = { ...updatedExercises[exIndex] };
+      const targetSets = [...targetEx.sets];
+      const currentSet = targetSets[setIndex];
+
+      const currentType: SetType = currentSet.setType || (currentSet.isWarmup ? 'warmup' : 'normal');
+      let nextType: SetType = 'normal';
+      if (currentType === 'normal') nextType = 'warmup';
+      else if (currentType === 'warmup') nextType = 'dropset';
+      else if (currentType === 'dropset') nextType = 'failure';
+      else nextType = 'normal';
+
+      targetSets[setIndex] = {
+        ...currentSet,
+        setType: nextType,
+        isWarmup: nextType === 'warmup',
+      };
+      targetEx.sets = targetSets;
+      updatedExercises[exIndex] = targetEx;
+      return { ...prev, exercises: updatedExercises };
+    });
+  };
 
   const formatElapsed = (sec: number) => {
     const hours = Math.floor(sec / 3600);
@@ -124,6 +175,27 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
 
           {/* Right Action buttons */}
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                const planFromSession: WorkoutPlan = {
+                  id: activeWorkout.planId || activeWorkout.id,
+                  title: activeWorkout.title,
+                  splitType: 'Active Routine',
+                  durationMinutes: Math.max(15, Math.round(activeWorkout.elapsedSeconds / 60)),
+                  description: activeWorkout.notes || 'Current training protocol and exercises.',
+                  exercises: activeWorkout.exercises,
+                  tags: ['Live Workout'],
+                };
+                exportWorkoutPlanToPdf(planFromSession, {
+                  athleteName: userProfile?.name || 'PulseFit Athlete',
+                  notes: activeWorkout.notes,
+                });
+              }}
+              className="p-2 rounded-xl bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-600 transition-colors border border-slate-200"
+              title={isHindi ? 'वर्तमान वर्कआउट को PDF में एक्सपोर्ट करें' : 'Export current workout plan as formatted PDF'}
+            >
+              <FileText className="w-4 h-4" />
+            </button>
             <button
               onClick={handleFinish}
               className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-sm transition-all hover:scale-102"
@@ -271,113 +343,188 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
                   </div>
                 )}
 
-                {/* Sets Table */}
+                  {/* Sets Table */}
                 <div className="p-3 sm:p-4 overflow-x-auto">
                   <table className="w-full text-left text-xs">
                     <thead>
                       <tr className="text-slate-500 border-b border-slate-200 pb-2">
-                        <th className="pb-2 font-semibold w-12 text-center">{isHindi ? 'सेट' : 'SET'}</th>
-                        <th className="pb-2 font-semibold w-24">{userProfile.weightUnit.toUpperCase()}</th>
-                        <th className="pb-2 font-semibold w-24">{isHindi ? 'रेप्स' : 'REPS'}</th>
+                        <th className="pb-2 font-semibold w-14 text-center">
+                          <span title="Click number to cycle set type: Normal, Warmup (W), Dropset (D), Failure (F)">
+                            {isHindi ? 'टाइप' : 'TYPE'}
+                          </span>
+                        </th>
+                        <th className="pb-2 font-semibold min-w-[120px]">
+                          <div className="flex items-center gap-1">
+                            <span>{userProfile.weightUnit.toUpperCase()}</span>
+                            <span className="text-[10px] text-emerald-600 font-normal">
+                              ({isHindi ? 'प्लेट्स' : 'Plates'})
+                            </span>
+                          </div>
+                        </th>
+                        <th className="pb-2 font-semibold min-w-[100px]">{isHindi ? 'रेप्स' : 'REPS'}</th>
                         <th className="pb-2 font-semibold text-center w-16">{isHindi ? 'पूर्ण' : 'DONE'}</th>
                         <th className="pb-2 font-semibold w-8"></th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                      {exercise.sets.map((set, setIndex) => (
-                        <tr
-                          key={set.id || setIndex}
-                          className={`transition-colors ${set.completed ? 'bg-emerald-50/50' : 'hover:bg-slate-50'}`}
-                        >
-                          {/* Set Number */}
-                          <td className="py-2.5 text-center font-mono font-bold">
-                            <span
-                              className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-[11px] ${
-                                set.completed
-                                  ? 'bg-emerald-600 text-white font-extrabold'
-                                  : 'bg-slate-100 text-slate-700'
-                              }`}
-                            >
-                              {set.setNumber}
-                            </span>
-                          </td>
+                      {exercise.sets.map((set, setIndex) => {
+                        const prevPerf = getPreviousPerformance(exercise.name, setIndex);
+                        const setType: SetType = set.setType || (set.isWarmup ? 'warmup' : 'normal');
 
-                          {/* Weight input */}
-                          <td className="py-2.5 pr-2">
-                            <div className="relative flex items-center">
-                              <input
-                                type="number"
-                                min="0"
-                                step="2.5"
-                                value={set.weightKg === 0 ? '' : set.weightKg}
-                                placeholder="0"
-                                onChange={(e) =>
-                                  updateSetValues(
-                                    exIndex,
-                                    setIndex,
-                                    'weightKg',
-                                    parseFloat(e.target.value) || 0
-                                  )
-                                }
-                                className={`w-20 bg-white border rounded-xl px-2.5 py-1.5 text-center font-mono font-bold text-sm text-slate-900 focus:outline-none transition-colors ${
-                                  set.completed ? 'border-emerald-300 bg-emerald-50/40' : 'border-slate-300 focus:border-emerald-600'
-                                }`}
-                              />
-                            </div>
-                          </td>
-
-                          {/* Reps input */}
-                          <td className="py-2.5 pr-2">
-                            <div className="relative flex items-center">
-                              <input
-                                type="number"
-                                min="0"
-                                step="1"
-                                value={set.reps === 0 ? '' : set.reps}
-                                placeholder="0"
-                                onChange={(e) =>
-                                  updateSetValues(
-                                    exIndex,
-                                    setIndex,
-                                    'reps',
-                                    parseInt(e.target.value, 10) || 0
-                                  )
-                                }
-                                className={`w-20 bg-white border rounded-xl px-2.5 py-1.5 text-center font-mono font-bold text-sm text-slate-900 focus:outline-none transition-colors ${
-                                  set.completed ? 'border-emerald-300 bg-emerald-50/40' : 'border-slate-300 focus:border-emerald-600'
-                                }`}
-                              />
-                            </div>
-                          </td>
-
-                          {/* Completed Checkbox */}
-                          <td className="py-2.5 text-center">
-                            <button
-                              onClick={() => toggleSetCompleted(exIndex, setIndex)}
-                              className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${
-                                set.completed
-                                  ? 'bg-emerald-600 text-white shadow-xs scale-105'
-                                  : 'bg-slate-100 hover:bg-slate-200 text-slate-400 border border-slate-200'
-                              }`}
-                            >
-                              <Check className={`w-4 h-4 ${set.completed ? 'stroke-[3]' : ''}`} />
-                            </button>
-                          </td>
-
-                          {/* Delete set */}
-                          <td className="py-2.5 text-right">
-                            {exercise.sets.length > 1 && (
+                        return (
+                          <tr
+                            key={set.id || setIndex}
+                            className={`transition-colors ${set.completed ? 'bg-emerald-50/50' : 'hover:bg-slate-50'}`}
+                          >
+                            {/* Set Type & Number Selector (Hevy Gold Standard) */}
+                            <td className="py-2.5 text-center font-mono font-bold">
                               <button
-                                onClick={() => removeSetFromExercise(exIndex, setIndex)}
-                                className="p-1 rounded-lg text-slate-400 hover:text-red-500 transition-colors"
-                                title="Remove set"
+                                type="button"
+                                onClick={() => cycleSetType(exIndex, setIndex)}
+                                className={`inline-flex items-center justify-center w-7 h-7 rounded-xl text-[11px] font-black transition-all cursor-pointer shadow-2xs ${
+                                  setType === 'warmup'
+                                    ? 'bg-amber-500 text-slate-950 ring-2 ring-amber-400'
+                                    : setType === 'dropset'
+                                    ? 'bg-purple-600 text-white ring-2 ring-purple-400'
+                                    : setType === 'failure'
+                                    ? 'bg-rose-600 text-white ring-2 ring-rose-400'
+                                    : set.completed
+                                    ? 'bg-emerald-600 text-white'
+                                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                                }`}
+                                title={
+                                  setType === 'warmup'
+                                    ? 'Warm-up Set (W) - Click to change'
+                                    : setType === 'dropset'
+                                    ? 'Drop Set (D) - Click to change'
+                                    : setType === 'failure'
+                                    ? 'Failure Set (F) - Click to change'
+                                    : `Normal Set ${set.setNumber} - Click to change type`
+                                }
                               >
-                                <Trash2 className="w-3.5 h-3.5" />
+                                {setType === 'warmup' ? 'W' : setType === 'dropset' ? 'D' : setType === 'failure' ? 'F' : set.setNumber}
                               </button>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
+                            </td>
+
+                            {/* Weight input + Plate Calculator Button + Previous record */}
+                            <td className="py-2.5 pr-2">
+                              <div className="space-y-0.5">
+                                <div className="relative flex items-center gap-1.5">
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    step="2.5"
+                                    value={set.weightKg === 0 ? '' : set.weightKg}
+                                    placeholder="0"
+                                    onChange={(e) =>
+                                      updateSetValues(
+                                        exIndex,
+                                        setIndex,
+                                        'weightKg',
+                                        parseFloat(e.target.value) || 0
+                                      )
+                                    }
+                                    className={`w-20 bg-white border rounded-xl px-2.5 py-1.5 text-center font-mono font-bold text-sm text-slate-900 focus:outline-hidden transition-colors ${
+                                      set.completed ? 'border-emerald-300 bg-emerald-50/40' : 'border-slate-300 focus:border-emerald-600'
+                                    }`}
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setPlateCalcTarget({
+                                        exIndex,
+                                        setIndex,
+                                        initialWeight: set.weightKg || 60,
+                                      })
+                                    }
+                                    className="p-1.5 rounded-lg bg-slate-100 hover:bg-emerald-100 text-slate-600 hover:text-emerald-700 border border-slate-200 hover:border-emerald-300 transition-colors cursor-pointer"
+                                    title={isHindi ? 'बार्बेल प्लेट कैलकुलेटर खोलें' : 'Open Barbell Plate Calculator for this set'}
+                                  >
+                                    <Calculator className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                                {prevPerf && (
+                                  <div className="text-[10px] text-slate-400 font-mono tracking-tight pl-0.5">
+                                    {isHindi ? 'पिछला' : 'Prev'}: {prevPerf}
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+
+                            {/* Reps input + RPE Selector */}
+                            <td className="py-2.5 pr-2">
+                              <div className="space-y-0.5">
+                                <div className="relative flex items-center gap-1.5">
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    step="1"
+                                    value={set.reps === 0 ? '' : set.reps}
+                                    placeholder="0"
+                                    onChange={(e) =>
+                                      updateSetValues(
+                                        exIndex,
+                                        setIndex,
+                                        'reps',
+                                        parseInt(e.target.value, 10) || 0
+                                      )
+                                    }
+                                    className={`w-18 bg-white border rounded-xl px-2.5 py-1.5 text-center font-mono font-bold text-sm text-slate-900 focus:outline-hidden transition-colors ${
+                                      set.completed ? 'border-emerald-300 bg-emerald-50/40' : 'border-slate-300 focus:border-emerald-600'
+                                    }`}
+                                  />
+                                </div>
+                                {/* RPE indicator */}
+                                <div className="flex items-center gap-1 text-[10px] text-slate-400 font-mono">
+                                  <span>RPE:</span>
+                                  <select
+                                    value={set.rpe || 8}
+                                    onChange={(e) =>
+                                      updateSetValues(exIndex, setIndex, 'rpe', parseFloat(e.target.value))
+                                    }
+                                    className="bg-transparent border-0 text-slate-600 font-bold p-0 cursor-pointer focus:ring-0"
+                                  >
+                                    {[6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10].map((r) => (
+                                      <option key={r} value={r}>
+                                        {r}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+                              </div>
+                            </td>
+
+                            {/* Completed Checkbox */}
+                            <td className="py-2.5 text-center">
+                              <button
+                                type="button"
+                                onClick={() => toggleSetCompleted(exIndex, setIndex)}
+                                className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all cursor-pointer ${
+                                  set.completed
+                                    ? 'bg-emerald-600 text-white shadow-xs scale-105'
+                                    : 'bg-slate-100 hover:bg-slate-200 text-slate-400 border border-slate-200'
+                                }`}
+                              >
+                                <Check className={`w-4 h-4 ${set.completed ? 'stroke-[3]' : ''}`} />
+                              </button>
+                            </td>
+
+                            {/* Delete set */}
+                            <td className="py-2.5 text-right">
+                              {exercise.sets.length > 1 && (
+                                <button
+                                  type="button"
+                                  onClick={() => removeSetFromExercise(exIndex, setIndex)}
+                                  className="p-1 rounded-lg text-slate-400 hover:text-red-500 transition-colors cursor-pointer"
+                                  title="Remove set"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
 
@@ -467,6 +614,65 @@ export const ActiveWorkoutModal: React.FC<ActiveWorkoutModalProps> = ({
           </div>
         )}
       </AnimatePresence>
+
+      {/* Floating In-Session Rest Timer Bar (Nike / Strong Benchmark) */}
+      {restTimer && restTimer.active && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[94%] max-w-md bg-slate-950/95 text-white border border-emerald-500/40 backdrop-blur-md rounded-2xl p-3 shadow-2xl flex items-center justify-between gap-3 animate-in slide-in-from-bottom duration-300">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-mono font-black text-sm shrink-0">
+              {restTimer.remainingSeconds}s
+            </div>
+            <div className="min-w-0">
+              <div className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">
+                {isHindi ? 'विश्राम ब्रेक' : 'Active Rest Period'}
+              </div>
+              <div className="text-xs font-bold text-slate-100 truncate">
+                {restTimer.exerciseName || (isHindi ? 'अगला सेट' : 'Next Set')}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              type="button"
+              onClick={() => adjustRestTimer(-15)}
+              className="px-2 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white font-mono text-xs font-bold transition-colors cursor-pointer"
+              title="-15s"
+            >
+              -15s
+            </button>
+            <button
+              type="button"
+              onClick={() => adjustRestTimer(30)}
+              className="px-2 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-mono text-xs font-bold transition-colors cursor-pointer"
+              title="+30s"
+            >
+              +30s
+            </button>
+            <button
+              type="button"
+              onClick={stopRestTimer}
+              className="px-2.5 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 text-xs font-bold transition-colors cursor-pointer"
+              title={isHindi ? 'छोड़ें' : 'Skip'}
+            >
+              {isHindi ? 'छोड़ें' : 'Skip'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Barbell Plate Calculator Modal */}
+      {plateCalcTarget && (
+        <PlateCalculatorModal
+          isOpen={true}
+          onClose={() => setPlateCalcTarget(null)}
+          initialWeight={plateCalcTarget.initialWeight}
+          onApplyWeight={(calculatedWeight) => {
+            updateSetValues(plateCalcTarget.exIndex, plateCalcTarget.setIndex, 'weightKg', calculatedWeight);
+            setPlateCalcTarget(null);
+          }}
+        />
+      )}
     </div>
   );
 };

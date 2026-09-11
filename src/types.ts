@@ -77,6 +77,8 @@ export interface Exercise {
   imageUrl?: string;
 }
 
+export type SetType = 'normal' | 'warmup' | 'dropset' | 'failure';
+
 export interface WorkoutSet {
   id: string;
   setNumber: number;
@@ -84,6 +86,9 @@ export interface WorkoutSet {
   reps: number;
   completed: boolean;
   rpe?: number; // Rate of Perceived Exertion (1-10)
+  setType?: SetType;
+  previousRecord?: string; // e.g. "80kg x 8"
+  isPersonalRecord?: boolean;
   restSecondsAfter?: number;
   isWarmup?: boolean;
 }
